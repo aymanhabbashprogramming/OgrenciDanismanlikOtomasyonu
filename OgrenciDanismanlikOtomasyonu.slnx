@@ -1,0 +1,6 @@
+<Solution>
+  <Project Path="BusinessLogicLayer/BusinessLogicLayer.csproj" Id="dae64ff5-dec2-4b8b-9e39-db85e6788b3f" />
+  <Project Path="DataAccessLayer/DataAccessLayer.csproj" Id="b6acd09a-1a93-45e9-9d5b-d0894f0624d5" />
+  <Project Path="EntityLayer/EntityLayer.csproj" Id="0e2aeae1-ed51-4779-9571-5d2ed67d8b1a" />
+  <Project Path="OgrenciDanismanlikOtomasyonu/OgrenciDanismanlikOtomasyonu.csproj" />
+</Solution>
