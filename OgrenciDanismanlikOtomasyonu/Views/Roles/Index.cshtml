@@ -1,0 +1,32 @@
+@model List<EntityLayer.clsRole>
+
+@{
+    ViewData["Title"] = "Roller";
+}
+
+<h2 class="mb-4">Roller</h2>
+
+@if (Model.Count == 0)
+{
+    <div class="alert alert-info">Kayıtlı rol bulunamadı.</div>
+}
+else
+{
+    <table class="table table-bordered table-hover table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Rol No</th>
+                <th>Rol Adı</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var role in Model)
+            {
+                <tr>
+                    <td>@role.RoleId</td>
+                    <td>@role.RoleName</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
