@@ -2,7 +2,28 @@
     ViewData["Title"] = "Bölüm Başkanlığı Paneli";
 }
 
-<div class="text-center py-5">
+<div class="text-center py-4">
     <h2>Hoş geldiniz, @User.Identity?.Name!</h2>
-    <p class="text-muted">Bölüm başkanlığı paneline hoş geldiniz.</p>
+    <p class="text-muted mb-4">Bölüm başkanlığı paneline hoş geldiniz.</p>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-6">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body d-flex flex-column align-items-center justify-content-center py-4">
+                <h5 class="card-title">Fakülteler</h5>
+                <p class="text-muted small text-center">Fakülte kayıtlarını görüntüleyin ve yönetin.</p>
+                <a asp-controller="Faculties" asp-action="Index" class="btn btn-primary mt-2">Fakülteleri Görüntüle</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body d-flex flex-column align-items-center justify-content-center py-4">
+                <h5 class="card-title">Bölümler</h5>
+                <p class="text-muted small text-center">Bölüm kayıtlarını görüntüleyin ve yönetin.</p>
+                <a asp-controller="Departments" asp-action="Index" class="btn btn-primary mt-2">Bölümleri Görüntüle</a>
+            </div>
+        </div>
+    </div>
 </div>

@@ -19,15 +19,28 @@
                         aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-end">
-                    @if (User.Identity?.IsAuthenticated == true)
-                    {
-                        <span class="navbar-text me-3">@User.Identity.Name</span>
-                        <form method="post" asp-controller="Account" asp-action="Logout" class="d-inline">
-                            @Html.AntiForgeryToken()
-                            <button type="submit" class="btn btn-sm btn-outline-light">Çıkış</button>
-                        </form>
-                    }
+                <div class="navbar-collapse collapse">
+                    <ul class="navbar-nav me-auto">
+                        @if (User.IsInRole("DepartmentManager"))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Faculties" asp-action="Index">Fakülteler</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Departments" asp-action="Index">Bölümler</a>
+                            </li>
+                        }
+                    </ul>
+                    <div class="d-flex align-items-center">
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <span class="navbar-text me-3">@User.Identity.Name</span>
+                            <form method="post" asp-controller="Account" asp-action="Logout" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-sm btn-outline-light">Çıkış</button>
+                            </form>
+                        }
+                    </div>
                 </div>
             </div>
         </nav>

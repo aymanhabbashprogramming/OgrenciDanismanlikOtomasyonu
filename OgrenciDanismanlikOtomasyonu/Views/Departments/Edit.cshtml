@@ -1,0 +1,57 @@
+@model BusinessLogicLayer.clsDepartmentBusiness
+@{
+    bool isNew = Model.DepartmentId == -1;
+    ViewData["Title"] = isNew ? "Yeni Bölüm" : "Bölüm Düzenle";
+    var faculties = ViewBag.Faculties as List<EntityLayer.clsFaculty> ?? new List<EntityLayer.clsFaculty>();
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<div class="row mt-3">
+    <div class="col-md-6">
+        @if (!ViewData.ModelState.IsValid)
+        {
+            <div class="alert alert-danger">
+                @foreach (var val in ViewData.ModelState.Values)
+                {
+                    @foreach (var err in val.Errors)
+                    {
+                        <div>@err.ErrorMessage</div>
+                    }
+                }
+            </div>
+        }
+
+        <form method="post" asp-action="Edit">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="departmentId" value="@Model.DepartmentId" />
+
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Bölüm Adı</label>
+                <input type="text" name="departmentName" value="@Model.DepartmentName"
+                       class="form-control" maxlength="200" required />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label fw-semibold">Fakülte</label>
+                <select name="facultyId" class="form-select" required>
+                    <option value="0">-- Fakülte Seçiniz --</option>
+                    @foreach (var f in faculties)
+                    {
+                        if (f.FacultyId == Model.FacultyId)
+                        {
+                            <option value="@f.FacultyId" selected>@f.FacultyName</option>
+                        }
+                        else
+                        {
+                            <option value="@f.FacultyId">@f.FacultyName</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary me-2">Kaydet</button>
+            <a asp-action="Index" class="btn btn-secondary">İptal</a>
+        </form>
+    </div>
+</div>
