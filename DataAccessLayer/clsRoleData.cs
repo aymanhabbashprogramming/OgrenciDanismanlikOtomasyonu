@@ -5,35 +5,61 @@ namespace DataAccessLayer
 {
     public static class clsRoleData
     {
+        public static clsRole? GetRoleInfoByID(int roleId)
+        {
+            try
+            {
+                using SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+                using SqlCommand command = new SqlCommand("SELECT RoleId, RoleName FROM Roles WHERE RoleId = @RoleId", connection);
+                command.Parameters.AddWithValue("@RoleId", roleId);
+                connection.Open();
+                using SqlDataReader reader = command.ExecuteReader();
+                if (reader.Read())
+                {
+                    return new clsRole
+                    {
+                        RoleId = (int)reader["RoleId"],
+                        RoleName = (string)reader["RoleName"]
+                    };
+                }
+                return null;
+            }
+            catch { return null; }
+        }
+
         public static List<clsRole> GetAllRoles()
         {
             List<clsRole> roles = new List<clsRole>();
-
-            string query = "SELECT RoleId, RoleName FROM Roles ORDER BY RoleId";
-
-            using (SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString))
-            using (SqlCommand command = new SqlCommand(query, connection))
+            try
             {
+                using SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+                using SqlCommand command = new SqlCommand("SELECT RoleId, RoleName FROM Roles ORDER BY RoleId", connection);
                 connection.Open();
-
-                using (SqlDataReader reader = command.ExecuteReader())
+                using SqlDataReader reader = command.ExecuteReader();
+                while (reader.Read())
                 {
-                    while (reader.Read())
+                    roles.Add(new clsRole
                     {
-                        clsRole role = new clsRole
-                        {
-                            RoleId = (int)reader["RoleId"],
-                            RoleName = (string)reader["RoleName"]
-                        };
-
-                        roles.Add(role);
-                    }
+                        RoleId = (int)reader["RoleId"],
+                        RoleName = (string)reader["RoleName"]
+                    });
                 }
             }
-
+            catch { }
             return roles;
         }
 
-
+        public static bool IsRoleExist(int roleId)
+        {
+            try
+            {
+                using SqlConnection connection = new SqlConnection(clsDataAccessSettings.ConnectionString);
+                using SqlCommand command = new SqlCommand("SELECT COUNT(*) FROM Roles WHERE RoleId = @RoleId", connection);
+                command.Parameters.AddWithValue("@RoleId", roleId);
+                connection.Open();
+                return (int)command.ExecuteScalar() > 0;
+            }
+            catch { return false; }
+        }
     }
 }

@@ -3,11 +3,22 @@ using EntityLayer;
 
 namespace BusinessLogicLayer
 {
-    public static class clsRoleBusiness
+    public class clsRoleBusiness : clsRole
     {
-        public static List<clsRole> GetAllRoles()
+        private clsRoleBusiness(clsRole role)
         {
-            return clsRoleData.GetAllRoles();
+            RoleId = role.RoleId;
+            RoleName = role.RoleName;
         }
+
+        public static clsRoleBusiness? Find(int roleId)
+        {
+            clsRole? role = clsRoleData.GetRoleInfoByID(roleId);
+            return role is null ? null : new clsRoleBusiness(role);
+        }
+
+        public static List<clsRole> GetAllRoles() => clsRoleData.GetAllRoles();
+
+        public static bool IsRoleExist(int roleId) => clsRoleData.IsRoleExist(roleId);
     }
 }
