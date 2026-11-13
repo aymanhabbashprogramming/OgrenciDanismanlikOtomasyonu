@@ -1,0 +1,132 @@
+@model List<EntityLayer.clsStudentInfo>
+@{
+    ViewData["Title"] = "Öğrenciler";
+}
+
+@await Html.PartialAsync("_PageHeader", new ViewDataDictionary(ViewData) {
+    ["PHTitle"]      = "Öğrenciler",
+    ["PHSubtitle"]   = "Bölüme kayıtlı öğrenci listesi",
+    ["PHActionText"] = "Yeni Öğrenci",
+    ["PHActionLink"] = Url.Action("Edit", "Students")
+})
+
+@if (TempData["Success"] is string successMsg)
+{
+    <div class="alert alert-success d-flex align-items-center gap-2 mb-3">
+        <i class="bi bi-check-circle-fill flex-shrink-0"></i>
+        <span>@successMsg</span>
+    </div>
+}
+@if (TempData["Error"] is string errorMsg)
+{
+    <div class="alert alert-danger d-flex align-items-center gap-2 mb-3">
+        <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+        <span>@errorMsg</span>
+    </div>
+}
+
+<div class="mb-3" style="max-width:420px">
+    <input type="text" id="searchBox" class="form-control"
+           placeholder="Ad, soyad veya öğrenci nosu ile ara…" autocomplete="off" />
+</div>
+
+@if (!Model.Any())
+{
+    @await Html.PartialAsync("_EmptyState", new ViewDataDictionary(ViewData) {
+        ["ESIcon"]       = "bi-mortarboard",
+        ["ESMessage"]    = "Kayıtlı öğrenci bulunamadı.",
+        ["ESActionText"] = "Öğrenci Ekle",
+        ["ESActionLink"] = Url.Action("Edit", "Students")
+    })
+}
+else
+{
+    <div class="card-table">
+        <table class="table data-table mb-0" id="studentsTable">
+            <thead>
+                <tr>
+                    <th>Öğrenci No</th>
+                    <th>Ad Soyad</th>
+                    <th>Bölüm</th>
+                    <th>Danışman</th>
+                    <th>Kullanıcı Adı</th>
+                    <th>Durum</th>
+                    <th style="width:160px">İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="text-id">@item.StudentNumber</td>
+                        <td>@item.FullName</td>
+                        <td>@item.DepartmentName</td>
+                        <td>@(item.AdvisorFullName ?? "-")</td>
+                        <td>@item.Username</td>
+                        <td>
+                            @if (item.IsActive)
+                            {
+                                <span class="status-accepted">Aktif</span>
+                            }
+                            else
+                            {
+                                <span class="status-sent">Pasif</span>
+                            }
+                        </td>
+                        <td>
+                            <div class="d-flex gap-1 align-items-center">
+                                <a asp-action="Edit" asp-route-id="@item.StudentId"
+                                   class="btn-icon btn-icon-primary"
+                                   data-bs-toggle="tooltip" title="Düzenle">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a asp-action="ChangeAdvisor" asp-route-id="@item.StudentId"
+                                   class="btn-icon btn-icon-primary"
+                                   data-bs-toggle="tooltip" title="Danışman Ata / Değiştir">
+                                    <i class="bi bi-person-badge"></i>
+                                </a>
+                                <a asp-action="ResetPassword" asp-route-id="@item.StudentId"
+                                   class="btn-icon btn-icon-primary"
+                                   data-bs-toggle="tooltip" title="Şifre Sıfırla">
+                                    <i class="bi bi-key"></i>
+                                </a>
+                                <form method="post" asp-action="ToggleActive" class="d-inline">
+                                    <input type="hidden" name="id" value="@item.StudentId" />
+                                    @if (item.IsActive)
+                                    {
+                                        <button type="submit" class="btn-icon btn-icon-warning"
+                                                data-bs-toggle="tooltip" title="Devre Dışı Bırak">
+                                            <i class="bi bi-pause-circle"></i>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button type="submit" class="btn-icon btn-icon-success"
+                                                data-bs-toggle="tooltip" title="Aktif Et">
+                                            <i class="bi bi-play-circle"></i>
+                                        </button>
+                                    }
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@section Scripts {
+<script>
+    (function () {
+        var box = document.getElementById('searchBox');
+        if (!box) return;
+        box.addEventListener('input', function () {
+            var q = this.value.toLowerCase();
+            document.querySelectorAll('#studentsTable tbody tr').forEach(function (row) {
+                row.hidden = !row.textContent.toLowerCase().includes(q);
+            });
+        });
+    })();
+</script>
+}

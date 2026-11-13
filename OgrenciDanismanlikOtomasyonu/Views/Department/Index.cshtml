@@ -8,9 +8,10 @@
                   : (now.Hour < 22)                 ? "İyi akşamlar"
                   : "İyi geceler";
     var userName  = User.Identity?.Name ?? "";
-    int facultyCount       = ViewBag.FacultyCount       ?? 0;
-    int departmentCount    = ViewBag.DepartmentCount    ?? 0;
-    int activeAdvisorCount = ViewBag.ActiveAdvisorCount ?? 0;
+    int facultyCount        = ViewBag.FacultyCount       ?? 0;
+    int departmentCount     = ViewBag.DepartmentCount    ?? 0;
+    int activeAdvisorCount  = ViewBag.ActiveAdvisorCount ?? 0;
+    int activeStudentCount  = ViewBag.ActiveStudentCount ?? 0;
 }
 
 <div class="dashboard-greeting">
@@ -19,7 +20,7 @@
 </div>
 
 <div class="row g-3 mb-4">
-    <div class="col-sm-6 col-lg-4">
+    <div class="col-sm-6 col-lg-3">
         @await Html.PartialAsync("_StatCard", new ViewDataDictionary(ViewData) {
             ["SCIcon"]  = "bi-building",
             ["SCCount"] = facultyCount,
@@ -27,7 +28,7 @@
             ["SCLink"]  = Url.Action("Index", "Faculties")
         })
     </div>
-    <div class="col-sm-6 col-lg-4">
+    <div class="col-sm-6 col-lg-3">
         @await Html.PartialAsync("_StatCard", new ViewDataDictionary(ViewData) {
             ["SCIcon"]  = "bi-diagram-3",
             ["SCCount"] = departmentCount,
@@ -35,12 +36,20 @@
             ["SCLink"]  = Url.Action("Index", "Departments")
         })
     </div>
-    <div class="col-sm-6 col-lg-4">
+    <div class="col-sm-6 col-lg-3">
         @await Html.PartialAsync("_StatCard", new ViewDataDictionary(ViewData) {
             ["SCIcon"]  = "bi-person-badge",
             ["SCCount"] = activeAdvisorCount,
             ["SCLabel"] = "Aktif Danışman",
             ["SCLink"]  = Url.Action("Index", "Advisors")
+        })
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        @await Html.PartialAsync("_StatCard", new ViewDataDictionary(ViewData) {
+            ["SCIcon"]  = "bi-mortarboard",
+            ["SCCount"] = activeStudentCount,
+            ["SCLabel"] = "Aktif Öğrenci",
+            ["SCLink"]  = Url.Action("Index", "Students")
         })
     </div>
 </div>

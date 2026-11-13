@@ -1,8 +1,56 @@
+@model List<EntityLayer.clsStudentInfo>
 @{
-    ViewData["Title"] = "Danışman Paneli";
+    ViewData["Title"] = "Öğrencilerim";
 }
 
-<div class="text-center py-5">
-    <h2>Hoş geldiniz, @User.Identity?.Name!</h2>
-    <p class="text-muted">Danışman paneline hoş geldiniz.</p>
-</div>
+@await Html.PartialAsync("_PageHeader", new ViewDataDictionary(ViewData) {
+    ["PHTitle"]    = "Öğrencilerim",
+    ["PHSubtitle"] = "Size atanmış öğrenci listesi"
+})
+
+@if (!Model.Any())
+{
+    @await Html.PartialAsync("_EmptyState", new ViewDataDictionary(ViewData) {
+        ["ESIcon"]    = "bi-mortarboard",
+        ["ESMessage"] = "Henüz size atanmış öğrenci bulunmamaktadır."
+    })
+}
+else
+{
+    <div class="card-table">
+        <table class="table data-table mb-0">
+            <thead>
+                <tr>
+                    <th>Öğrenci No</th>
+                    <th>Ad Soyad</th>
+                    <th>Bölüm</th>
+                    <th>Öğretim Türü</th>
+                    <th>Sınıf</th>
+                    <th>Durum</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="text-id">@item.StudentNumber</td>
+                        <td>@item.FullName</td>
+                        <td>@item.DepartmentName</td>
+                        <td>@item.EducationType</td>
+                        <td>@(item.ClassYear.HasValue ? item.ClassYear + ". Sınıf" : "—")</td>
+                        <td>
+                            @if (item.IsActive)
+                            {
+                                <span class="status-accepted">Aktif</span>
+                            }
+                            else
+                            {
+                                <span class="status-sent">Pasif</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

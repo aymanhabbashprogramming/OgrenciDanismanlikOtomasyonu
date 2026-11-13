@@ -4,7 +4,7 @@
 - ASP.NET Core MVC (.NET 10) + SQL Server, ADO.NET with Microsoft.Data.SqlClient only. No Entity Framework.
 
 ## Layers
-- **EntityLayer**: data carrier classes (done, do not change)
+- **EntityLayer**: data carrier classes and DTO/view classes (joined data, e.g. `clsStudentInfo`, `clsAdvisorInfo`). DTO/view classes also live in EntityLayer with the `cls` prefix.
 - **DataAccessLayer**: database access
 - **BusinessLogicLayer**: business logic
 - **Web project**: Controllers + Razor Views + Bootstrap

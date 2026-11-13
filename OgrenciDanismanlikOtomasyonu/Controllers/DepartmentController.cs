@@ -10,9 +10,10 @@ namespace OgrenciDanismanlikOtomasyonu.Controllers
     {
         public IActionResult Index()
         {
-            ViewBag.FacultyCount       = clsFacultyBusiness.GetAllFaculties().Count;
-            ViewBag.DepartmentCount    = clsDepartmentBusiness.GetAllDepartments().Count;
-            ViewBag.ActiveAdvisorCount = clsAdvisorBusiness.GetActiveAdvisorCount();
+            ViewBag.FacultyCount        = clsFacultyBusiness.GetAllFaculties().Count;
+            ViewBag.DepartmentCount     = clsDepartmentBusiness.GetAllDepartments().Count;
+            ViewBag.ActiveAdvisorCount  = clsAdvisorBusiness.GetActiveAdvisorCount();
+            ViewBag.ActiveStudentCount  = clsStudentBusiness.GetActiveStudentCount();
             return View();
         }
     }

@@ -1,5 +1,6 @@
-using EntityLayer;
+﻿using EntityLayer;
 using Microsoft.Data.SqlClient;
+using System.Diagnostics;
 
 namespace DataAccessLayer
 {
@@ -47,7 +48,7 @@ namespace DataAccessLayer
                 using SqlDataReader r = cmd.ExecuteReader();
                 return r.Read() ? _MapAdvisor(r) : null;
             }
-            catch { return null; }
+            catch (Exception ex) { Debug.WriteLine($"[clsAdvisorData] {ex.Message}"); return null; }
         }
 
         public static int AddNewAdvisorWithUser(clsAdvisor advisor, clsUser user)
@@ -93,9 +94,9 @@ namespace DataAccessLayer
                     tx.Commit();
                     return Convert.ToInt32(advResult);
                 }
-                catch { tx.Rollback(); return -1; }
+                catch (Exception ex) { Debug.WriteLine($"[clsAdvisorData] {ex.Message}"); tx.Rollback(); return -1; }
             }
-            catch { return -1; }
+            catch (Exception ex) { Debug.WriteLine($"[clsAdvisorData] {ex.Message}"); return -1; }
         }
 
         public static bool UpdateAdvisorWithUser(clsAdvisor advisor, clsUser user)
@@ -139,9 +140,9 @@ namespace DataAccessLayer
                     tx.Commit();
                     return true;
                 }
-                catch { tx.Rollback(); return false; }
+                catch (Exception ex) { Debug.WriteLine($"[clsAdvisorData] {ex.Message}"); tx.Rollback(); return false; }
             }
-            catch { return false; }
+            catch (Exception ex) { Debug.WriteLine($"[clsAdvisorData] {ex.Message}"); return false; }
         }
 
         public static List<clsAdvisorInfo> GetAllAdvisors()
@@ -163,7 +164,7 @@ namespace DataAccessLayer
                 using SqlDataReader r = cmd.ExecuteReader();
                 while (r.Read()) list.Add(_MapInfo(r));
             }
-            catch { }
+            catch (Exception ex) { Debug.WriteLine($"[clsAdvisorData] {ex.Message}"); }
             return list;
         }
 
@@ -178,7 +179,7 @@ namespace DataAccessLayer
                 conn.Open();
                 return (int)cmd.ExecuteScalar() > 0;
             }
-            catch { return false; }
+            catch (Exception ex) { Debug.WriteLine($"[clsAdvisorData] {ex.Message}"); return false; }
         }
 
         public static bool IsSicilNoExist(string sicilNo, int excludeAdvisorId)
@@ -194,7 +195,7 @@ namespace DataAccessLayer
                 conn.Open();
                 return (int)cmd.ExecuteScalar() > 0;
             }
-            catch { return false; }
+            catch (Exception ex) { Debug.WriteLine($"[clsAdvisorData] {ex.Message}"); return false; }
         }
 
         public static int GetActiveAdvisorCount()
@@ -209,7 +210,7 @@ namespace DataAccessLayer
                 conn.Open();
                 return (int)cmd.ExecuteScalar();
             }
-            catch { return 0; }
+            catch (Exception ex) { Debug.WriteLine($"[clsAdvisorData] {ex.Message}"); return 0; }
         }
 
         public static bool ResetPassword(int advisorId, string passwordHash)
@@ -225,7 +226,7 @@ namespace DataAccessLayer
                 conn.Open();
                 return cmd.ExecuteNonQuery() > 0;
             }
-            catch { return false; }
+            catch (Exception ex) { Debug.WriteLine($"[clsAdvisorData] {ex.Message}"); return false; }
         }
 
         public static bool SetActive(int advisorId, bool isActive)
@@ -241,7 +242,49 @@ namespace DataAccessLayer
                 conn.Open();
                 return cmd.ExecuteNonQuery() > 0;
             }
-            catch { return false; }
+            catch (Exception ex) { Debug.WriteLine($"[clsAdvisorData] {ex.Message}"); return false; }
+        }
+
+        public static clsAdvisor? GetAdvisorByUserId(int userId)
+        {
+            try
+            {
+                using SqlConnection conn = new(clsDataAccessSettings.ConnectionString);
+                using SqlCommand cmd = new(@"
+                    SELECT AdvisorId, UserId, SicilNo, AcademicTitle,
+                           FirstName, LastName, DepartmentId, Email, Phone, OfficeNo
+                    FROM Advisors WHERE UserId = @UserId", conn);
+                cmd.Parameters.AddWithValue("@UserId", userId);
+                conn.Open();
+                using SqlDataReader r = cmd.ExecuteReader();
+                return r.Read() ? _MapAdvisor(r) : null;
+            }
+            catch (Exception ex) { Debug.WriteLine($"[clsAdvisorData] {ex.Message}"); return null; }
+        }
+
+        public static List<clsAdvisorInfo> GetActiveAdvisorsByDepartmentId(int departmentId)
+        {
+            List<clsAdvisorInfo> list = new();
+            try
+            {
+                using SqlConnection conn = new(clsDataAccessSettings.ConnectionString);
+                using SqlCommand cmd = new(@"
+                    SELECT a.AdvisorId, a.UserId, a.SicilNo,
+                           ISNULL(a.AcademicTitle, '') AS AcademicTitle,
+                           a.FirstName, a.LastName, a.DepartmentId,
+                           d.DepartmentName, u.Username, u.IsActive
+                    FROM   Advisors a
+                    INNER JOIN Users       u ON a.UserId       = u.UserId
+                    INNER JOIN Departments d ON a.DepartmentId = d.DepartmentId
+                    WHERE  a.DepartmentId = @DepartmentId AND u.IsActive = 1
+                    ORDER BY a.LastName, a.FirstName", conn);
+                cmd.Parameters.AddWithValue("@DepartmentId", departmentId);
+                conn.Open();
+                using SqlDataReader r = cmd.ExecuteReader();
+                while (r.Read()) list.Add(_MapInfo(r));
+            }
+            catch (Exception ex) { Debug.WriteLine($"[clsAdvisorData] {ex.Message}"); }
+            return list;
         }
     }
 }

@@ -1,0 +1,100 @@
+@model BusinessLogicLayer.clsStudentBusiness
+@{
+    ViewData["Title"] = "Danışman Değiştir";
+    var history       = ViewBag.AdvisorHistory as List<EntityLayer.clsAdvisorAssignmentHistory>
+                        ?? new List<EntityLayer.clsAdvisorAssignmentHistory>();
+    var advisors      = ViewBag.ActiveAdvisors as List<EntityLayer.clsAdvisorInfo>
+                        ?? new List<EntityLayer.clsAdvisorInfo>();
+}
+
+@await Html.PartialAsync("_PageHeader", new ViewDataDictionary(ViewData) {
+    ["PHTitle"]    = "Danışman Değiştir",
+    ["PHSubtitle"] = $"{Model.GetFullName()} · Danışman ataması"
+})
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger d-flex align-items-start gap-2 mb-3" style="max-width:560px">
+        <i class="bi bi-exclamation-triangle-fill flex-shrink-0 mt-1"></i>
+        <div>
+            @foreach (var val in ViewData.ModelState.Values)
+            {
+                @foreach (var err in val.Errors)
+                {
+                    <div>@err.ErrorMessage</div>
+                }
+            }
+        </div>
+    </div>
+}
+
+<form method="post" asp-action="ChangeAdvisor">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="studentId" value="@Model.StudentId" />
+    <div class="form-card mb-4" style="max-width:560px">
+        <div class="form-card-body">
+            <div class="mb-3">
+                <label class="form-label required">Yeni Danışman</label>
+                <select name="newAdvisorId" class="form-select" required>
+                    <option value="0">-- Danışman Seçiniz --</option>
+                    @foreach (var a in advisors)
+                    {
+                        <option value="@a.AdvisorId">@a.FullName</option>
+                    }
+                </select>
+                @if (!advisors.Any())
+                {
+                    <div class="form-text text-warning">
+                        Bu bölümde atanabilecek aktif danışman bulunmamaktadır.
+                    </div>
+                }
+            </div>
+            <div class="mb-0">
+                <label class="form-label">Değişiklik Nedeni</label>
+                <input type="text" name="changeReason" class="form-control" maxlength="500"
+                       placeholder="İsteğe bağlı…" />
+            </div>
+        </div>
+        <div class="form-card-footer">
+            <a asp-action="Index" class="btn btn-secondary">İptal</a>
+            <button type="submit" class="btn btn-primary" @(!advisors.Any() ? "disabled" : "")>
+                <i class="bi bi-check2 me-1"></i>Ata
+            </button>
+        </div>
+    </div>
+</form>
+
+<h2 class="section-title mb-3">Danışman Geçmişi</h2>
+@if (!history.Any())
+{
+    @await Html.PartialAsync("_EmptyState", new ViewDataDictionary(ViewData) {
+        ["ESIcon"]    = "bi-clock-history",
+        ["ESMessage"] = "Henüz danışman ataması yapılmamış."
+    })
+}
+else
+{
+    <div class="card-table" style="max-width:720px">
+        <table class="table data-table mb-0">
+            <thead>
+                <tr>
+                    <th>Danışman</th>
+                    <th>Başlangıç</th>
+                    <th>Bitiş</th>
+                    <th>Neden</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var h in history)
+                {
+                    <tr>
+                        <td>@h.AdvisorFullName</td>
+                        <td>@h.StartDate.ToString("dd.MM.yyyy")</td>
+                        <td>@(h.EndDate.HasValue ? h.EndDate.Value.ToString("dd.MM.yyyy") : "—")</td>
+                        <td>@(string.IsNullOrWhiteSpace(h.ChangeReason) ? "—" : h.ChangeReason)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

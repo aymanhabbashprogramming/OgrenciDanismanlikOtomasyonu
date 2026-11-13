@@ -1,5 +1,6 @@
-using EntityLayer;
+﻿using EntityLayer;
 using Microsoft.Data.SqlClient;
+using System.Diagnostics;
 
 namespace DataAccessLayer
 {
@@ -30,7 +31,7 @@ namespace DataAccessLayer
                 using SqlDataReader r = cmd.ExecuteReader();
                 return r.Read() ? _Map(r) : null;
             }
-            catch { return null; }
+            catch (Exception ex) { Debug.WriteLine($"[clsUserData] {ex.Message}"); return null; }
         }
 
         public static clsUser? GetUserInfoByUsername(string username)
@@ -44,7 +45,7 @@ namespace DataAccessLayer
                 using SqlDataReader r = cmd.ExecuteReader();
                 return r.Read() ? _Map(r) : null;
             }
-            catch { return null; }
+            catch (Exception ex) { Debug.WriteLine($"[clsUserData] {ex.Message}"); return null; }
         }
 
         public static int AddNewUser(clsUser user)
@@ -66,7 +67,7 @@ namespace DataAccessLayer
                 object? result = cmd.ExecuteScalar();
                 return result is not null ? Convert.ToInt32(result) : -1;
             }
-            catch { return -1; }
+            catch (Exception ex) { Debug.WriteLine($"[clsUserData] {ex.Message}"); return -1; }
         }
 
         public static bool UpdateUser(clsUser user)
@@ -89,7 +90,7 @@ namespace DataAccessLayer
                 conn.Open();
                 return cmd.ExecuteNonQuery() > 0;
             }
-            catch { return false; }
+            catch (Exception ex) { Debug.WriteLine($"[clsUserData] {ex.Message}"); return false; }
         }
 
         public static bool DeleteUser(int userId)
@@ -102,7 +103,7 @@ namespace DataAccessLayer
                 conn.Open();
                 return cmd.ExecuteNonQuery() > 0;
             }
-            catch { return false; }
+            catch (Exception ex) { Debug.WriteLine($"[clsUserData] {ex.Message}"); return false; }
         }
 
         public static List<clsUser> GetAllUsers()
@@ -116,7 +117,7 @@ namespace DataAccessLayer
                 using SqlDataReader r = cmd.ExecuteReader();
                 while (r.Read()) list.Add(_Map(r));
             }
-            catch { }
+            catch (Exception ex) { Debug.WriteLine($"[clsUserData] {ex.Message}"); }
             return list;
         }
 
@@ -130,7 +131,7 @@ namespace DataAccessLayer
                 conn.Open();
                 return (int)cmd.ExecuteScalar() > 0;
             }
-            catch { return false; }
+            catch (Exception ex) { Debug.WriteLine($"[clsUserData] {ex.Message}"); return false; }
         }
 
         public static bool UpdateLastLogin(int userId)
@@ -144,7 +145,7 @@ namespace DataAccessLayer
                 conn.Open();
                 return cmd.ExecuteNonQuery() > 0;
             }
-            catch { return false; }
+            catch (Exception ex) { Debug.WriteLine($"[clsUserData] {ex.Message}"); return false; }
         }
     }
 }

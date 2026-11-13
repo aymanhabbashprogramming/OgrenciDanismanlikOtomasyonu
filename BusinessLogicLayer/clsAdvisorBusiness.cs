@@ -123,5 +123,16 @@ namespace BusinessLogicLayer
 
         public static int GetActiveAdvisorCount() =>
             clsAdvisorData.GetActiveAdvisorCount();
+
+        public static clsAdvisorBusiness? FindByUserId(int userId)
+        {
+            clsAdvisor? a = clsAdvisorData.GetAdvisorByUserId(userId);
+            if (a is null) return null;
+            clsUser? u = clsUserData.GetUserInfoByID(a.UserId);
+            return new clsAdvisorBusiness(a, u?.Username ?? "", u?.IsActive ?? false);
+        }
+
+        public static List<clsAdvisorInfo> GetActiveAdvisorsForDepartment(int departmentId) =>
+            clsAdvisorData.GetActiveAdvisorsByDepartmentId(departmentId);
     }
 }

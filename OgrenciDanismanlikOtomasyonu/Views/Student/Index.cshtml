@@ -1,8 +1,46 @@
+@model EntityLayer.clsAdvisorInfo?
 @{
-    ViewData["Title"] = "Öğrenci Paneli";
+    ViewData["Title"] = "Ana Sayfa";
+    var trCulture = new System.Globalization.CultureInfo("tr-TR");
+    var now       = DateTime.Now;
+    var today     = now.ToString("d MMMM yyyy, dddd", trCulture);
+    var greeting  = (now.Hour >= 5 && now.Hour < 12) ? "Günaydın"
+                  : (now.Hour < 18)                 ? "İyi günler"
+                  : (now.Hour < 22)                 ? "İyi akşamlar"
+                  : "İyi geceler";
+    var userName  = User.Identity?.Name ?? "";
 }
 
-<div class="text-center py-5">
-    <h2>Hoş geldiniz, @User.Identity?.Name!</h2>
-    <p class="text-muted">Öğrenci paneline hoş geldiniz.</p>
+<div class="dashboard-greeting">
+    <p class="dashboard-greeting-text">@greeting, @userName!</p>
+    <p class="dashboard-date">@today</p>
+</div>
+
+<div class="row g-3">
+    <div class="col-sm-10 col-md-6 col-lg-5">
+        <div class="form-card">
+            <div class="form-card-body">
+                <div class="d-flex align-items-center gap-3 mb-2">
+                    <div class="stat-card-icon" style="width:48px;height:48px;font-size:1.4rem">
+                        <i class="bi bi-person-badge"></i>
+                    </div>
+                    <div>
+                        <div class="text-muted" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.05em">Danışmanım</div>
+                        @if (Model != null)
+                        {
+                            <div class="fw-semibold fs-5">@Model.FullName</div>
+                            @if (!string.IsNullOrWhiteSpace(Model.DepartmentName))
+                            {
+                                <div class="text-muted" style="font-size:.875rem">@Model.DepartmentName</div>
+                            }
+                        }
+                        else
+                        {
+                            <div class="text-muted">Henüz danışman atanmamış.</div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

@@ -1,4 +1,4 @@
-namespace DataAccessLayer
+namespace EntityLayer
 {
     public class clsAdvisorInfo
     {

@@ -1,5 +1,6 @@
-using EntityLayer;
+﻿using EntityLayer;
 using Microsoft.Data.SqlClient;
+using System.Diagnostics;
 
 namespace DataAccessLayer
 {
@@ -24,7 +25,7 @@ namespace DataAccessLayer
                 using SqlDataReader r = cmd.ExecuteReader();
                 return r.Read() ? _Map(r) : null;
             }
-            catch { return null; }
+            catch (Exception ex) { Debug.WriteLine($"[clsDepartmentData] {ex.Message}"); return null; }
         }
 
         public static int AddNewDepartment(clsDepartment dept)
@@ -42,7 +43,7 @@ namespace DataAccessLayer
                 object? result = cmd.ExecuteScalar();
                 return result is not null ? Convert.ToInt32(result) : -1;
             }
-            catch { return -1; }
+            catch (Exception ex) { Debug.WriteLine($"[clsDepartmentData] {ex.Message}"); return -1; }
         }
 
         public static bool UpdateDepartment(clsDepartment dept)
@@ -61,7 +62,7 @@ namespace DataAccessLayer
                 conn.Open();
                 return cmd.ExecuteNonQuery() > 0;
             }
-            catch { return false; }
+            catch (Exception ex) { Debug.WriteLine($"[clsDepartmentData] {ex.Message}"); return false; }
         }
 
         public static bool DeleteDepartment(int departmentId)
@@ -75,7 +76,7 @@ namespace DataAccessLayer
                 conn.Open();
                 return cmd.ExecuteNonQuery() > 0;
             }
-            catch { return false; }
+            catch (Exception ex) { Debug.WriteLine($"[clsDepartmentData] {ex.Message}"); return false; }
         }
 
         public static List<clsDepartment> GetAllDepartments()
@@ -93,7 +94,7 @@ namespace DataAccessLayer
                 using SqlDataReader r = cmd.ExecuteReader();
                 while (r.Read()) list.Add(_Map(r));
             }
-            catch { }
+            catch (Exception ex) { Debug.WriteLine($"[clsDepartmentData] {ex.Message}"); }
             return list;
         }
 
@@ -108,7 +109,7 @@ namespace DataAccessLayer
                 conn.Open();
                 return (int)cmd.ExecuteScalar() > 0;
             }
-            catch { return false; }
+            catch (Exception ex) { Debug.WriteLine($"[clsDepartmentData] {ex.Message}"); return false; }
         }
 
         public static List<clsDepartment> GetDepartmentsByFacultyId(int facultyId)
@@ -124,7 +125,7 @@ namespace DataAccessLayer
                 using SqlDataReader r = cmd.ExecuteReader();
                 while (r.Read()) list.Add(_Map(r));
             }
-            catch { }
+            catch (Exception ex) { Debug.WriteLine($"[clsDepartmentData] {ex.Message}"); }
             return list;
         }
 
@@ -144,7 +145,7 @@ namespace DataAccessLayer
                 conn.Open();
                 return (int)cmd.ExecuteScalar() > 0;
             }
-            catch { return false; }
+            catch (Exception ex) { Debug.WriteLine($"[clsDepartmentData] {ex.Message}"); return false; }
         }
     }
 }

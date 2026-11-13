@@ -60,6 +60,10 @@
                    asp-controller="Advisors" asp-action="Index">
                     <i class="bi bi-person-badge"></i><span>Danışmanlar</span>
                 </a>
+                <a class="sidebar-link @SidebarActive("Students")"
+                   asp-controller="Students" asp-action="Index">
+                    <i class="bi bi-mortarboard"></i><span>Öğrenciler</span>
+                </a>
             }
             @if (User.IsInRole("Advisor"))
             {
