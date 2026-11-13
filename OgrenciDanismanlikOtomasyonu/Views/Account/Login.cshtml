@@ -1,30 +1,62 @@
 @{
+    Layout = "~/Views/Shared/_LoginLayout.cshtml";
     ViewData["Title"] = "Giriş Yap";
 }
 
-<div class="d-flex justify-content-center align-items-center" style="min-height: 70vh;">
-    <div class="card shadow-sm" style="width: 100%; max-width: 400px;">
-        <div class="card-header py-3 bg-primary text-white">
-            <h5 class="mb-0 text-center">Sisteme Giriş</h5>
+<div class="login-screen">
+    <!-- Left panel (hidden on mobile) -->
+    <div class="login-left d-none d-md-flex">
+        <div class="login-left-content">
+            <i class="bi bi-mortarboard-fill login-left-logo"></i>
+            <h1 class="login-left-title">Öğrenci Danışmanlık Otomasyonu</h1>
+            <p class="login-left-sub">
+                Selçuk Üniversitesi Teknoloji Fakültesi<br />
+                Bilgisayar Mühendisliği
+            </p>
+            <p class="login-left-tagline">Danışman-öğrenci ilişkisini tek platformda yönetin.</p>
         </div>
-        <div class="card-body p-4">
+    </div>
+
+    <!-- Right panel: login form -->
+    <div class="login-right">
+        <div class="login-card">
+            <div class="login-card-header">
+                <i class="bi bi-mortarboard-fill login-mobile-logo d-md-none"></i>
+                <h2>Hoş Geldiniz</h2>
+                <p>Sisteme devam etmek için giriş yapın.</p>
+            </div>
+
             @if (ViewBag.Error != null)
             {
-                <div class="alert alert-danger">@ViewBag.Error</div>
+                <div class="alert alert-danger d-flex align-items-center gap-2 mb-3">
+                    <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+                    <span>@ViewBag.Error</span>
+                </div>
             }
+
             <form method="post" asp-controller="Account" asp-action="Login">
                 @Html.AntiForgeryToken()
                 <div class="mb-3">
-                    <label for="username" class="form-label fw-semibold">Kullanıcı Adı</label>
-                    <input type="text" id="username" name="username" class="form-control" required autofocus />
+                    <label for="username" class="form-label">Kullanıcı Adı</label>
+                    <div class="input-with-icon">
+                        <i class="bi bi-person input-icon"></i>
+                        <input type="text" id="username" name="username"
+                               class="form-control ps-icon" required autofocus
+                               autocomplete="username" />
+                    </div>
                 </div>
                 <div class="mb-4">
-                    <label for="password" class="form-label fw-semibold">Şifre</label>
-                    <input type="password" id="password" name="password" class="form-control" required />
+                    <label for="password" class="form-label">Şifre</label>
+                    <div class="input-with-icon">
+                        <i class="bi bi-lock input-icon"></i>
+                        <input type="password" id="password" name="password"
+                               class="form-control ps-icon" required
+                               autocomplete="current-password" />
+                    </div>
                 </div>
-                <div class="d-grid">
-                    <button type="submit" class="btn btn-primary btn-lg">Giriş Yap</button>
-                </div>
+                <button type="submit" class="btn btn-primary w-100 fw-semibold py-2">
+                    Giriş Yap
+                </button>
             </form>
         </div>
     </div>

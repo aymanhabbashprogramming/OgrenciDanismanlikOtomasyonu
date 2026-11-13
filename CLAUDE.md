@@ -52,4 +52,5 @@ Tables that never change from the site (e.g. Roles) get **only the read methods*
 - Never run git commands
 - Never change the database schema
 - **Colors**: all colors live ONLY in the `:root` block of `OgrenciDanismanlikOtomasyonu/wwwroot/css/site.css` as CSS variables. Never hard-code a color anywhere else (views, inline styles, other CSS). Bootstrap colors must map to these variables.
+- **Radius, shadows, spacing and fonts** also live only in the `:root` block of `site.css` as CSS variables.
 - **File placement**: all web files (Controllers, Views, wwwroot) live inside the `OgrenciDanismanlikOtomasyonu` project folder, never at the solution root.

@@ -1,32 +1,39 @@
 @model List<EntityLayer.clsRole>
-
 @{
     ViewData["Title"] = "Roller";
 }
 
-<h2 class="mb-4">Roller</h2>
+@await Html.PartialAsync("_PageHeader", new ViewDataDictionary(ViewData) {
+    ["PHTitle"]    = "Roller",
+    ["PHSubtitle"] = "Sistemde tanımlı roller"
+})
 
-@if (Model.Count == 0)
+@if (!Model.Any())
 {
-    <div class="alert alert-info">Kayıtlı rol bulunamadı.</div>
+    @await Html.PartialAsync("_EmptyState", new ViewDataDictionary(ViewData) {
+        ["ESIcon"]    = "bi-shield-slash",
+        ["ESMessage"] = "Kayıtlı rol bulunamadı."
+    })
 }
 else
 {
-    <table class="table table-bordered table-hover table-striped">
-        <thead class="table-dark">
-            <tr>
-                <th>Rol No</th>
-                <th>Rol Adı</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var role in Model)
-            {
+    <div class="card-table">
+        <table class="table data-table mb-0">
+            <thead>
                 <tr>
-                    <td>@role.RoleId</td>
-                    <td>@role.RoleName</td>
+                    <th style="width:70px">No</th>
+                    <th>Rol Adı</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var role in Model)
+                {
+                    <tr>
+                        <td class="text-id">@role.RoleId</td>
+                        <td>@role.RoleName</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 }

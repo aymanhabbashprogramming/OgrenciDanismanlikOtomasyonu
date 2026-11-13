@@ -4,61 +4,140 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Öğrenci Danışmanlık</title>
-    <script type="importmap"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="crossorigin" />
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/OgrenciDanismanlikOtomasyonu.styles.css" asp-append-version="true" />
 </head>
 <body>
-    <header>
-        <nav class="navbar navbar-expand-sm navbar-dark mb-3">
-            <div class="container-fluid">
-                <a class="navbar-brand" asp-controller="Home" asp-action="Index">Öğrenci Danışmanlık</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
-                        data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
+@{
+    var ctrl = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    string SidebarActive(string controller) =>
+        ctrl.Equals(controller, StringComparison.OrdinalIgnoreCase) ? "active" : "";
+    var userRole     = User.FindFirstValue(System.Security.Claims.ClaimTypes.Role) ?? "";
+    var roleName     = userRole switch
+    {
+        "DepartmentManager" => "Bölüm Başkanlığı",
+        "Advisor"           => "Danışman",
+        "Student"           => "Öğrenci",
+        _                   => userRole
+    };
+    var userName     = User.Identity?.Name ?? "";
+    var avatarLetter = userName.Length > 0 ? userName[0].ToString().ToUpper() : "?";
+}
+
+<div class="app-shell">
+    <!-- ── Sidebar ───────────────────────────────────────────── -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-logo"><i class="bi bi-mortarboard-fill"></i></div>
+            <div>
+                <div class="sidebar-brand-name">ÖDO</div>
+                <div class="sidebar-brand-sub">Danışmanlık Sistemi</div>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            @if (User.IsInRole("DepartmentManager"))
+            {
+                <span class="sidebar-section-label">Yönetim</span>
+                <a class="sidebar-link @SidebarActive("Department")"
+                   asp-controller="Department" asp-action="Index">
+                    <i class="bi bi-house-door"></i><span>Ana Sayfa</span>
+                </a>
+                <a class="sidebar-link @SidebarActive("Faculties")"
+                   asp-controller="Faculties" asp-action="Index">
+                    <i class="bi bi-building"></i><span>Fakülteler</span>
+                </a>
+                <a class="sidebar-link @SidebarActive("Departments")"
+                   asp-controller="Departments" asp-action="Index">
+                    <i class="bi bi-diagram-3"></i><span>Bölümler</span>
+                </a>
+            }
+            @if (User.IsInRole("Advisor"))
+            {
+                <a class="sidebar-link @SidebarActive("Advisor")"
+                   asp-controller="Advisor" asp-action="Index">
+                    <i class="bi bi-house-door"></i><span>Ana Sayfa</span>
+                </a>
+            }
+            @if (User.IsInRole("Student"))
+            {
+                <a class="sidebar-link @SidebarActive("Student")"
+                   asp-controller="Student" asp-action="Index">
+                    <i class="bi bi-house-door"></i><span>Ana Sayfa</span>
+                </a>
+            }
+        </nav>
+    </aside>
+
+    <!-- ── Main area ─────────────────────────────────────────── -->
+    <div class="main-area">
+        <!-- Topbar -->
+        <header class="topbar">
+            <div class="topbar-left">
+                <button class="sidebar-toggle d-lg-none" id="sidebarToggle" aria-label="Menüyü aç/kapat">
+                    <i class="bi bi-list"></i>
                 </button>
-                <div class="navbar-collapse collapse">
-                    <ul class="navbar-nav me-auto">
-                        @if (User.IsInRole("DepartmentManager"))
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Faculties" asp-action="Index">Fakülteler</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Departments" asp-action="Index">Bölümler</a>
-                            </li>
-                        }
-                    </ul>
-                    <div class="d-flex align-items-center">
-                        @if (User.Identity?.IsAuthenticated == true)
-                        {
-                            <span class="navbar-text me-3">@User.Identity.Name</span>
-                            <form method="post" asp-controller="Account" asp-action="Logout" class="d-inline">
-                                @Html.AntiForgeryToken()
-                                <button type="submit" class="btn btn-sm btn-outline-light">Çıkış</button>
-                            </form>
-                        }
+                <span class="topbar-title">@ViewData["Title"]</span>
+            </div>
+            <div class="topbar-right">
+                <div class="topbar-user">
+                    <div class="topbar-avatar">@avatarLetter</div>
+                    <div class="topbar-userinfo d-none d-sm-block">
+                        <span class="topbar-username">@userName</span>
+                        <span class="topbar-role">@roleName</span>
                     </div>
                 </div>
+                <form method="post" asp-controller="Account" asp-action="Logout" class="d-inline ms-1">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="btn-topbar-icon" title="Çıkış yap">
+                        <i class="bi bi-box-arrow-right"></i>
+                    </button>
+                </form>
             </div>
-        </nav>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
+        </header>
+
+        <!-- Page content -->
+        <main class="page-content">
             @RenderBody()
         </main>
     </div>
+</div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2026 - Öğrenci Danışmanlık Otomasyonu
-        </div>
-    </footer>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
+<!-- Mobile backdrop -->
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/site.js" asp-append-version="true"></script>
+<script>
+    (function () {
+        var toggle   = document.getElementById('sidebarToggle');
+        var sidebar  = document.getElementById('sidebar');
+        var backdrop = document.getElementById('sidebarBackdrop');
+
+        function openSidebar() {
+            sidebar.classList.add('show');
+            backdrop.classList.add('show');
+        }
+        function closeSidebar() {
+            sidebar.classList.remove('show');
+            backdrop.classList.remove('show');
+        }
+
+        if (toggle)   toggle.addEventListener('click', openSidebar);
+        if (backdrop) backdrop.addEventListener('click', closeSidebar);
+
+        // Init Bootstrap tooltips
+        document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (el) {
+            new bootstrap.Tooltip(el);
+        });
+    })();
+</script>
+@await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

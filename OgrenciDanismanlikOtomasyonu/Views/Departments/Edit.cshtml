@@ -5,35 +5,39 @@
     var faculties = ViewBag.Faculties as List<EntityLayer.clsFaculty> ?? new List<EntityLayer.clsFaculty>();
 }
 
-<h2>@ViewData["Title"]</h2>
+@await Html.PartialAsync("_PageHeader", new ViewDataDictionary(ViewData) {
+    ["PHTitle"]    = isNew ? "Yeni Bölüm" : "Bölüm Düzenle",
+    ["PHSubtitle"] = isNew ? "Yeni bir bölüm kaydı ekleyin" : "Bölüm bilgilerini güncelleyin"
+})
 
-<div class="row mt-3">
-    <div class="col-md-6">
-        @if (!ViewData.ModelState.IsValid)
-        {
-            <div class="alert alert-danger">
-                @foreach (var val in ViewData.ModelState.Values)
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger d-flex align-items-start gap-2 mb-3" style="max-width:640px">
+        <i class="bi bi-exclamation-triangle-fill flex-shrink-0 mt-1"></i>
+        <div>
+            @foreach (var val in ViewData.ModelState.Values)
+            {
+                @foreach (var err in val.Errors)
                 {
-                    @foreach (var err in val.Errors)
-                    {
-                        <div>@err.ErrorMessage</div>
-                    }
+                    <div>@err.ErrorMessage</div>
                 }
-            </div>
-        }
+            }
+        </div>
+    </div>
+}
 
-        <form method="post" asp-action="Edit">
-            @Html.AntiForgeryToken()
-            <input type="hidden" name="departmentId" value="@Model.DepartmentId" />
-
+<form method="post" asp-action="Edit">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="departmentId" value="@Model.DepartmentId" />
+    <div class="form-card">
+        <div class="form-card-body">
             <div class="mb-3">
-                <label class="form-label fw-semibold">Bölüm Adı</label>
+                <label class="form-label required">Bölüm Adı</label>
                 <input type="text" name="departmentName" value="@Model.DepartmentName"
-                       class="form-control" maxlength="200" required />
+                       class="form-control" maxlength="200" required autofocus />
             </div>
-
-            <div class="mb-3">
-                <label class="form-label fw-semibold">Fakülte</label>
+            <div class="mb-0">
+                <label class="form-label required">Fakülte</label>
                 <select name="facultyId" class="form-select" required>
                     <option value="0">-- Fakülte Seçiniz --</option>
                     @foreach (var f in faculties)
@@ -49,9 +53,12 @@
                     }
                 </select>
             </div>
-
-            <button type="submit" class="btn btn-primary me-2">Kaydet</button>
+        </div>
+        <div class="form-card-footer">
             <a asp-action="Index" class="btn btn-secondary">İptal</a>
-        </form>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check2 me-1"></i>Kaydet
+            </button>
+        </div>
     </div>
-</div>
+</form>

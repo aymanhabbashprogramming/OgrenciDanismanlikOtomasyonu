@@ -1,29 +1,34 @@
 @{
-    ViewData["Title"] = "Bölüm Başkanlığı Paneli";
+    ViewData["Title"] = "Ana Sayfa";
+    var trCulture = new System.Globalization.CultureInfo("tr-TR");
+    var now       = DateTime.Now;
+    var today     = now.ToString("d MMMM yyyy, dddd", trCulture);
+    var greeting  = now.Hour < 12 ? "Günaydın" : (now.Hour < 18 ? "İyi günler" : "İyi akşamlar");
+    var userName  = User.Identity?.Name ?? "";
+    int facultyCount    = ViewBag.FacultyCount    ?? 0;
+    int departmentCount = ViewBag.DepartmentCount ?? 0;
 }
 
-<div class="text-center py-4">
-    <h2>Hoş geldiniz, @User.Identity?.Name!</h2>
-    <p class="text-muted mb-4">Bölüm başkanlığı paneline hoş geldiniz.</p>
+<div class="dashboard-greeting">
+    <p class="dashboard-greeting-text">@greeting, @userName!</p>
+    <p class="dashboard-date">@today</p>
 </div>
 
-<div class="row g-3">
-    <div class="col-md-6">
-        <div class="card h-100 shadow-sm">
-            <div class="card-body d-flex flex-column align-items-center justify-content-center py-4">
-                <h5 class="card-title">Fakülteler</h5>
-                <p class="text-muted small text-center">Fakülte kayıtlarını görüntüleyin ve yönetin.</p>
-                <a asp-controller="Faculties" asp-action="Index" class="btn btn-primary mt-2">Fakülteleri Görüntüle</a>
-            </div>
-        </div>
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-lg-4">
+        @await Html.PartialAsync("_StatCard", new ViewDataDictionary(ViewData) {
+            ["SCIcon"]  = "bi-building",
+            ["SCCount"] = facultyCount,
+            ["SCLabel"] = "Fakülte",
+            ["SCLink"]  = Url.Action("Index", "Faculties")
+        })
     </div>
-    <div class="col-md-6">
-        <div class="card h-100 shadow-sm">
-            <div class="card-body d-flex flex-column align-items-center justify-content-center py-4">
-                <h5 class="card-title">Bölümler</h5>
-                <p class="text-muted small text-center">Bölüm kayıtlarını görüntüleyin ve yönetin.</p>
-                <a asp-controller="Departments" asp-action="Index" class="btn btn-primary mt-2">Bölümleri Görüntüle</a>
-            </div>
-        </div>
+    <div class="col-sm-6 col-lg-4">
+        @await Html.PartialAsync("_StatCard", new ViewDataDictionary(ViewData) {
+            ["SCIcon"]  = "bi-diagram-3",
+            ["SCCount"] = departmentCount,
+            ["SCLabel"] = "Bölüm",
+            ["SCLink"]  = Url.Action("Index", "Departments")
+        })
     </div>
 </div>

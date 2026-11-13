@@ -3,68 +3,91 @@
     ViewData["Title"] = "Fakülteler";
 }
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h2>Fakülteler</h2>
-    <a asp-action="Edit" class="btn btn-primary">+ Yeni Fakülte</a>
-</div>
+@await Html.PartialAsync("_PageHeader", new ViewDataDictionary(ViewData) {
+    ["PHTitle"]      = "Fakülteler",
+    ["PHSubtitle"]   = "Fakülte kayıtlarını görüntüleyin ve yönetin",
+    ["PHActionText"] = "Yeni Fakülte",
+    ["PHActionLink"] = Url.Action("Edit", "Faculties")
+})
 
 @if (TempData["Success"] != null)
 {
-    <div class="alert alert-success">@TempData["Success"]</div>
+    <div class="alert alert-success d-flex align-items-center gap-2 mb-3">
+        <i class="bi bi-check-circle-fill flex-shrink-0"></i><span>@TempData["Success"]</span>
+    </div>
 }
 @if (TempData["Error"] != null)
 {
-    <div class="alert alert-danger">@TempData["Error"]</div>
+    <div class="alert alert-danger d-flex align-items-center gap-2 mb-3">
+        <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i><span>@TempData["Error"]</span>
+    </div>
 }
 
 @if (!Model.Any())
 {
-    <div class="alert alert-info">Kayıtlı fakülte bulunamadı.</div>
+    @await Html.PartialAsync("_EmptyState", new ViewDataDictionary(ViewData) {
+        ["ESIcon"]       = "bi-building-slash",
+        ["ESMessage"]    = "Henüz fakülte kaydı bulunmuyor.",
+        ["ESActionText"] = "Fakülte Ekle",
+        ["ESActionLink"] = Url.Action("Edit", "Faculties")
+    })
 }
 else
 {
-    <table class="table table-bordered table-hover table-striped">
-        <thead class="table-dark">
-            <tr>
-                <th>No</th>
-                <th>Fakülte Adı</th>
-                <th>İşlemler</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var f in Model)
-            {
+    <div class="card-table">
+        <table class="table data-table mb-0">
+            <thead>
                 <tr>
-                    <td>@f.FacultyId</td>
-                    <td>@f.FacultyName</td>
-                    <td>
-                        <a asp-action="Edit" asp-route-id="@f.FacultyId" class="btn btn-sm btn-outline-primary me-1">Düzenle</a>
-                        <button type="button" class="btn btn-sm btn-outline-danger"
-                                data-bs-toggle="modal" data-bs-target="#deleteModal"
-                                data-id="@f.FacultyId" data-name="@f.FacultyName">Sil</button>
-                    </td>
+                    <th style="width:70px">No</th>
+                    <th>Fakülte Adı</th>
+                    <th style="width:90px">İşlemler</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var f in Model)
+                {
+                    <tr>
+                        <td class="text-id">@f.FacultyId</td>
+                        <td>@f.FacultyName</td>
+                        <td>
+                            <div class="d-flex gap-1">
+                                <a asp-action="Edit" asp-route-id="@f.FacultyId"
+                                   class="btn-icon btn-icon-primary"
+                                   title="Düzenle">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <button type="button" class="btn-icon btn-icon-danger"
+                                        data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                        data-id="@f.FacultyId" data-name="@f.FacultyName"
+                                        title="Sil">
+                                    <i class="bi bi-trash3"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 }
 
+<!-- Delete confirmation modal -->
 <div class="modal fade" id="deleteModal" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-sm">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Silme Onayı</h5>
+                <h6 class="modal-title fw-semibold">Silme Onayı</h6>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <strong id="deleteName"></strong> adlı fakülteyi silmek istiyor musunuz?
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">İptal</button>
-                <form method="post" asp-action="Delete" id="deleteForm" class="d-inline">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">İptal</button>
+                <form method="post" asp-action="Delete" class="d-inline">
                     @Html.AntiForgeryToken()
                     <input type="hidden" name="id" id="deleteId" />
-                    <button type="submit" class="btn btn-danger">Sil</button>
+                    <button type="submit" class="btn btn-danger btn-sm">Sil</button>
                 </form>
             </div>
         </div>
@@ -75,7 +98,7 @@ else
 <script>
     document.getElementById('deleteModal').addEventListener('show.bs.modal', function (e) {
         var btn = e.relatedTarget;
-        document.getElementById('deleteId').value = btn.getAttribute('data-id');
+        document.getElementById('deleteId').value   = btn.getAttribute('data-id');
         document.getElementById('deleteName').textContent = btn.getAttribute('data-name');
     });
 </script>

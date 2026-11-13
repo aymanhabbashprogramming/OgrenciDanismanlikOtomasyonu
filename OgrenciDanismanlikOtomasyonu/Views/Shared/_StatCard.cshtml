@@ -1,0 +1,13 @@
+@{
+    var icon  = ViewData["SCIcon"]  as string ?? "bi-square";
+    var count = ViewData["SCCount"]?.ToString() ?? "0";
+    var label = ViewData["SCLabel"] as string ?? "";
+    var link  = ViewData["SCLink"]  as string ?? "#";
+}
+<a href="@link" class="stat-card">
+    <div class="stat-card-icon">
+        <i class="bi @icon"></i>
+    </div>
+    <div class="stat-card-number">@count</div>
+    <div class="stat-card-label">@label</div>
+</a>
