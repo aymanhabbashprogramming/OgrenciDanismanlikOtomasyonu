@@ -56,6 +56,10 @@
                    asp-controller="Departments" asp-action="Index">
                     <i class="bi bi-diagram-3"></i><span>Bölümler</span>
                 </a>
+                <a class="sidebar-link @SidebarActive("Advisors")"
+                   asp-controller="Advisors" asp-action="Index">
+                    <i class="bi bi-person-badge"></i><span>Danışmanlar</span>
+                </a>
             }
             @if (User.IsInRole("Advisor"))
             {
@@ -93,7 +97,6 @@
                     </div>
                 </div>
                 <form method="post" asp-controller="Account" asp-action="Logout" class="d-inline ms-1">
-                    @Html.AntiForgeryToken()
                     <button type="submit" class="btn-topbar-icon" title="Çıkış yap">
                         <i class="bi bi-box-arrow-right"></i>
                     </button>

@@ -517,6 +517,26 @@ body {
   color: var(--status-rejected);
 }
 
+.btn-icon-warning {
+  color: var(--status-review);
+}
+
+.btn-icon-warning:hover {
+  background-color: rgba(245, 158, 11, 0.08);
+  border-color: var(--status-review);
+  color: var(--status-review);
+}
+
+.btn-icon-success {
+  color: var(--status-accepted);
+}
+
+.btn-icon-success:hover {
+  background-color: rgba(16, 185, 129, 0.08);
+  border-color: var(--status-accepted);
+  color: var(--status-accepted);
+}
+
 
 /* ── Form card (Edit pages) ──────────────────────────────────── */
 .form-card {

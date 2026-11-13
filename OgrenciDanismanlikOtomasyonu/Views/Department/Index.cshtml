@@ -3,10 +3,14 @@
     var trCulture = new System.Globalization.CultureInfo("tr-TR");
     var now       = DateTime.Now;
     var today     = now.ToString("d MMMM yyyy, dddd", trCulture);
-    var greeting  = now.Hour < 12 ? "Günaydın" : (now.Hour < 18 ? "İyi günler" : "İyi akşamlar");
+    var greeting  = (now.Hour >= 5 && now.Hour < 12) ? "Günaydın"
+                  : (now.Hour < 18)                 ? "İyi günler"
+                  : (now.Hour < 22)                 ? "İyi akşamlar"
+                  : "İyi geceler";
     var userName  = User.Identity?.Name ?? "";
-    int facultyCount    = ViewBag.FacultyCount    ?? 0;
-    int departmentCount = ViewBag.DepartmentCount ?? 0;
+    int facultyCount       = ViewBag.FacultyCount       ?? 0;
+    int departmentCount    = ViewBag.DepartmentCount    ?? 0;
+    int activeAdvisorCount = ViewBag.ActiveAdvisorCount ?? 0;
 }
 
 <div class="dashboard-greeting">
@@ -29,6 +33,14 @@
             ["SCCount"] = departmentCount,
             ["SCLabel"] = "Bölüm",
             ["SCLink"]  = Url.Action("Index", "Departments")
+        })
+    </div>
+    <div class="col-sm-6 col-lg-4">
+        @await Html.PartialAsync("_StatCard", new ViewDataDictionary(ViewData) {
+            ["SCIcon"]  = "bi-person-badge",
+            ["SCCount"] = activeAdvisorCount,
+            ["SCLabel"] = "Aktif Danışman",
+            ["SCLink"]  = Url.Action("Index", "Advisors")
         })
     </div>
 </div>
