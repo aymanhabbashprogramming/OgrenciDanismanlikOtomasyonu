@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using OgrenciDanismanlikOtomasyonu.Models;
 using System.Diagnostics;
+using System.Security.Claims;
 
 namespace OgrenciDanismanlikOtomasyonu.Controllers
 {
@@ -8,18 +9,25 @@ namespace OgrenciDanismanlikOtomasyonu.Controllers
     {
         public IActionResult Index()
         {
-            return View();
+            if (User.Identity?.IsAuthenticated == true)
+                return RedirectByRole(User.FindFirstValue(ClaimTypes.Role) ?? "");
+            return RedirectToAction("Login", "Account");
         }
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
+        public IActionResult Privacy() => View();
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
+
+        private IActionResult RedirectByRole(string role) => role switch
+        {
+            "Student"           => RedirectToAction("Index", "Student"),
+            "Advisor"           => RedirectToAction("Index", "Advisor"),
+            "DepartmentManager" => RedirectToAction("Index", "Department"),
+            _                   => RedirectToAction("Login", "Account")
+        };
     }
 }
