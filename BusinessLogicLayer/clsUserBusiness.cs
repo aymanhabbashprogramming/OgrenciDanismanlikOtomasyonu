@@ -19,15 +19,15 @@ namespace BusinessLogicLayer
             Mode      = enMode.AddNew;
         }
 
-        private clsUserBusiness(clsUser u)
+        private clsUserBusiness(clsUser user)
         {
-            UserId       = u.UserId;
-            Username     = u.Username;
-            PasswordHash = u.PasswordHash;
-            RoleId       = u.RoleId;
-            IsActive     = u.IsActive;
-            CreatedAt    = u.CreatedAt;
-            LastLoginAt  = u.LastLoginAt;
+            UserId       = user.UserId;
+            Username     = user.Username;
+            PasswordHash = user.PasswordHash;
+            RoleId       = user.RoleId;
+            IsActive     = user.IsActive;
+            CreatedAt    = user.CreatedAt;
+            LastLoginAt  = user.LastLoginAt;
             Mode         = enMode.Update;
         }
 
@@ -38,8 +38,8 @@ namespace BusinessLogicLayer
 
         public static clsUserBusiness? Find(int userId)
         {
-            clsUser? u = clsUserData.GetUserInfoByID(userId);
-            return u is null ? null : new clsUserBusiness(u);
+            clsUser? user = clsUserData.GetUserInfoByID(userId);
+            return user is null ? null : new clsUserBusiness(user);
         }
 
         private bool _AddNewUser()
@@ -66,12 +66,12 @@ namespace BusinessLogicLayer
 
         public static clsUserBusiness? Login(string username, string password)
         {
-            clsUser? u = clsUserData.GetUserInfoByUsername(username);
-            if (u is null || !u.IsActive) return null;
-            if (!BC.Verify(password, u.PasswordHash)) return null;
-            clsUserData.UpdateLastLogin(u.UserId);
-            u.LastLoginAt = DateTime.Now;
-            return new clsUserBusiness(u);
+            clsUser? user = clsUserData.GetUserInfoByUsername(username);
+            if (user is null || !user.IsActive) return null;
+            if (!BC.Verify(password, user.PasswordHash)) return null;
+            clsUserData.UpdateLastLogin(user.UserId);
+            user.LastLoginAt = DateTime.Now;
+            return new clsUserBusiness(user);
         }
 
         public static List<clsUser> GetAllUsers()  => clsUserData.GetAllUsers();

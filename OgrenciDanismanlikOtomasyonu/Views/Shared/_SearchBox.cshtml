@@ -1,0 +1,23 @@
+@* ViewData params:
+   SearchTableId     (required) — id of the <table> to filter
+   SearchPlaceholder (optional) — input placeholder text
+   SearchCountLabel  (optional) — word after the count, e.g. "öğrenci"
+*@
+@{
+    var placeholder = ViewData["SearchPlaceholder"] as string ?? "Ara…";
+    var tableId     = ViewData["SearchTableId"]     as string ?? "dataTable";
+    var countLabel  = ViewData["SearchCountLabel"]  as string ?? "sonuç";
+}
+
+<div class="search-box-wrapper mb-3" data-table-id="@tableId" data-count-label="@countLabel">
+    <div class="search-box-input-wrap">
+        <span class="input-icon bi bi-search"></span>
+        <input type="text" class="form-control ps-icon pe-clear search-box-input"
+               placeholder="@placeholder" autocomplete="off" />
+        <button type="button" class="search-clear-btn" style="display:none"
+                aria-label="Aramayı temizle">
+            <i class="bi bi-x-lg"></i>
+        </button>
+    </div>
+    <span class="search-count"></span>
+</div>

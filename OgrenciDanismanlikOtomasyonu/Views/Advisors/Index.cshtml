@@ -1,0 +1,107 @@
+@model List<EntityLayer.clsAdvisorInfo>
+@{
+    ViewData["Title"] = "Danışmanlar";
+}
+
+@await Html.PartialAsync("_PageHeader", new ViewDataDictionary(ViewData) {
+    ["HeaderTitle"]      = "Danışmanlar",
+    ["HeaderSubtitle"]   = "Bölüme atanmış danışman listesi",
+    ["HeaderActionText"] = "Yeni Danışman",
+    ["HeaderActionLink"] = Url.Action("Edit", "Advisors")
+})
+
+@if (TempData["Success"] is string successMsg)
+{
+    <div class="alert alert-success d-flex align-items-center gap-2 mb-3">
+        <i class="bi bi-check-circle-fill flex-shrink-0"></i>
+        <span>@successMsg</span>
+    </div>
+}
+@if (TempData["Error"] is string errorMsg)
+{
+    <div class="alert alert-danger d-flex align-items-center gap-2 mb-3">
+        <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+        <span>@errorMsg</span>
+    </div>
+}
+
+@if (!Model.Any())
+{
+    @await Html.PartialAsync("_EmptyState", new ViewDataDictionary(ViewData) {
+        ["EmptyIcon"]       = "bi-person-badge",
+        ["EmptyMessage"]    = "Kayıtlı danışman bulunamadı.",
+        ["EmptyActionText"] = "Danışman Ekle",
+        ["EmptyActionLink"] = Url.Action("Edit", "Advisors")
+    })
+}
+else
+{
+    <div class="card-table">
+        <table class="table data-table mb-0">
+            <thead>
+                <tr>
+                    <th>Ad Soyad</th>
+                    <th>Unvan</th>
+                    <th>Sicil No</th>
+                    <th>Bölüm</th>
+                    <th>Kullanıcı Adı</th>
+                    <th>Durum</th>
+                    <th style="width:120px">İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@($"{item.FirstName} {item.LastName}".Trim())</td>
+                        <td>@(string.IsNullOrWhiteSpace(item.AcademicTitle) ? "-" : item.AcademicTitle)</td>
+                        <td class="text-id">@item.SicilNo</td>
+                        <td>@item.DepartmentName</td>
+                        <td>@item.Username</td>
+                        <td>
+                            @if (item.IsActive)
+                            {
+                                <span class="status-accepted">Aktif</span>
+                            }
+                            else
+                            {
+                                <span class="status-sent">Pasif</span>
+                            }
+                        </td>
+                        <td>
+                            <div class="d-flex gap-1 align-items-center">
+                                <a asp-action="Edit" asp-route-id="@item.AdvisorId"
+                                   class="btn-icon btn-icon-primary"
+                                   data-bs-toggle="tooltip" title="Düzenle">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a asp-action="ResetPassword" asp-route-id="@item.AdvisorId"
+                                   class="btn-icon btn-icon-primary"
+                                   data-bs-toggle="tooltip" title="Şifre Sıfırla">
+                                    <i class="bi bi-key"></i>
+                                </a>
+                                <form method="post" asp-action="ToggleActive" class="d-inline">
+                                    <input type="hidden" name="id" value="@item.AdvisorId" />
+                                    @if (item.IsActive)
+                                    {
+                                        <button type="submit" class="btn-icon btn-icon-warning"
+                                                data-bs-toggle="tooltip" title="Devre Dışı Bırak">
+                                            <i class="bi bi-pause-circle"></i>
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button type="submit" class="btn-icon btn-icon-success"
+                                                data-bs-toggle="tooltip" title="Aktif Et">
+                                            <i class="bi bi-play-circle"></i>
+                                        </button>
+                                    }
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

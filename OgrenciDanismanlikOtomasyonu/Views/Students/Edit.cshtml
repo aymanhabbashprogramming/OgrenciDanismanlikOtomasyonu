@@ -1,0 +1,238 @@
+@model BusinessLogicLayer.clsStudentBusiness
+@{
+    bool isNew = Model.StudentId == -1;
+    ViewData["Title"] = isNew ? "Yeni Öğrenci" : "Öğrenci Düzenle";
+    var departments    = ViewBag.Departments as List<EntityLayer.clsDepartment>
+                         ?? new List<EntityLayer.clsDepartment>();
+    var activeAdvisors = ViewBag.ActiveAdvisors as List<EntityLayer.clsAdvisorInfo>
+                         ?? new List<EntityLayer.clsAdvisorInfo>();
+    var currentAdvisor = ViewBag.CurrentAdvisor as EntityLayer.clsAdvisorInfo;
+}
+
+@await Html.PartialAsync("_PageHeader", new ViewDataDictionary(ViewData) {
+    ["HeaderTitle"]    = isNew ? "Yeni Öğrenci" : "Öğrenci Düzenle",
+    ["HeaderSubtitle"] = isNew ? "Yeni bir öğrenci kaydı ekleyin" : "Öğrenci bilgilerini güncelleyin"
+})
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger d-flex align-items-start gap-2 mb-3" style="max-width:720px">
+        <i class="bi bi-exclamation-triangle-fill flex-shrink-0 mt-1"></i>
+        <div>
+            @foreach (var fieldState in ViewData.ModelState.Values)
+            {
+                @foreach (var fieldError in fieldState.Errors)
+                {
+                    <div>@fieldError.ErrorMessage</div>
+                }
+            }
+        </div>
+    </div>
+}
+
+<form method="post" asp-action="Edit">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="studentId" value="@Model.StudentId" />
+    <div class="form-card" style="max-width:720px">
+        <div class="form-card-body">
+
+            <div class="row g-3 mb-3">
+                <div class="col-sm-6">
+                    <label class="form-label required">Ad</label>
+                    <input type="text" name="firstName" value="@Model.FirstName"
+                           class="form-control" maxlength="50" required autofocus />
+                </div>
+                <div class="col-sm-6">
+                    <label class="form-label required">Soyad</label>
+                    <input type="text" name="lastName" value="@Model.LastName"
+                           class="form-control" maxlength="50" required />
+                </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-sm-6">
+                    <label class="form-label required">Öğrenci Numarası</label>
+                    <input type="text" name="studentNumber" value="@Model.StudentNumber"
+                           class="form-control" maxlength="20" required />
+                </div>
+                <div class="col-sm-6">
+                    <label class="form-label">TC Kimlik No</label>
+                    <input type="text" name="nationalId" value="@Model.NationalId"
+                           class="form-control" maxlength="20" inputmode="numeric" />
+                </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-sm-6">
+                    <label class="form-label required">Bölüm</label>
+                    <select name="departmentId" id="departmentSelect" class="form-select" required>
+                        <option value="0">-- Bölüm Seçiniz --</option>
+                        @foreach (var department in departments)
+                        {
+                            if (department.DepartmentId == Model.DepartmentId)
+                            {
+                                <option value="@department.DepartmentId" selected>@department.DepartmentName</option>
+                            }
+                            else
+                            {
+                                <option value="@department.DepartmentId">@department.DepartmentName</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-sm-6">
+                    <label class="form-label required">Öğretim Türü</label>
+                    @{
+                        var educationTypeOptions = new[] {
+                            ("Örgün",   "Örgün Öğretim"),
+                            ("İkinci",  "İkinci Öğretim"),
+                            ("Uzaktan", "Uzaktan Öğretim")
+                        };
+                    }
+                    <select name="educationType" class="form-select" required>
+                        <option value="">-- Seçiniz --</option>
+                        @foreach (var (optionValue, optionLabel) in educationTypeOptions)
+                        {
+                            if (Model.EducationType == optionValue)
+                            {
+                                <option value="@optionValue" selected>@optionLabel</option>
+                            }
+                            else
+                            {
+                                <option value="@optionValue">@optionLabel</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-sm-4">
+                    <label class="form-label">Sınıf</label>
+                    <select name="classYear" class="form-select">
+                        <option value="">--</option>
+                        @for (int y = 1; y <= 4; y++)
+                        {
+                            if (Model.ClassYear == y)
+                            {
+                                <option value="@y" selected>@y. Sınıf</option>
+                            }
+                            else
+                            {
+                                <option value="@y">@y. Sınıf</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-sm-4">
+                    <label class="form-label">Cep Telefonu</label>
+                    <input type="text" name="mobilePhone" value="@Model.MobilePhone"
+                           class="form-control" maxlength="20" />
+                </div>
+                <div class="col-sm-4">
+                    <label class="form-label">E-posta</label>
+                    <input type="email" name="email" value="@Model.Email"
+                           class="form-control" maxlength="100" />
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="isInternational"
+                           id="isInternational" value="true" @(Model.IsInternational ? "checked" : "") />
+                    <input type="hidden" name="isInternational" value="false" />
+                    <label class="form-check-label" for="isInternational">Uluslararası Öğrenci</label>
+                </div>
+            </div>
+
+            @if (isNew)
+            {
+                <div class="mb-3">
+                    <label class="form-label">Danışman (İsteğe Bağlı)</label>
+                    <select name="initialAdvisorId" id="advisorSelect" class="form-select">
+                        <option value="0">-- Danışman Seçiniz --</option>
+                        @foreach (var advisor in activeAdvisors)
+                        {
+                            <option value="@advisor.AdvisorId">@advisor.FullName</option>
+                        }
+                    </select>
+                    <div class="form-text">Bölüm seçtikten sonra o bölümün danışmanları listelenir.</div>
+                </div>
+            }
+            else if (currentAdvisor != null)
+            {
+                <div class="mb-3">
+                    <label class="form-label">Mevcut Danışman</label>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="form-control-plaintext fw-medium">@currentAdvisor.FullName</span>
+                        <a asp-action="ChangeAdvisor" asp-route-id="@Model.StudentId"
+                           class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-arrow-repeat me-1"></i>Değiştir
+                        </a>
+                    </div>
+                </div>
+            }
+
+            <hr class="my-3" />
+
+            <div class="mb-3">
+                <label class="form-label required">Kullanıcı Adı</label>
+                <input type="text" name="username" value="@Model.Username"
+                       class="form-control" maxlength="100" required />
+            </div>
+
+            @if (isNew)
+            {
+                <div class="mb-0">
+                    <label class="form-label required">Şifre</label>
+                    <input type="password" name="password"
+                           class="form-control" minlength="6" required />
+                    <div class="form-text">En az 6 karakter.</div>
+                </div>
+            }
+
+        </div>
+        <div class="form-card-footer">
+            <a asp-action="Index" class="btn btn-secondary">İptal</a>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check2 me-1"></i>Kaydet
+            </button>
+        </div>
+    </div>
+</form>
+
+@if (isNew)
+{
+    @section Scripts {
+    <script>
+        (function () {
+            var departmentSelect = document.getElementById('departmentSelect');
+            var advisorSelect    = document.getElementById('advisorSelect');
+            if (!departmentSelect || !advisorSelect) return;
+
+            departmentSelect.addEventListener('change', function () {
+                var departmentId = this.value;
+                advisorSelect.innerHTML = '<option value="0">Yükleniyor…</option>';
+                if (!departmentId || departmentId === '0') {
+                    advisorSelect.innerHTML = '<option value="0">-- Danışman Seçiniz --</option>';
+                    return;
+                }
+                fetch('/Students/ActiveAdvisors?departmentId=' + departmentId)
+                    .then(function (response) { return response.json(); })
+                    .then(function (data) {
+                        advisorSelect.innerHTML = '<option value="0">-- Danışman Seçiniz --</option>';
+                        data.forEach(function (advisor) {
+                            var opt = document.createElement('option');
+                            opt.value = advisor.advisorId;
+                            opt.textContent = advisor.fullName;
+                            advisorSelect.appendChild(opt);
+                        });
+                    })
+                    .catch(function () {
+                        advisorSelect.innerHTML = '<option value="0">-- Danışman Seçiniz --</option>';
+                    });
+            });
+        })();
+    </script>
+    }
+}

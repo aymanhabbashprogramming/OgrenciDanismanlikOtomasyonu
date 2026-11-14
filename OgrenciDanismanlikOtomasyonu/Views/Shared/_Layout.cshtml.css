@@ -1,45 +1,31 @@
-﻿a.navbar-brand {
-  white-space: normal;
-  text-align: center;
-  word-break: break-all;
+﻿/* Links in page content area use primary color */
+.page-content a {
+    color: var(--color-primary);
 }
 
-a {
-  color: var(--color-primary);
+.page-content a:hover {
+    color: var(--color-primary-hover);
 }
 
 .btn-primary {
-  color: #fff;
-  background-color: var(--color-primary);
-  border-color: var(--color-primary);
+    color: var(--color-on-primary);
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
 }
 
 .nav-pills .nav-link.active, .nav-pills .show > .nav-link {
-  color: #fff;
-  background-color: var(--color-primary);
-  border-color: var(--color-primary);
+    color: var(--color-on-primary);
+    background-color: var(--color-primary);
 }
 
 .border-top {
-  border-top: 1px solid var(--color-border);
+    border-top: 1px solid var(--color-border);
 }
+
 .border-bottom {
-  border-bottom: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
 }
 
 .box-shadow {
-  box-shadow: 0 .25rem .75rem var(--color-shadow-soft);
-}
-
-button.accept-policy {
-  font-size: 1rem;
-  line-height: inherit;
-}
-
-.footer {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  white-space: nowrap;
-  line-height: 60px;
+    box-shadow: var(--shadow-sm);
 }

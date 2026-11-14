@@ -1,0 +1,16 @@
+@{
+    var icon       = ViewData["EmptyIcon"]       as string ?? "bi-inbox";
+    var message    = ViewData["EmptyMessage"]    as string ?? "Kayıt bulunamadı.";
+    var actionText = ViewData["EmptyActionText"] as string ?? "";
+    var actionLink = ViewData["EmptyActionLink"] as string ?? "#";
+}
+<div class="empty-state">
+    <i class="bi @icon empty-state-icon"></i>
+    <p class="empty-state-msg">@message</p>
+    @if (!string.IsNullOrEmpty(actionText))
+    {
+        <a href="@actionLink" class="btn btn-primary">
+            <i class="bi bi-plus-lg me-1"></i>@actionText
+        </a>
+    }
+</div>

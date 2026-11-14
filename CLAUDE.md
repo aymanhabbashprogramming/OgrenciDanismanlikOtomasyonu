@@ -4,7 +4,7 @@
 - ASP.NET Core MVC (.NET 10) + SQL Server, ADO.NET with Microsoft.Data.SqlClient only. No Entity Framework.
 
 ## Layers
-- **EntityLayer**: data carrier classes (done, do not change)
+- **EntityLayer**: data carrier classes and DTO/view classes (joined data, e.g. `clsStudentInfo`, `clsAdvisorInfo`). DTO/view classes also live in EntityLayer with the `cls` prefix.
 - **DataAccessLayer**: database access
 - **BusinessLogicLayer**: business logic
 - **Web project**: Controllers + Razor Views + Bootstrap
@@ -51,5 +51,7 @@ Tables that never change from the site (e.g. Roles) get **only the read methods*
 ## Rules
 - Never run git commands
 - Never change the database schema
+- **Naming and readability**: use clear, meaningful names that describe the content, in full words but not excessively long (`department`, `reader`, `studentList`, `facultyId` — never `d`, `r`, `sl`, `x`, `SB`). Only loop counters may be `i`/`j`. Write code in the professor's clear style: braces on their own lines, no several statements squeezed on one line, no cryptic abbreviations or prefixes.
 - **Colors**: all colors live ONLY in the `:root` block of `OgrenciDanismanlikOtomasyonu/wwwroot/css/site.css` as CSS variables. Never hard-code a color anywhere else (views, inline styles, other CSS). Bootstrap colors must map to these variables.
+- **Radius, shadows, spacing and fonts** also live only in the `:root` block of `site.css` as CSS variables.
 - **File placement**: all web files (Controllers, Views, wwwroot) live inside the `OgrenciDanismanlikOtomasyonu` project folder, never at the solution root.

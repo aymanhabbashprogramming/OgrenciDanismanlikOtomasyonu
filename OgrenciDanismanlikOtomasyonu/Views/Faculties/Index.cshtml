@@ -1,0 +1,105 @@
+@model List<EntityLayer.clsFaculty>
+@{
+    ViewData["Title"] = "Fakülteler";
+}
+
+@await Html.PartialAsync("_PageHeader", new ViewDataDictionary(ViewData) {
+    ["HeaderTitle"]      = "Fakülteler",
+    ["HeaderSubtitle"]   = "Fakülte kayıtlarını görüntüleyin ve yönetin",
+    ["HeaderActionText"] = "Yeni Fakülte",
+    ["HeaderActionLink"] = Url.Action("Edit", "Faculties")
+})
+
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success d-flex align-items-center gap-2 mb-3">
+        <i class="bi bi-check-circle-fill flex-shrink-0"></i><span>@TempData["Success"]</span>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger d-flex align-items-center gap-2 mb-3">
+        <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i><span>@TempData["Error"]</span>
+    </div>
+}
+
+@if (!Model.Any())
+{
+    @await Html.PartialAsync("_EmptyState", new ViewDataDictionary(ViewData) {
+        ["EmptyIcon"]       = "bi-building-slash",
+        ["EmptyMessage"]    = "Henüz fakülte kaydı bulunmuyor.",
+        ["EmptyActionText"] = "Fakülte Ekle",
+        ["EmptyActionLink"] = Url.Action("Edit", "Faculties")
+    })
+}
+else
+{
+    <div class="card-table">
+        <table class="table data-table mb-0">
+            <thead>
+                <tr>
+                    <th style="width:70px">No</th>
+                    <th>Fakülte Adı</th>
+                    <th style="width:90px">İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var faculty in Model)
+                {
+                    <tr>
+                        <td class="text-id">@faculty.FacultyId</td>
+                        <td>@faculty.FacultyName</td>
+                        <td>
+                            <div class="d-flex gap-1">
+                                <a asp-action="Edit" asp-route-id="@faculty.FacultyId"
+                                   class="btn-icon btn-icon-primary"
+                                   title="Düzenle">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <button type="button" class="btn-icon btn-icon-danger"
+                                        data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                        data-id="@faculty.FacultyId" data-name="@faculty.FacultyName"
+                                        title="Sil">
+                                    <i class="bi bi-trash3"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+<!-- Delete confirmation modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h6 class="modal-title fw-semibold">Silme Onayı</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <strong id="deleteName"></strong> adlı fakülteyi silmek istiyor musunuz?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">İptal</button>
+                <form method="post" asp-action="Delete" class="d-inline">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="id" id="deleteId" />
+                    <button type="submit" class="btn btn-danger btn-sm">Sil</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    document.getElementById('deleteModal').addEventListener('show.bs.modal', function (e) {
+        var btn = e.relatedTarget;
+        document.getElementById('deleteId').value   = btn.getAttribute('data-id');
+        document.getElementById('deleteName').textContent = btn.getAttribute('data-name');
+    });
+</script>
+}

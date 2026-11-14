@@ -1,0 +1,64 @@
+@model BusinessLogicLayer.clsDepartmentBusiness
+@{
+    bool isNew = Model.DepartmentId == -1;
+    ViewData["Title"] = isNew ? "Yeni Bölüm" : "Bölüm Düzenle";
+    var faculties = ViewBag.Faculties as List<EntityLayer.clsFaculty> ?? new List<EntityLayer.clsFaculty>();
+}
+
+@await Html.PartialAsync("_PageHeader", new ViewDataDictionary(ViewData) {
+    ["HeaderTitle"]    = isNew ? "Yeni Bölüm" : "Bölüm Düzenle",
+    ["HeaderSubtitle"] = isNew ? "Yeni bir bölüm kaydı ekleyin" : "Bölüm bilgilerini güncelleyin"
+})
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger d-flex align-items-start gap-2 mb-3" style="max-width:640px">
+        <i class="bi bi-exclamation-triangle-fill flex-shrink-0 mt-1"></i>
+        <div>
+            @foreach (var fieldState in ViewData.ModelState.Values)
+            {
+                @foreach (var fieldError in fieldState.Errors)
+                {
+                    <div>@fieldError.ErrorMessage</div>
+                }
+            }
+        </div>
+    </div>
+}
+
+<form method="post" asp-action="Edit">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="departmentId" value="@Model.DepartmentId" />
+    <div class="form-card">
+        <div class="form-card-body">
+            <div class="mb-3">
+                <label class="form-label required">Bölüm Adı</label>
+                <input type="text" name="departmentName" value="@Model.DepartmentName"
+                       class="form-control" maxlength="200" required autofocus />
+            </div>
+            <div class="mb-0">
+                <label class="form-label required">Fakülte</label>
+                <select name="facultyId" class="form-select" required>
+                    <option value="0">-- Fakülte Seçiniz --</option>
+                    @foreach (var faculty in faculties)
+                    {
+                        if (faculty.FacultyId == Model.FacultyId)
+                        {
+                            <option value="@faculty.FacultyId" selected>@faculty.FacultyName</option>
+                        }
+                        else
+                        {
+                            <option value="@faculty.FacultyId">@faculty.FacultyName</option>
+                        }
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="form-card-footer">
+            <a asp-action="Index" class="btn btn-secondary">İptal</a>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check2 me-1"></i>Kaydet
+            </button>
+        </div>
+    </div>
+</form>

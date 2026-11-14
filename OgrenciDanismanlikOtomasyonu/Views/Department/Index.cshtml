@@ -1,8 +1,55 @@
 @{
-    ViewData["Title"] = "Bölüm Başkanlığı Paneli";
+    ViewData["Title"] = "Ana Sayfa";
+    var trCulture = new System.Globalization.CultureInfo("tr-TR");
+    var now       = DateTime.Now;
+    var today     = now.ToString("d MMMM yyyy, dddd", trCulture);
+    var greeting  = (now.Hour >= 5 && now.Hour < 12) ? "Günaydın"
+                  : (now.Hour < 18)                 ? "İyi günler"
+                  : (now.Hour < 22)                 ? "İyi akşamlar"
+                  : "İyi geceler";
+    var userName  = User.Identity?.Name ?? "";
+    int facultyCount        = ViewBag.FacultyCount       ?? 0;
+    int departmentCount     = ViewBag.DepartmentCount    ?? 0;
+    int activeAdvisorCount  = ViewBag.ActiveAdvisorCount ?? 0;
+    int activeStudentCount  = ViewBag.ActiveStudentCount ?? 0;
 }
 
-<div class="text-center py-5">
-    <h2>Hoş geldiniz, @User.Identity?.Name!</h2>
-    <p class="text-muted">Bölüm başkanlığı paneline hoş geldiniz.</p>
+<div class="dashboard-greeting">
+    <p class="dashboard-greeting-text">@greeting, @userName!</p>
+    <p class="dashboard-date">@today</p>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-lg-3">
+        @await Html.PartialAsync("_StatCard", new ViewDataDictionary(ViewData) {
+            ["CardIcon"]  = "bi-building",
+            ["CardCount"] = facultyCount,
+            ["CardLabel"] = "Fakülte",
+            ["CardLink"]  = Url.Action("Index", "Faculties")
+        })
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        @await Html.PartialAsync("_StatCard", new ViewDataDictionary(ViewData) {
+            ["CardIcon"]  = "bi-diagram-3",
+            ["CardCount"] = departmentCount,
+            ["CardLabel"] = "Bölüm",
+            ["CardLink"]  = Url.Action("Index", "Departments")
+        })
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        @await Html.PartialAsync("_StatCard", new ViewDataDictionary(ViewData) {
+            ["CardIcon"]  = "bi-person-badge",
+            ["CardCount"] = activeAdvisorCount,
+            ["CardLabel"] = "Aktif Danışman",
+            ["CardLink"]  = Url.Action("Index", "Advisors")
+        })
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        @await Html.PartialAsync("_StatCard", new ViewDataDictionary(ViewData) {
+            ["CardIcon"]  = "bi-mortarboard",
+            ["CardCount"] = activeStudentCount,
+            ["CardLabel"] = "Aktif Öğrenci",
+            ["CardLink"]  = Url.Action("Index", "Students")
+        })
+    </div>
 </div>

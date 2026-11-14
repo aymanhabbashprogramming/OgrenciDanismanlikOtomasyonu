@@ -1,0 +1,123 @@
+@model BusinessLogicLayer.clsAdvisorBusiness
+@{
+    bool isNew = Model.AdvisorId == -1;
+    ViewData["Title"] = isNew ? "Yeni Danışman" : "Danışman Düzenle";
+    var departments = ViewBag.Departments as List<EntityLayer.clsDepartment> ?? new List<EntityLayer.clsDepartment>();
+}
+
+@await Html.PartialAsync("_PageHeader", new ViewDataDictionary(ViewData) {
+    ["HeaderTitle"]    = isNew ? "Yeni Danışman" : "Danışman Düzenle",
+    ["HeaderSubtitle"] = isNew ? "Yeni bir danışman kaydı ekleyin" : "Danışman bilgilerini güncelleyin"
+})
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger d-flex align-items-start gap-2 mb-3" style="max-width:640px">
+        <i class="bi bi-exclamation-triangle-fill flex-shrink-0 mt-1"></i>
+        <div>
+            @foreach (var fieldState in ViewData.ModelState.Values)
+            {
+                @foreach (var fieldError in fieldState.Errors)
+                {
+                    <div>@fieldError.ErrorMessage</div>
+                }
+            }
+        </div>
+    </div>
+}
+
+<form method="post" asp-action="Edit">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="advisorId" value="@Model.AdvisorId" />
+    <div class="form-card" style="max-width:640px">
+        <div class="form-card-body">
+
+            <div class="row g-3 mb-3">
+                <div class="col-sm-6">
+                    <label class="form-label required">Ad</label>
+                    <input type="text" name="firstName" value="@Model.FirstName"
+                           class="form-control" maxlength="100" required autofocus />
+                </div>
+                <div class="col-sm-6">
+                    <label class="form-label required">Soyad</label>
+                    <input type="text" name="lastName" value="@Model.LastName"
+                           class="form-control" maxlength="100" required />
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Akademik Unvan</label>
+                <input type="text" name="academicTitle" value="@Model.AcademicTitle"
+                       class="form-control" maxlength="100" placeholder="Dr., Prof. Dr., vb." />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label required">Sicil No</label>
+                <input type="text" name="sicilNo" value="@Model.SicilNo"
+                       class="form-control" maxlength="50" required />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label required">Bölüm</label>
+                <select name="departmentId" class="form-select" required>
+                    <option value="0">-- Bölüm Seçiniz --</option>
+                    @foreach (var department in departments)
+                    {
+                        if (department.DepartmentId == Model.DepartmentId)
+                        {
+                            <option value="@department.DepartmentId" selected>@department.DepartmentName</option>
+                        }
+                        else
+                        {
+                            <option value="@department.DepartmentId">@department.DepartmentName</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-sm-6">
+                    <label class="form-label">E-posta</label>
+                    <input type="email" name="email" value="@Model.Email"
+                           class="form-control" maxlength="200" />
+                </div>
+                <div class="col-sm-6">
+                    <label class="form-label">Telefon</label>
+                    <input type="text" name="phone" value="@Model.Phone"
+                           class="form-control" maxlength="30" />
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Oda No</label>
+                <input type="text" name="officeNo" value="@Model.OfficeNo"
+                       class="form-control" maxlength="20" />
+            </div>
+
+            <hr class="my-3" />
+
+            <div class="mb-3">
+                <label class="form-label required">Kullanıcı Adı</label>
+                <input type="text" name="username" value="@Model.Username"
+                       class="form-control" maxlength="100" required />
+            </div>
+
+            @if (isNew)
+            {
+                <div class="mb-0">
+                    <label class="form-label required">Şifre</label>
+                    <input type="password" name="password"
+                           class="form-control" minlength="6" required />
+                    <div class="form-text">En az 6 karakter.</div>
+                </div>
+            }
+
+        </div>
+        <div class="form-card-footer">
+            <a asp-action="Index" class="btn btn-secondary">İptal</a>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check2 me-1"></i>Kaydet
+            </button>
+        </div>
+    </div>
+</form>

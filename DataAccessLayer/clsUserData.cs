@@ -1,19 +1,20 @@
-using EntityLayer;
+﻿using EntityLayer;
 using Microsoft.Data.SqlClient;
+using System.Diagnostics;
 
 namespace DataAccessLayer
 {
     public static class clsUserData
     {
-        private static clsUser _Map(SqlDataReader r) => new clsUser
+        private static clsUser _Map(SqlDataReader reader) => new clsUser
         {
-            UserId       = (int)r["UserId"],
-            Username     = (string)r["Username"],
-            PasswordHash = (string)r["PasswordHash"],
-            RoleId       = (int)r["RoleId"],
-            IsActive     = (bool)r["IsActive"],
-            CreatedAt    = (DateTime)r["CreatedAt"],
-            LastLoginAt  = r["LastLoginAt"] == DBNull.Value ? null : (DateTime?)r["LastLoginAt"]
+            UserId       = (int)reader["UserId"],
+            Username     = (string)reader["Username"],
+            PasswordHash = (string)reader["PasswordHash"],
+            RoleId       = (int)reader["RoleId"],
+            IsActive     = (bool)reader["IsActive"],
+            CreatedAt    = (DateTime)reader["CreatedAt"],
+            LastLoginAt  = reader["LastLoginAt"] == DBNull.Value ? null : (DateTime?)reader["LastLoginAt"]
         };
 
         private const string _selectAll =
@@ -27,10 +28,14 @@ namespace DataAccessLayer
                 using SqlCommand cmd = new(_selectAll + " WHERE UserId = @UserId", conn);
                 cmd.Parameters.AddWithValue("@UserId", userId);
                 conn.Open();
-                using SqlDataReader r = cmd.ExecuteReader();
-                return r.Read() ? _Map(r) : null;
+                using SqlDataReader reader = cmd.ExecuteReader();
+                return reader.Read() ? _Map(reader) : null;
             }
-            catch { return null; }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[clsUserData] {ex.Message}");
+                return null;
+            }
         }
 
         public static clsUser? GetUserInfoByUsername(string username)
@@ -41,10 +46,14 @@ namespace DataAccessLayer
                 using SqlCommand cmd = new(_selectAll + " WHERE Username = @Username", conn);
                 cmd.Parameters.AddWithValue("@Username", username);
                 conn.Open();
-                using SqlDataReader r = cmd.ExecuteReader();
-                return r.Read() ? _Map(r) : null;
+                using SqlDataReader reader = cmd.ExecuteReader();
+                return reader.Read() ? _Map(reader) : null;
             }
-            catch { return null; }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[clsUserData] {ex.Message}");
+                return null;
+            }
         }
 
         public static int AddNewUser(clsUser user)
@@ -66,7 +75,11 @@ namespace DataAccessLayer
                 object? result = cmd.ExecuteScalar();
                 return result is not null ? Convert.ToInt32(result) : -1;
             }
-            catch { return -1; }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[clsUserData] {ex.Message}");
+                return -1;
+            }
         }
 
         public static bool UpdateUser(clsUser user)
@@ -89,7 +102,11 @@ namespace DataAccessLayer
                 conn.Open();
                 return cmd.ExecuteNonQuery() > 0;
             }
-            catch { return false; }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[clsUserData] {ex.Message}");
+                return false;
+            }
         }
 
         public static bool DeleteUser(int userId)
@@ -102,22 +119,32 @@ namespace DataAccessLayer
                 conn.Open();
                 return cmd.ExecuteNonQuery() > 0;
             }
-            catch { return false; }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[clsUserData] {ex.Message}");
+                return false;
+            }
         }
 
         public static List<clsUser> GetAllUsers()
         {
-            List<clsUser> list = new();
+            List<clsUser> userList = new();
             try
             {
                 using SqlConnection conn = new(clsDataAccessSettings.ConnectionString);
                 using SqlCommand cmd = new(_selectAll + " ORDER BY UserId", conn);
                 conn.Open();
-                using SqlDataReader r = cmd.ExecuteReader();
-                while (r.Read()) list.Add(_Map(r));
+                using SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    userList.Add(_Map(reader));
+                }
             }
-            catch { }
-            return list;
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[clsUserData] {ex.Message}");
+            }
+            return userList;
         }
 
         public static bool IsUserExist(int userId)
@@ -130,7 +157,11 @@ namespace DataAccessLayer
                 conn.Open();
                 return (int)cmd.ExecuteScalar() > 0;
             }
-            catch { return false; }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[clsUserData] {ex.Message}");
+                return false;
+            }
         }
 
         public static bool UpdateLastLogin(int userId)
@@ -144,7 +175,11 @@ namespace DataAccessLayer
                 conn.Open();
                 return cmd.ExecuteNonQuery() > 0;
             }
-            catch { return false; }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[clsUserData] {ex.Message}");
+                return false;
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using EntityLayer;
 using Microsoft.Data.SqlClient;
+using System.Diagnostics;
 
 namespace DataAccessLayer
 {
@@ -24,7 +25,7 @@ namespace DataAccessLayer
                 }
                 return null;
             }
-            catch { return null; }
+            catch (Exception ex) { Debug.WriteLine($"[clsRoleData.GetRoleInfoByID] {ex.Message}"); return null; }
         }
 
         public static List<clsRole> GetAllRoles()
@@ -45,7 +46,7 @@ namespace DataAccessLayer
                     });
                 }
             }
-            catch { }
+            catch (Exception ex) { Debug.WriteLine($"[clsRoleData.GetAllRoles] {ex.Message}"); }
             return roles;
         }
 
@@ -59,7 +60,7 @@ namespace DataAccessLayer
                 connection.Open();
                 return (int)command.ExecuteScalar() > 0;
             }
-            catch { return false; }
+            catch (Exception ex) { Debug.WriteLine($"[clsRoleData.IsRoleExist] {ex.Message}"); return false; }
         }
     }
 }
