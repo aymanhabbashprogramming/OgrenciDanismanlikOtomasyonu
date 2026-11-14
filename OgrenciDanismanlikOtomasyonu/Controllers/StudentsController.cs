@@ -7,9 +7,29 @@ namespace OgrenciDanismanlikOtomasyonu.Controllers
     [Authorize(Roles = "DepartmentManager")]
     public class StudentsController : Controller
     {
-        public IActionResult Index()
+        public IActionResult Index(string? filter = null, int? advisorId = null)
         {
-            return View(clsStudentBusiness.GetAllStudents());
+            List<EntityLayer.clsStudentInfo> studentList;
+
+            if (filter == "noAdvisor")
+                studentList = clsStudentBusiness.GetStudentsWithoutActiveAdvisor();
+            else if (filter == "inactiveAdvisor")
+                studentList = clsStudentBusiness.GetStudentsWithInactiveAdvisor();
+            else if (advisorId.HasValue)
+                studentList = clsStudentBusiness.GetStudentsByAdvisorId(advisorId.Value);
+            else
+                studentList = clsStudentBusiness.GetAllStudents();
+
+            ViewBag.ActiveFilter       = filter;
+            ViewBag.FilterAdvisorId    = advisorId;
+
+            if (advisorId.HasValue)
+            {
+                var advisor = clsAdvisorBusiness.Find(advisorId.Value);
+                ViewBag.FilterAdvisorName = advisor?.GetFullName();
+            }
+
+            return View(studentList);
         }
 
         [HttpGet]
@@ -209,8 +229,8 @@ namespace OgrenciDanismanlikOtomasyonu.Controllers
         [HttpGet]
         public JsonResult ActiveAdvisors(int departmentId)
         {
-            var list = clsAdvisorBusiness.GetActiveAdvisorsForDepartment(departmentId);
-            return Json(list.Select(advisor => new { advisor.AdvisorId, FullName = advisor.FullName }));
+            List<EntityLayer.clsAdvisorInfo> advisorList = clsAdvisorBusiness.GetActiveAdvisorsForDepartment(departmentId);
+            return Json(advisorList.Select(advisor => new { advisor.AdvisorId, FullName = advisor.FullName }));
         }
 
         private static void _Fill(clsStudentBusiness student, string? studentNumber, string? firstName,

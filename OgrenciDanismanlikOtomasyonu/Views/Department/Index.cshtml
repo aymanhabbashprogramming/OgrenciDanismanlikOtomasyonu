@@ -7,11 +7,11 @@
                   : (now.Hour < 18)                 ? "İyi günler"
                   : (now.Hour < 22)                 ? "İyi akşamlar"
                   : "İyi geceler";
-    var userName  = User.Identity?.Name ?? "";
-    int facultyCount        = ViewBag.FacultyCount       ?? 0;
-    int departmentCount     = ViewBag.DepartmentCount    ?? 0;
-    int activeAdvisorCount  = ViewBag.ActiveAdvisorCount ?? 0;
-    int activeStudentCount  = ViewBag.ActiveStudentCount ?? 0;
+    var userName             = User.Identity?.Name ?? "";
+    int facultyCount         = ViewBag.FacultyCount       ?? 0;
+    int departmentCount      = ViewBag.DepartmentCount    ?? 0;
+    int activeAdvisorCount   = ViewBag.ActiveAdvisorCount ?? 0;
+    int activeStudentCount   = ViewBag.ActiveStudentCount ?? 0;
 }
 
 <div class="dashboard-greeting">
@@ -50,6 +50,30 @@
             ["CardCount"] = activeStudentCount,
             ["CardLabel"] = "Aktif Öğrenci",
             ["CardLink"]  = Url.Action("Index", "Students")
+        })
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-lg-6">
+        @await Html.PartialAsync("_CurrentSemester", new ViewDataDictionary(ViewData) {
+            ["CurrentSemester"] = ViewBag.CurrentSemester as EntityLayer.clsSemester
+        })
+    </div>
+    <div class="col-lg-6">
+        @await Html.PartialAsync("_AttentionItems", new ViewDataDictionary(ViewData) {
+            ["StudentsWithoutAdvisorCount"]       = ViewBag.StudentsWithoutAdvisorCount,
+            ["InactiveAdvisorsWithStudentsCount"]  = ViewBag.InactiveAdvisorsWithStudentsCount,
+            ["NoAdvisorUrl"]                       = Url.Action("Index", "Students", new { filter = "noAdvisor" }),
+            ["InactiveAdvisorUrl"]                 = Url.Action("Index", "Advisors", new { filter = "inactiveWithStudents" })
+        })
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-12">
+        @await Html.PartialAsync("_AdvisorStatistics", new ViewDataDictionary(ViewData) {
+            ["AdvisorStatisticsList"] = ViewBag.AdvisorStatisticsList as List<EntityLayer.clsAdvisorStatisticsInfo>
         })
     </div>
 </div>

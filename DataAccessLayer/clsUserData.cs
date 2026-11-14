@@ -6,7 +6,7 @@ namespace DataAccessLayer
 {
     public static class clsUserData
     {
-        private static clsUser _Map(SqlDataReader reader) => new clsUser
+        private static clsUser _MapUser(SqlDataReader reader) => new clsUser
         {
             UserId       = (int)reader["UserId"],
             Username     = (string)reader["Username"],
@@ -29,7 +29,7 @@ namespace DataAccessLayer
                 cmd.Parameters.AddWithValue("@UserId", userId);
                 conn.Open();
                 using SqlDataReader reader = cmd.ExecuteReader();
-                return reader.Read() ? _Map(reader) : null;
+                return reader.Read() ? _MapUser(reader) : null;
             }
             catch (Exception ex)
             {
@@ -47,7 +47,7 @@ namespace DataAccessLayer
                 cmd.Parameters.AddWithValue("@Username", username);
                 conn.Open();
                 using SqlDataReader reader = cmd.ExecuteReader();
-                return reader.Read() ? _Map(reader) : null;
+                return reader.Read() ? _MapUser(reader) : null;
             }
             catch (Exception ex)
             {
@@ -137,7 +137,7 @@ namespace DataAccessLayer
                 using SqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
-                    userList.Add(_Map(reader));
+                    userList.Add(_MapUser(reader));
                 }
             }
             catch (Exception ex)

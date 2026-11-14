@@ -1,0 +1,43 @@
+@using EntityLayer
+@{
+    var statisticsList = ViewData["AdvisorStatisticsList"] as List<clsAdvisorStatisticsInfo> ?? new();
+    int maxCount       = statisticsList.Any() ? statisticsList.Max(item => item.ActiveStudentCount) : 0;
+}
+
+<div class="dashboard-info-card">
+    <div class="dashboard-info-card-header">
+        <div class="dashboard-info-card-icon">
+            <i class="bi bi-bar-chart-line"></i>
+        </div>
+        <div class="dashboard-info-card-title">Danışman İstatistikleri</div>
+        <a href="@Url.Action("Index", "AdvisorStatistics")" class="dashboard-info-card-link">
+            Tümünü Gör →
+        </a>
+    </div>
+    @if (!statisticsList.Any())
+    {
+        <div class="dashboard-info-card-body">
+            <span class="text-muted">Aktif danışman bulunamadı.</span>
+        </div>
+    }
+    else
+    {
+        <ul class="advisor-stats-list">
+            @foreach (var advisor in statisticsList)
+            {
+                int percentage = maxCount > 0
+                    ? (int)Math.Round(100.0 * advisor.ActiveStudentCount / maxCount)
+                    : 0;
+                <li class="advisor-stats-item">
+                    <div class="advisor-stats-name">@advisor.FullName</div>
+                    <div class="advisor-stats-bar-wrap">
+                        <div class="advisor-stats-bar-track">
+                            <div class="advisor-stats-bar-fill" style="width: @percentage%"></div>
+                        </div>
+                        <span class="advisor-stats-count">@advisor.ActiveStudentCount</span>
+                    </div>
+                </li>
+            }
+        </ul>
+    }
+</div>

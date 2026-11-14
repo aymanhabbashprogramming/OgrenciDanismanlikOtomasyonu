@@ -7,9 +7,17 @@ namespace OgrenciDanismanlikOtomasyonu.Controllers
     [Authorize(Roles = "DepartmentManager")]
     public class AdvisorsController : Controller
     {
-        public IActionResult Index()
+        public IActionResult Index(string? filter = null)
         {
-            return View(clsAdvisorBusiness.GetAllAdvisors());
+            List<EntityLayer.clsAdvisorInfo> advisorList;
+
+            if (filter == "inactiveWithStudents")
+                advisorList = clsAdvisorBusiness.GetInactiveAdvisorsWithStudents();
+            else
+                advisorList = clsAdvisorBusiness.GetAllAdvisors();
+
+            ViewBag.ActiveFilter = filter;
+            return View(advisorList);
         }
 
         [HttpGet]
@@ -70,9 +78,9 @@ namespace OgrenciDanismanlikOtomasyonu.Controllers
             }
             else
             {
-                var found = clsAdvisorBusiness.Find(advisorId);
-                if (found is null) return NotFound();
-                advisor = found;
+                clsAdvisorBusiness? foundAdvisor = clsAdvisorBusiness.Find(advisorId);
+                if (foundAdvisor is null) return NotFound();
+                advisor = foundAdvisor;
             }
 
             advisor.FirstName     = firstName!.Trim();

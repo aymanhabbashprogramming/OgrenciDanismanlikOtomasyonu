@@ -6,7 +6,7 @@ namespace DataAccessLayer
 {
     public static class clsDepartmentData
     {
-        private static clsDepartment _Map(SqlDataReader reader) => new clsDepartment
+        private static clsDepartment _MapDepartment(SqlDataReader reader) => new clsDepartment
         {
             DepartmentId   = (int)reader["DepartmentId"],
             DepartmentName = (string)reader["DepartmentName"],
@@ -23,7 +23,7 @@ namespace DataAccessLayer
                 cmd.Parameters.AddWithValue("@DepartmentId", departmentId);
                 conn.Open();
                 using SqlDataReader reader = cmd.ExecuteReader();
-                return reader.Read() ? _Map(reader) : null;
+                return reader.Read() ? _MapDepartment(reader) : null;
             }
             catch (Exception ex)
             {
@@ -102,15 +102,15 @@ namespace DataAccessLayer
             {
                 using SqlConnection conn = new(clsDataAccessSettings.ConnectionString);
                 using SqlCommand cmd = new(@"
-                    SELECT d.DepartmentId, d.DepartmentName, d.FacultyId
-                    FROM   Departments d
-                    INNER JOIN Faculties f ON d.FacultyId = f.FacultyId
-                    ORDER BY f.FacultyName, d.DepartmentName", conn);
+                    SELECT Department.DepartmentId, Department.DepartmentName, Department.FacultyId
+                    FROM   Departments AS Department
+                    INNER JOIN Faculties AS Faculty ON Department.FacultyId = Faculty.FacultyId
+                    ORDER BY Faculty.FacultyName, Department.DepartmentName", conn);
                 conn.Open();
                 using SqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
-                    departmentList.Add(_Map(reader));
+                    departmentList.Add(_MapDepartment(reader));
                 }
             }
             catch (Exception ex)
@@ -151,7 +151,7 @@ namespace DataAccessLayer
                 using SqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
                 {
-                    departmentList.Add(_Map(reader));
+                    departmentList.Add(_MapDepartment(reader));
                 }
             }
             catch (Exception ex)

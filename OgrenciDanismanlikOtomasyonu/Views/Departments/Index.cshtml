@@ -49,10 +49,10 @@ else
                 @foreach (var department in Model)
                 {
                     <tr>
-                        <td class="text-id">@department.DepartmentId</td>
-                        <td>@department.DepartmentName</td>
-                        <td class="text-muted">@(facultyNames.TryGetValue(department.FacultyId, out var facultyName) ? facultyName : "—")</td>
-                        <td>
+                        <td class="text-id" data-label="No">@department.DepartmentId</td>
+                        <td data-label="Bölüm Adı">@department.DepartmentName</td>
+                        <td class="text-muted" data-label="Fakülte">@(facultyNames.TryGetValue(department.FacultyId, out var facultyName) ? facultyName : "—")</td>
+                        <td data-label="İşlemler" class="cell-actions">
                             <div class="d-flex gap-1">
                                 <a asp-action="Edit" asp-route-id="@department.DepartmentId"
                                    class="btn-icon btn-icon-primary"

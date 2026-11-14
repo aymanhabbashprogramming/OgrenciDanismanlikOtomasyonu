@@ -29,8 +29,8 @@ else
                 @foreach (var role in Model)
                 {
                     <tr>
-                        <td class="text-id">@role.RoleId</td>
-                        <td>@role.RoleName</td>
+                        <td class="text-id" data-label="No">@role.RoleId</td>
+                        <td data-label="Rol Adı">@role.RoleName</td>
                     </tr>
                 }
             </tbody>

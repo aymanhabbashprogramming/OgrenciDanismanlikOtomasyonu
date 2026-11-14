@@ -1,0 +1,46 @@
+@{
+    int studentsWithoutAdvisor       = (int)(ViewData["StudentsWithoutAdvisorCount"]       ?? 0);
+    int inactiveAdvisorsWithStudents = (int)(ViewData["InactiveAdvisorsWithStudentsCount"] ?? 0);
+    bool allOk                       = studentsWithoutAdvisor == 0 && inactiveAdvisorsWithStudents == 0;
+    string noAdvisorUrl              = (ViewData["NoAdvisorUrl"]       as string) ?? "#";
+    string inactiveAdvisorUrl        = (ViewData["InactiveAdvisorUrl"] as string) ?? "#";
+}
+
+<div class="dashboard-info-card">
+    <div class="dashboard-info-card-header">
+        <div class="dashboard-info-card-icon">
+            <i class="bi bi-exclamation-triangle"></i>
+        </div>
+        <div class="dashboard-info-card-title">Dikkat Gerektirenler</div>
+    </div>
+    @if (allOk)
+    {
+        <div class="attention-ok">
+            <i class="bi bi-check-circle-fill"></i>
+            Her şey yolunda
+        </div>
+    }
+    else
+    {
+        <ul class="attention-list">
+            @if (studentsWithoutAdvisor > 0)
+            {
+                <li class="attention-item">
+                    <a href="@noAdvisorUrl" class="attention-item-link">
+                        Aktif danışmanı olmayan öğrenci
+                    </a>
+                    <span class="attention-item-count">@studentsWithoutAdvisor</span>
+                </li>
+            }
+            @if (inactiveAdvisorsWithStudents > 0)
+            {
+                <li class="attention-item">
+                    <a href="@inactiveAdvisorUrl" class="attention-item-link">
+                        Öğrencisi olan pasif danışman
+                    </a>
+                    <span class="attention-item-count">@inactiveAdvisorsWithStudents</span>
+                </li>
+            }
+        </ul>
+    }
+</div>

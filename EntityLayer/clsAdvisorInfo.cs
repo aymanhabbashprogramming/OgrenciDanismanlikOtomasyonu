@@ -13,6 +13,8 @@ namespace EntityLayer
         public string Username       { get; set; } = string.Empty;
         public bool   IsActive       { get; set; }
 
+        public int    StudentCount  { get; set; }
+
         public string FullName => string.IsNullOrWhiteSpace(AcademicTitle)
             ? $"{FirstName} {LastName}".Trim()
             : $"{AcademicTitle} {FirstName} {LastName}".Trim();

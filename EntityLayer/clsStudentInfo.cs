@@ -19,6 +19,7 @@ namespace EntityLayer
         public bool    IsActive         { get; set; }
         public int?    CurrentAdvisorId { get; set; }
         public string? AdvisorFullName  { get; set; }
+        public bool?   IsAdvisorActive  { get; set; }
 
         public string FullName => $"{FirstName} {LastName}".Trim();
     }

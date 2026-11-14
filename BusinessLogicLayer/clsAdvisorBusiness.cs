@@ -138,5 +138,11 @@ namespace BusinessLogicLayer
 
         public static List<clsAdvisorInfo> GetActiveAdvisorsForDepartment(int departmentId) =>
             clsAdvisorData.GetActiveAdvisorsByDepartmentId(departmentId);
+
+        public static List<clsAdvisorInfo> GetInactiveAdvisorsWithStudents() =>
+            clsAdvisorData.GetInactiveAdvisorsWithStudents();
+
+        public static List<clsAdvisorStatisticsInfo> GetAdvisorStatisticsList() =>
+            clsAdvisorData.GetAdvisorStatisticsList();
     }
 }

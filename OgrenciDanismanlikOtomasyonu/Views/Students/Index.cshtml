@@ -1,6 +1,7 @@
 @model List<EntityLayer.clsStudentInfo>
 @{
-    ViewData["Title"] = "Öğrenciler";
+    ViewData["Title"]   = "Öğrenciler";
+    string? activeFilter = ViewBag.ActiveFilter as string;
 }
 
 @await Html.PartialAsync("_PageHeader", new ViewDataDictionary(ViewData) {
@@ -9,6 +10,28 @@
     ["HeaderActionText"] = "Yeni Öğrenci",
     ["HeaderActionLink"] = Url.Action("Edit", "Students")
 })
+
+@if (activeFilter == "noAdvisor")
+{
+    <div class="alert alert-info d-flex align-items-center justify-content-between gap-2 mb-3">
+        <span><i class="bi bi-funnel-fill me-2"></i>Filtre: Aktif danışmanı olmayan öğrenciler</span>
+        <a asp-action="Index" class="btn btn-sm btn-outline-secondary">Filtreyi Kaldır</a>
+    </div>
+}
+else if (activeFilter == "inactiveAdvisor")
+{
+    <div class="alert alert-info d-flex align-items-center justify-content-between gap-2 mb-3">
+        <span><i class="bi bi-funnel-fill me-2"></i>Filtre: Pasif danışmanlı öğrenciler</span>
+        <a asp-action="Index" class="btn btn-sm btn-outline-secondary">Filtreyi Kaldır</a>
+    </div>
+}
+else if (ViewBag.FilterAdvisorId != null)
+{
+    <div class="alert alert-info d-flex align-items-center justify-content-between gap-2 mb-3">
+        <span><i class="bi bi-funnel-fill me-2"></i>Filtre: @(ViewBag.FilterAdvisorName ?? "Seçili danışman") öğrencileri</span>
+        <a asp-action="Index" class="btn btn-sm btn-outline-secondary">Filtreyi Kaldır</a>
+    </div>
+}
 
 @if (TempData["Success"] is string successMsg)
 {
@@ -59,12 +82,25 @@ else
                 @foreach (var item in Model)
                 {
                     <tr>
-                        <td class="text-id">@item.StudentNumber</td>
-                        <td>@item.FullName</td>
-                        <td>@item.DepartmentName</td>
-                        <td>@(item.AdvisorFullName ?? "-")</td>
-                        <td>@item.Username</td>
-                        <td>
+                        <td class="text-id" data-label="Öğrenci No">@item.StudentNumber</td>
+                        <td data-label="Ad Soyad">@item.FullName</td>
+                        <td data-label="Bölüm">@item.DepartmentName</td>
+                        <td data-label="Danışman">
+                            @if (item.AdvisorFullName != null)
+                            {
+                                @item.AdvisorFullName
+                                @if (item.IsAdvisorActive == false)
+                                {
+                                    <span class="badge-inactive ms-1">Pasif</span>
+                                }
+                            }
+                            else
+                            {
+                                <span>-</span>
+                            }
+                        </td>
+                        <td data-label="Kullanıcı Adı">@item.Username</td>
+                        <td data-label="Durum">
                             @if (item.IsActive)
                             {
                                 <span class="status-accepted">Aktif</span>
@@ -74,7 +110,7 @@ else
                                 <span class="status-sent">Pasif</span>
                             }
                         </td>
-                        <td>
+                        <td data-label="İşlemler" class="cell-actions">
                             <div class="d-flex gap-1 align-items-center">
                                 <a asp-action="Edit" asp-route-id="@item.StudentId"
                                    class="btn-icon btn-icon-primary"

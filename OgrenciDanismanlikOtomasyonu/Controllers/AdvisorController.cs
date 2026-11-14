@@ -12,8 +12,18 @@ namespace OgrenciDanismanlikOtomasyonu.Controllers
         {
             int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "0");
             var advisor = clsAdvisorBusiness.FindByUserId(userId);
-            if (advisor is null) return View(new List<EntityLayer.clsStudentInfo>());
-            return View(clsStudentBusiness.GetStudentsByAdvisorId(advisor.AdvisorId));
+
+            ViewBag.CurrentSemester = clsSemesterBusiness.GetCurrentSemester();
+
+            if (advisor is null)
+            {
+                ViewBag.StudentCount = 0;
+                return View(new List<EntityLayer.clsStudentInfo>());
+            }
+
+            var students = clsStudentBusiness.GetStudentsByAdvisorId(advisor.AdvisorId);
+            ViewBag.StudentCount = students.Count;
+            return View(students);
         }
     }
 }

@@ -47,9 +47,9 @@ else
                 @foreach (var faculty in Model)
                 {
                     <tr>
-                        <td class="text-id">@faculty.FacultyId</td>
-                        <td>@faculty.FacultyName</td>
-                        <td>
+                        <td class="text-id" data-label="No">@faculty.FacultyId</td>
+                        <td data-label="Fakülte Adı">@faculty.FacultyName</td>
+                        <td data-label="İşlemler" class="cell-actions">
                             <div class="d-flex gap-1">
                                 <a asp-action="Edit" asp-route-id="@faculty.FacultyId"
                                    class="btn-icon btn-icon-primary"

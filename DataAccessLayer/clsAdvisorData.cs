@@ -186,14 +186,14 @@ namespace DataAccessLayer
             {
                 using SqlConnection conn = new(clsDataAccessSettings.ConnectionString);
                 using SqlCommand cmd = new(@"
-                    SELECT a.AdvisorId, a.UserId, a.SicilNo,
-                           ISNULL(a.AcademicTitle, '') AS AcademicTitle,
-                           a.FirstName, a.LastName, a.DepartmentId,
-                           d.DepartmentName, u.Username, u.IsActive
-                    FROM   Advisors a
-                    INNER JOIN Users       u ON a.UserId       = u.UserId
-                    INNER JOIN Departments d ON a.DepartmentId = d.DepartmentId
-                    ORDER BY a.LastName, a.FirstName", conn);
+                    SELECT Advisor.AdvisorId, Advisor.UserId, Advisor.SicilNo,
+                           ISNULL(Advisor.AcademicTitle, '') AS AcademicTitle,
+                           Advisor.FirstName, Advisor.LastName, Advisor.DepartmentId,
+                           Department.DepartmentName, AdvisorUser.Username, AdvisorUser.IsActive
+                    FROM   Advisors AS Advisor
+                    INNER JOIN Users       AS AdvisorUser ON Advisor.UserId       = AdvisorUser.UserId
+                    INNER JOIN Departments AS Department  ON Advisor.DepartmentId = Department.DepartmentId
+                    ORDER BY Advisor.LastName, Advisor.FirstName", conn);
                 conn.Open();
                 using SqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
@@ -252,9 +252,9 @@ namespace DataAccessLayer
             {
                 using SqlConnection conn = new(clsDataAccessSettings.ConnectionString);
                 using SqlCommand cmd = new(@"
-                    SELECT COUNT(*) FROM Advisors a
-                    INNER JOIN Users u ON a.UserId = u.UserId
-                    WHERE u.IsActive = 1", conn);
+                    SELECT COUNT(*) FROM Advisors AS Advisor
+                    INNER JOIN Users AS AdvisorUser ON Advisor.UserId = AdvisorUser.UserId
+                    WHERE AdvisorUser.IsActive = 1", conn);
                 conn.Open();
                 return (int)cmd.ExecuteScalar();
             }
@@ -333,15 +333,15 @@ namespace DataAccessLayer
             {
                 using SqlConnection conn = new(clsDataAccessSettings.ConnectionString);
                 using SqlCommand cmd = new(@"
-                    SELECT a.AdvisorId, a.UserId, a.SicilNo,
-                           ISNULL(a.AcademicTitle, '') AS AcademicTitle,
-                           a.FirstName, a.LastName, a.DepartmentId,
-                           d.DepartmentName, u.Username, u.IsActive
-                    FROM   Advisors a
-                    INNER JOIN Users       u ON a.UserId       = u.UserId
-                    INNER JOIN Departments d ON a.DepartmentId = d.DepartmentId
-                    WHERE  a.DepartmentId = @DepartmentId AND u.IsActive = 1
-                    ORDER BY a.LastName, a.FirstName", conn);
+                    SELECT Advisor.AdvisorId, Advisor.UserId, Advisor.SicilNo,
+                           ISNULL(Advisor.AcademicTitle, '') AS AcademicTitle,
+                           Advisor.FirstName, Advisor.LastName, Advisor.DepartmentId,
+                           Department.DepartmentName, AdvisorUser.Username, AdvisorUser.IsActive
+                    FROM   Advisors AS Advisor
+                    INNER JOIN Users       AS AdvisorUser ON Advisor.UserId       = AdvisorUser.UserId
+                    INNER JOIN Departments AS Department  ON Advisor.DepartmentId = Department.DepartmentId
+                    WHERE  Advisor.DepartmentId = @DepartmentId AND AdvisorUser.IsActive = 1
+                    ORDER BY Advisor.LastName, Advisor.FirstName", conn);
                 cmd.Parameters.AddWithValue("@DepartmentId", departmentId);
                 conn.Open();
                 using SqlDataReader reader = cmd.ExecuteReader();
@@ -355,6 +355,89 @@ namespace DataAccessLayer
                 Debug.WriteLine($"[clsAdvisorData] {ex.Message}");
             }
             return advisorList;
+        }
+
+        public static List<clsAdvisorInfo> GetInactiveAdvisorsWithStudents()
+        {
+            List<clsAdvisorInfo> advisorList = new();
+            try
+            {
+                using SqlConnection conn = new(clsDataAccessSettings.ConnectionString);
+                using SqlCommand cmd = new(@"
+                    SELECT Advisor.AdvisorId, Advisor.UserId, Advisor.SicilNo,
+                           ISNULL(Advisor.AcademicTitle, '') AS AcademicTitle,
+                           Advisor.FirstName, Advisor.LastName, Advisor.DepartmentId,
+                           Department.DepartmentName, AdvisorUser.Username, AdvisorUser.IsActive,
+                           (
+                               SELECT COUNT(*)
+                               FROM AdvisorAssignments AS CurrentAssignment
+                               WHERE CurrentAssignment.AdvisorId = Advisor.AdvisorId AND CurrentAssignment.EndDate IS NULL
+                           ) AS StudentCount
+                    FROM Advisors AS Advisor
+                    INNER JOIN Users       AS AdvisorUser ON Advisor.UserId       = AdvisorUser.UserId
+                    INNER JOIN Departments AS Department  ON Advisor.DepartmentId = Department.DepartmentId
+                    WHERE AdvisorUser.IsActive = 0
+                      AND EXISTS (
+                          SELECT 1 FROM AdvisorAssignments AS AnyAssignment
+                          WHERE AnyAssignment.AdvisorId = Advisor.AdvisorId AND AnyAssignment.EndDate IS NULL
+                      )
+                    ORDER BY Advisor.LastName, Advisor.FirstName", conn);
+                conn.Open();
+                using SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    clsAdvisorInfo advisor = _MapInfo(reader);
+                    advisor.StudentCount = (int)reader["StudentCount"];
+                    advisorList.Add(advisor);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[clsAdvisorData.GetInactiveAdvisorsWithStudents] {ex.Message}");
+            }
+            return advisorList;
+        }
+
+        public static List<clsAdvisorStatisticsInfo> GetAdvisorStatisticsList()
+        {
+            List<clsAdvisorStatisticsInfo> statisticsList = new();
+            try
+            {
+                using SqlConnection conn = new(clsDataAccessSettings.ConnectionString);
+                using SqlCommand cmd = new(@"
+                    SELECT Advisor.AdvisorId,
+                           ISNULL(Advisor.AcademicTitle + ' ', '') + Advisor.FirstName + ' ' + Advisor.LastName AS FullName,
+                           AdvisorUser.IsActive,
+                           (
+                               SELECT COUNT(*)
+                               FROM   AdvisorAssignments AS ActiveAssignment
+                               INNER JOIN Students AS ActiveStudent ON ActiveAssignment.StudentId = ActiveStudent.StudentId
+                               INNER JOIN Users    AS StudentUser   ON ActiveStudent.UserId       = StudentUser.UserId
+                               WHERE  ActiveAssignment.AdvisorId = Advisor.AdvisorId
+                                 AND  ActiveAssignment.EndDate   IS NULL
+                                 AND  StudentUser.IsActive       = 1
+                           ) AS ActiveStudentCount
+                    FROM   Advisors AS Advisor
+                    INNER JOIN Users AS AdvisorUser ON Advisor.UserId = AdvisorUser.UserId
+                    ORDER BY ActiveStudentCount DESC, Advisor.LastName, Advisor.FirstName", conn);
+                conn.Open();
+                using SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    statisticsList.Add(new clsAdvisorStatisticsInfo
+                    {
+                        AdvisorId          = (int)reader["AdvisorId"],
+                        FullName           = (string)reader["FullName"],
+                        IsActive           = (bool)reader["IsActive"],
+                        ActiveStudentCount = (int)reader["ActiveStudentCount"]
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[clsAdvisorData.GetAdvisorStatisticsList] {ex.Message}");
+            }
+            return statisticsList;
         }
     }
 }

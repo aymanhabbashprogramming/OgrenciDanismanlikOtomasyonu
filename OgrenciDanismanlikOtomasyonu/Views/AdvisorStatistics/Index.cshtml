@@ -1,0 +1,131 @@
+@model List<EntityLayer.clsAdvisorStatisticsInfo>
+@{
+    ViewData["Title"] = "Danışman İstatistikleri";
+
+    int    activeAdvisorCount = ViewBag.ActiveAdvisorCount ?? 0;
+    int    activeStudentCount = ViewBag.ActiveStudentCount ?? 0;
+    string averageDisplay     = ViewBag.AverageDisplay     ?? "0,0";
+
+    double average = activeAdvisorCount > 0
+        ? (double)activeStudentCount / activeAdvisorCount
+        : 0.0;
+
+    int maxCount = Model.Any() ? Model.Max(a => a.ActiveStudentCount) : 0;
+}
+
+@await Html.PartialAsync("_PageHeader", new ViewDataDictionary(ViewData) {
+    ["HeaderTitle"]    = "Danışman İstatistikleri",
+    ["HeaderSubtitle"] = "Danışmanlara göre öğrenci sayıları"
+})
+
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-lg-4">
+        @await Html.PartialAsync("_StatCard", new ViewDataDictionary(ViewData) {
+            ["CardIcon"]  = "bi-person-badge",
+            ["CardCount"] = activeAdvisorCount,
+            ["CardLabel"] = "Aktif Danışman",
+            ["CardLink"]  = Url.Action("Index", "Advisors")
+        })
+    </div>
+    <div class="col-sm-6 col-lg-4">
+        @await Html.PartialAsync("_StatCard", new ViewDataDictionary(ViewData) {
+            ["CardIcon"]  = "bi-mortarboard",
+            ["CardCount"] = activeStudentCount,
+            ["CardLabel"] = "Aktif Öğrenci",
+            ["CardLink"]  = Url.Action("Index", "Students")
+        })
+    </div>
+    <div class="col-sm-6 col-lg-4">
+        @await Html.PartialAsync("_StatCard", new ViewDataDictionary(ViewData) {
+            ["CardIcon"]  = "bi-graph-up",
+            ["CardCount"] = averageDisplay,
+            ["CardLabel"] = "Ort. Öğrenci / Danışman"
+        })
+    </div>
+</div>
+
+@if (!Model.Any())
+{
+    @await Html.PartialAsync("_EmptyState", new ViewDataDictionary(ViewData) {
+        ["EmptyIcon"]    = "bi-bar-chart",
+        ["EmptyMessage"] = "Henüz danışman kaydı bulunamadı."
+    })
+}
+else
+{
+    <div class="card-table">
+        <table class="table data-table mb-0" data-sortable>
+            <thead>
+                <tr>
+                    <th data-sort="text">Danışman</th>
+                    <th data-sort="num" data-sort-dir="desc">Öğrenci Sayısı</th>
+                    <th data-sort="num">Ortalamaya Göre</th>
+                    <th style="width:120px">İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var advisor in Model)
+                {
+                    int    percentage = maxCount > 0
+                        ? (int)Math.Round(100.0 * advisor.ActiveStudentCount / maxCount)
+                        : 0;
+
+                    string badgeClass;
+                    string badgeText;
+                    int    sortValue;
+
+                    if (advisor.ActiveStudentCount > average * 1.25)
+                    {
+                        badgeClass = "status-review";
+                        badgeText  = "Yüksek";
+                        sortValue  = 2;
+                    }
+                    else if (advisor.ActiveStudentCount < average * 0.75)
+                    {
+                        badgeClass = "status-sent";
+                        badgeText  = "Düşük";
+                        sortValue  = 0;
+                    }
+                    else
+                    {
+                        badgeClass = "status-accepted";
+                        badgeText  = "Normal";
+                        sortValue  = 1;
+                    }
+
+                    <tr>
+                        <td data-sort-value="@advisor.FullName" data-label="Danışman">
+                            @advisor.FullName
+                            @if (!advisor.IsActive)
+                            {
+                                <span class="badge-inactive ms-1">Pasif</span>
+                            }
+                        </td>
+                        <td data-sort-value="@advisor.ActiveStudentCount" data-label="Öğrenci Sayısı">
+                            <div class="advisor-stats-bar-wrap">
+                                <div class="advisor-stats-bar-track">
+                                    <div class="advisor-stats-bar-fill" style="width: @percentage%"></div>
+                                </div>
+                                <span class="advisor-stats-count">@advisor.ActiveStudentCount</span>
+                            </div>
+                        </td>
+                        <td data-sort-value="@sortValue" data-label="Ortalamaya Göre">
+                            <span class="@badgeClass">@badgeText</span>
+                        </td>
+                        <td data-label="İşlemler" class="cell-actions">
+                            <a asp-controller="Students" asp-action="Index" asp-route-advisorId="@advisor.AdvisorId"
+                               class="btn-icon btn-icon-primary"
+                               data-bs-toggle="tooltip" title="Öğrencileri Gör">
+                                <i class="bi bi-mortarboard"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@section Scripts {
+    <script src="~/js/table-sort.js" asp-append-version="true"></script>
+}

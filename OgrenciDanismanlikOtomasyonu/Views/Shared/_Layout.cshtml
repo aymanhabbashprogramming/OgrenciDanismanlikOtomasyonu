@@ -64,6 +64,10 @@
                    asp-controller="Students" asp-action="Index">
                     <i class="bi bi-mortarboard"></i><span>Öğrenciler</span>
                 </a>
+                <a class="sidebar-link @SidebarActive("AdvisorStatistics")"
+                   asp-controller="AdvisorStatistics" asp-action="Index">
+                    <i class="bi bi-bar-chart"></i><span>Danışman İstatistikleri</span>
+                </a>
             }
             @if (User.IsInRole("Advisor"))
             {
@@ -86,31 +90,35 @@
     <div class="main-area">
         <!-- Topbar -->
         <header class="topbar">
-            <div class="topbar-left">
-                <button class="sidebar-toggle d-lg-none" id="sidebarToggle" aria-label="Menüyü aç/kapat">
-                    <i class="bi bi-list"></i>
-                </button>
-                <span class="topbar-title">@ViewData["Title"]</span>
-            </div>
-            <div class="topbar-right">
-                <div class="topbar-user">
-                    <div class="topbar-avatar">@avatarLetter</div>
-                    <div class="topbar-userinfo d-none d-sm-block">
-                        <span class="topbar-username">@userName</span>
-                        <span class="topbar-role">@roleName</span>
-                    </div>
-                </div>
-                <form method="post" asp-controller="Account" asp-action="Logout" class="d-inline ms-1">
-                    <button type="submit" class="btn-topbar-icon" title="Çıkış yap">
-                        <i class="bi bi-box-arrow-right"></i>
+            <div class="topbar-inner">
+                <div class="topbar-left">
+                    <button class="sidebar-toggle d-lg-none" id="sidebarToggle" aria-label="Menüyü aç/kapat">
+                        <i class="bi bi-list"></i>
                     </button>
-                </form>
+                    <span class="topbar-title">@ViewData["Title"]</span>
+                </div>
+                <div class="topbar-right">
+                    <div class="topbar-user">
+                        <div class="topbar-avatar">@avatarLetter</div>
+                        <div class="topbar-userinfo d-none d-sm-block">
+                            <span class="topbar-username">@userName</span>
+                            <span class="topbar-role">@roleName</span>
+                        </div>
+                    </div>
+                    <form method="post" asp-controller="Account" asp-action="Logout" class="d-inline ms-1">
+                        <button type="submit" class="btn-topbar-icon" title="Çıkış yap">
+                            <i class="bi bi-box-arrow-right"></i>
+                        </button>
+                    </form>
+                </div>
             </div>
         </header>
 
         <!-- Page content -->
         <main class="page-content">
-            @RenderBody()
+            <div class="content-container">
+                @RenderBody()
+            </div>
         </main>
     </div>
 </div>
@@ -139,6 +147,11 @@
 
         if (toggle)   toggle.addEventListener('click', openSidebar);
         if (backdrop) backdrop.addEventListener('click', closeSidebar);
+
+        // Close sidebar after choosing a nav link on mobile
+        document.querySelectorAll('.sidebar-link').forEach(function (link) {
+            link.addEventListener('click', closeSidebar);
+        });
 
         // Init Bootstrap tooltips
         document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (el) {

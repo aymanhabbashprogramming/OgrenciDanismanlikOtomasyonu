@@ -168,5 +168,17 @@ namespace BusinessLogicLayer
 
         public static int GetActiveStudentCount() =>
             clsStudentData.GetActiveStudentCount();
+
+        public static int GetActiveStudentsWithoutActiveAdvisorCount() =>
+            clsStudentData.GetActiveStudentsWithoutActiveAdvisorCount();
+
+        public static int GetInactiveAdvisorsWithStudentsCount() =>
+            clsStudentData.GetInactiveAdvisorsWithStudentsCount();
+
+        public static List<clsStudentInfo> GetStudentsWithoutActiveAdvisor() =>
+            clsStudentData.GetStudentsWithoutActiveAdvisor();
+
+        public static List<clsStudentInfo> GetStudentsWithInactiveAdvisor() =>
+            clsStudentData.GetStudentsWithInactiveAdvisor();
     }
 }
