@@ -6,8 +6,8 @@
 }
 
 @await Html.PartialAsync("_PageHeader", new ViewDataDictionary(ViewData) {
-    ["PHTitle"]    = isNew ? "Yeni Bölüm" : "Bölüm Düzenle",
-    ["PHSubtitle"] = isNew ? "Yeni bir bölüm kaydı ekleyin" : "Bölüm bilgilerini güncelleyin"
+    ["HeaderTitle"]    = isNew ? "Yeni Bölüm" : "Bölüm Düzenle",
+    ["HeaderSubtitle"] = isNew ? "Yeni bir bölüm kaydı ekleyin" : "Bölüm bilgilerini güncelleyin"
 })
 
 @if (!ViewData.ModelState.IsValid)
@@ -15,11 +15,11 @@
     <div class="alert alert-danger d-flex align-items-start gap-2 mb-3" style="max-width:640px">
         <i class="bi bi-exclamation-triangle-fill flex-shrink-0 mt-1"></i>
         <div>
-            @foreach (var val in ViewData.ModelState.Values)
+            @foreach (var fieldState in ViewData.ModelState.Values)
             {
-                @foreach (var err in val.Errors)
+                @foreach (var fieldError in fieldState.Errors)
                 {
-                    <div>@err.ErrorMessage</div>
+                    <div>@fieldError.ErrorMessage</div>
                 }
             }
         </div>
@@ -40,15 +40,15 @@
                 <label class="form-label required">Fakülte</label>
                 <select name="facultyId" class="form-select" required>
                     <option value="0">-- Fakülte Seçiniz --</option>
-                    @foreach (var f in faculties)
+                    @foreach (var faculty in faculties)
                     {
-                        if (f.FacultyId == Model.FacultyId)
+                        if (faculty.FacultyId == Model.FacultyId)
                         {
-                            <option value="@f.FacultyId" selected>@f.FacultyName</option>
+                            <option value="@faculty.FacultyId" selected>@faculty.FacultyName</option>
                         }
                         else
                         {
-                            <option value="@f.FacultyId">@f.FacultyName</option>
+                            <option value="@faculty.FacultyId">@faculty.FacultyName</option>
                         }
                     }
                 </select>

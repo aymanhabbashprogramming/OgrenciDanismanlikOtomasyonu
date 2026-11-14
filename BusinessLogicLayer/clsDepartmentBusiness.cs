@@ -14,18 +14,18 @@ namespace BusinessLogicLayer
             Mode         = enMode.AddNew;
         }
 
-        private clsDepartmentBusiness(clsDepartment d)
+        private clsDepartmentBusiness(clsDepartment department)
         {
-            DepartmentId   = d.DepartmentId;
-            DepartmentName = d.DepartmentName;
-            FacultyId      = d.FacultyId;
+            DepartmentId   = department.DepartmentId;
+            DepartmentName = department.DepartmentName;
+            FacultyId      = department.FacultyId;
             Mode           = enMode.Update;
         }
 
         public static clsDepartmentBusiness? Find(int departmentId)
         {
-            clsDepartment? d = clsDepartmentData.GetDepartmentInfoByID(departmentId);
-            return d is null ? null : new clsDepartmentBusiness(d);
+            clsDepartment? department = clsDepartmentData.GetDepartmentInfoByID(departmentId);
+            return department is null ? null : new clsDepartmentBusiness(department);
         }
 
         private bool _AddNewDepartment()
@@ -46,7 +46,11 @@ namespace BusinessLogicLayer
             switch (Mode)
             {
                 case enMode.AddNew:
-                    if (_AddNewDepartment()) { Mode = enMode.Update; return true; }
+                    if (_AddNewDepartment())
+                    {
+                        Mode = enMode.Update;
+                        return true;
+                    }
                     return false;
                 case enMode.Update:
                     return _UpdateDepartment();

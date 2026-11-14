@@ -5,10 +5,10 @@
 }
 
 @await Html.PartialAsync("_PageHeader", new ViewDataDictionary(ViewData) {
-    ["PHTitle"]      = "Bölümler",
-    ["PHSubtitle"]   = "Bölüm kayıtlarını görüntüleyin ve yönetin",
-    ["PHActionText"] = "Yeni Bölüm",
-    ["PHActionLink"] = Url.Action("Edit", "Departments")
+    ["HeaderTitle"]      = "Bölümler",
+    ["HeaderSubtitle"]   = "Bölüm kayıtlarını görüntüleyin ve yönetin",
+    ["HeaderActionText"] = "Yeni Bölüm",
+    ["HeaderActionLink"] = Url.Action("Edit", "Departments")
 })
 
 @if (TempData["Success"] != null)
@@ -27,10 +27,10 @@
 @if (!Model.Any())
 {
     @await Html.PartialAsync("_EmptyState", new ViewDataDictionary(ViewData) {
-        ["ESIcon"]       = "bi-diagram-3",
-        ["ESMessage"]    = "Henüz bölüm kaydı bulunmuyor.",
-        ["ESActionText"] = "Bölüm Ekle",
-        ["ESActionLink"] = Url.Action("Edit", "Departments")
+        ["EmptyIcon"]       = "bi-diagram-3",
+        ["EmptyMessage"]    = "Henüz bölüm kaydı bulunmuyor.",
+        ["EmptyActionText"] = "Bölüm Ekle",
+        ["EmptyActionLink"] = Url.Action("Edit", "Departments")
     })
 }
 else
@@ -46,22 +46,22 @@ else
                 </tr>
             </thead>
             <tbody>
-                @foreach (var d in Model)
+                @foreach (var department in Model)
                 {
                     <tr>
-                        <td class="text-id">@d.DepartmentId</td>
-                        <td>@d.DepartmentName</td>
-                        <td class="text-muted">@(facultyNames.TryGetValue(d.FacultyId, out var fn) ? fn : "—")</td>
+                        <td class="text-id">@department.DepartmentId</td>
+                        <td>@department.DepartmentName</td>
+                        <td class="text-muted">@(facultyNames.TryGetValue(department.FacultyId, out var facultyName) ? facultyName : "—")</td>
                         <td>
                             <div class="d-flex gap-1">
-                                <a asp-action="Edit" asp-route-id="@d.DepartmentId"
+                                <a asp-action="Edit" asp-route-id="@department.DepartmentId"
                                    class="btn-icon btn-icon-primary"
                                    title="Düzenle">
                                     <i class="bi bi-pencil"></i>
                                 </a>
                                 <button type="button" class="btn-icon btn-icon-danger"
                                         data-bs-toggle="modal" data-bs-target="#deleteModal"
-                                        data-id="@d.DepartmentId" data-name="@d.DepartmentName"
+                                        data-id="@department.DepartmentId" data-name="@department.DepartmentName"
                                         title="Sil">
                                     <i class="bi bi-trash3"></i>
                                 </button>

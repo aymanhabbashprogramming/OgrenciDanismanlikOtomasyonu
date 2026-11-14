@@ -4,10 +4,10 @@
 }
 
 @await Html.PartialAsync("_PageHeader", new ViewDataDictionary(ViewData) {
-    ["PHTitle"]      = "Danışmanlar",
-    ["PHSubtitle"]   = "Bölüme atanmış danışman listesi",
-    ["PHActionText"] = "Yeni Danışman",
-    ["PHActionLink"] = Url.Action("Edit", "Advisors")
+    ["HeaderTitle"]      = "Danışmanlar",
+    ["HeaderSubtitle"]   = "Bölüme atanmış danışman listesi",
+    ["HeaderActionText"] = "Yeni Danışman",
+    ["HeaderActionLink"] = Url.Action("Edit", "Advisors")
 })
 
 @if (TempData["Success"] is string successMsg)
@@ -28,10 +28,10 @@
 @if (!Model.Any())
 {
     @await Html.PartialAsync("_EmptyState", new ViewDataDictionary(ViewData) {
-        ["ESIcon"]       = "bi-person-badge",
-        ["ESMessage"]    = "Kayıtlı danışman bulunamadı.",
-        ["ESActionText"] = "Danışman Ekle",
-        ["ESActionLink"] = Url.Action("Edit", "Advisors")
+        ["EmptyIcon"]       = "bi-person-badge",
+        ["EmptyMessage"]    = "Kayıtlı danışman bulunamadı.",
+        ["EmptyActionText"] = "Danışman Ekle",
+        ["EmptyActionLink"] = Url.Action("Edit", "Advisors")
     })
 }
 else

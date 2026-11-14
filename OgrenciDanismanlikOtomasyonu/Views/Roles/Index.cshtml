@@ -4,15 +4,15 @@
 }
 
 @await Html.PartialAsync("_PageHeader", new ViewDataDictionary(ViewData) {
-    ["PHTitle"]    = "Roller",
-    ["PHSubtitle"] = "Sistemde tanımlı roller"
+    ["HeaderTitle"]    = "Roller",
+    ["HeaderSubtitle"] = "Sistemde tanımlı roller"
 })
 
 @if (!Model.Any())
 {
     @await Html.PartialAsync("_EmptyState", new ViewDataDictionary(ViewData) {
-        ["ESIcon"]    = "bi-shield-slash",
-        ["ESMessage"] = "Kayıtlı rol bulunamadı."
+        ["EmptyIcon"]    = "bi-shield-slash",
+        ["EmptyMessage"] = "Kayıtlı rol bulunamadı."
     })
 }
 else

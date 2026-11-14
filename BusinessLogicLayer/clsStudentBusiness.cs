@@ -27,20 +27,20 @@ namespace BusinessLogicLayer
             Mode      = enMode.AddNew;
         }
 
-        private clsStudentBusiness(clsStudent s, string username, bool isActive)
+        private clsStudentBusiness(clsStudent student, string username, bool isActive)
         {
-            StudentId       = s.StudentId;
-            UserId          = s.UserId;
-            StudentNumber   = s.StudentNumber;
-            FirstName       = s.FirstName;
-            LastName        = s.LastName;
-            NationalId      = s.NationalId;
-            DepartmentId    = s.DepartmentId;
-            EducationType   = s.EducationType;
-            MobilePhone     = s.MobilePhone;
-            Email           = s.Email;
-            ClassYear       = s.ClassYear;
-            IsInternational = s.IsInternational;
+            StudentId       = student.StudentId;
+            UserId          = student.UserId;
+            StudentNumber   = student.StudentNumber;
+            FirstName       = student.FirstName;
+            LastName        = student.LastName;
+            NationalId      = student.NationalId;
+            DepartmentId    = student.DepartmentId;
+            EducationType   = student.EducationType;
+            MobilePhone     = student.MobilePhone;
+            Email           = student.Email;
+            ClassYear       = student.ClassYear;
+            IsInternational = student.IsInternational;
             Username        = username;
             IsActive        = isActive;
             Mode            = enMode.Update;
@@ -48,18 +48,18 @@ namespace BusinessLogicLayer
 
         public static clsStudentBusiness? Find(int studentId)
         {
-            clsStudent? s = clsStudentData.GetStudentInfoByID(studentId);
-            if (s is null) return null;
-            clsUser? u = clsUserData.GetUserInfoByID(s.UserId);
-            return new clsStudentBusiness(s, u?.Username ?? "", u?.IsActive ?? false);
+            clsStudent? student = clsStudentData.GetStudentInfoByID(studentId);
+            if (student is null) return null;
+            clsUser? user = clsUserData.GetUserInfoByID(student.UserId);
+            return new clsStudentBusiness(student, user?.Username ?? "", user?.IsActive ?? false);
         }
 
         public static clsStudentBusiness? FindByUserId(int userId)
         {
-            clsStudent? s = clsStudentData.GetStudentByUserId(userId);
-            if (s is null) return null;
-            clsUser? u = clsUserData.GetUserInfoByID(s.UserId);
-            return new clsStudentBusiness(s, u?.Username ?? "", u?.IsActive ?? false);
+            clsStudent? student = clsStudentData.GetStudentByUserId(userId);
+            if (student is null) return null;
+            clsUser? user = clsUserData.GetUserInfoByID(student.UserId);
+            return new clsStudentBusiness(student, user?.Username ?? "", user?.IsActive ?? false);
         }
 
         private bool _AddNewStudent()
@@ -101,7 +101,11 @@ namespace BusinessLogicLayer
             switch (Mode)
             {
                 case enMode.AddNew:
-                    if (_AddNewStudent()) { Mode = enMode.Update; return true; }
+                    if (_AddNewStudent())
+                    {
+                        Mode = enMode.Update;
+                        return true;
+                    }
                     return false;
                 case enMode.Update:
                     return _UpdateStudent();

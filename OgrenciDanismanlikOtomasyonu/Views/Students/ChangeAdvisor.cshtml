@@ -8,8 +8,8 @@
 }
 
 @await Html.PartialAsync("_PageHeader", new ViewDataDictionary(ViewData) {
-    ["PHTitle"]    = "Danışman Değiştir",
-    ["PHSubtitle"] = $"{Model.GetFullName()} · Danışman ataması"
+    ["HeaderTitle"]    = "Danışman Değiştir",
+    ["HeaderSubtitle"] = $"{Model.GetFullName()} · Danışman ataması"
 })
 
 @if (!ViewData.ModelState.IsValid)
@@ -17,11 +17,11 @@
     <div class="alert alert-danger d-flex align-items-start gap-2 mb-3" style="max-width:560px">
         <i class="bi bi-exclamation-triangle-fill flex-shrink-0 mt-1"></i>
         <div>
-            @foreach (var val in ViewData.ModelState.Values)
+            @foreach (var fieldState in ViewData.ModelState.Values)
             {
-                @foreach (var err in val.Errors)
+                @foreach (var fieldError in fieldState.Errors)
                 {
-                    <div>@err.ErrorMessage</div>
+                    <div>@fieldError.ErrorMessage</div>
                 }
             }
         </div>
@@ -37,9 +37,9 @@
                 <label class="form-label required">Yeni Danışman</label>
                 <select name="newAdvisorId" class="form-select" required>
                     <option value="0">-- Danışman Seçiniz --</option>
-                    @foreach (var a in advisors)
+                    @foreach (var advisor in advisors)
                     {
-                        <option value="@a.AdvisorId">@a.FullName</option>
+                        <option value="@advisor.AdvisorId">@advisor.FullName</option>
                     }
                 </select>
                 @if (!advisors.Any())
@@ -68,8 +68,8 @@
 @if (!history.Any())
 {
     @await Html.PartialAsync("_EmptyState", new ViewDataDictionary(ViewData) {
-        ["ESIcon"]    = "bi-clock-history",
-        ["ESMessage"] = "Henüz danışman ataması yapılmamış."
+        ["EmptyIcon"]    = "bi-clock-history",
+        ["EmptyMessage"] = "Henüz danışman ataması yapılmamış."
     })
 }
 else
@@ -85,13 +85,13 @@ else
                 </tr>
             </thead>
             <tbody>
-                @foreach (var h in history)
+                @foreach (var assignment in history)
                 {
                     <tr>
-                        <td>@h.AdvisorFullName</td>
-                        <td>@h.StartDate.ToString("dd.MM.yyyy")</td>
-                        <td>@(h.EndDate.HasValue ? h.EndDate.Value.ToString("dd.MM.yyyy") : "—")</td>
-                        <td>@(string.IsNullOrWhiteSpace(h.ChangeReason) ? "—" : h.ChangeReason)</td>
+                        <td>@assignment.AdvisorFullName</td>
+                        <td>@assignment.StartDate.ToString("dd.MM.yyyy")</td>
+                        <td>@(assignment.EndDate.HasValue ? assignment.EndDate.Value.ToString("dd.MM.yyyy") : "—")</td>
+                        <td>@(string.IsNullOrWhiteSpace(assignment.ChangeReason) ? "—" : assignment.ChangeReason)</td>
                     </tr>
                 }
             </tbody>

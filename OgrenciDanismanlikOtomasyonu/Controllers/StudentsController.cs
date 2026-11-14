@@ -175,9 +175,9 @@ namespace OgrenciDanismanlikOtomasyonu.Controllers
 
             if (!ModelState.IsValid)
             {
-                var s = clsStudentBusiness.Find(studentId);
-                if (s is null) return NotFound();
-                return View(s);
+                var foundStudent = clsStudentBusiness.Find(studentId);
+                if (foundStudent is null) return NotFound();
+                return View(foundStudent);
             }
 
             if (clsStudentBusiness.ResetPassword(studentId, newPassword!))
@@ -210,24 +210,24 @@ namespace OgrenciDanismanlikOtomasyonu.Controllers
         public JsonResult ActiveAdvisors(int departmentId)
         {
             var list = clsAdvisorBusiness.GetActiveAdvisorsForDepartment(departmentId);
-            return Json(list.Select(a => new { a.AdvisorId, FullName = a.FullName }));
+            return Json(list.Select(advisor => new { advisor.AdvisorId, FullName = advisor.FullName }));
         }
 
-        private static void _Fill(clsStudentBusiness s, string? studentNumber, string? firstName,
+        private static void _Fill(clsStudentBusiness student, string? studentNumber, string? firstName,
             string? lastName, string? nationalId, int departmentId, string? educationType,
             string? mobilePhone, string? email, int? classYear, bool isInternational, string? username)
         {
-            s.StudentNumber   = studentNumber?.Trim()  ?? "";
-            s.FirstName       = firstName?.Trim()      ?? "";
-            s.LastName        = lastName?.Trim()       ?? "";
-            s.NationalId      = nationalId?.Trim()     ?? "";
-            s.DepartmentId    = departmentId;
-            s.EducationType   = educationType?.Trim()  ?? "";
-            s.MobilePhone     = string.IsNullOrWhiteSpace(mobilePhone) ? null : mobilePhone.Trim();
-            s.Email           = string.IsNullOrWhiteSpace(email)       ? null : email.Trim();
-            s.ClassYear       = classYear;
-            s.IsInternational = isInternational;
-            s.Username        = username?.Trim()       ?? "";
+            student.StudentNumber   = studentNumber?.Trim()  ?? "";
+            student.FirstName       = firstName?.Trim()      ?? "";
+            student.LastName        = lastName?.Trim()       ?? "";
+            student.NationalId      = nationalId?.Trim()     ?? "";
+            student.DepartmentId    = departmentId;
+            student.EducationType   = educationType?.Trim()  ?? "";
+            student.MobilePhone     = string.IsNullOrWhiteSpace(mobilePhone) ? null : mobilePhone.Trim();
+            student.Email           = string.IsNullOrWhiteSpace(email)       ? null : email.Trim();
+            student.ClassYear       = classYear;
+            student.IsInternational = isInternational;
+            student.Username        = username?.Trim()       ?? "";
         }
     }
 }

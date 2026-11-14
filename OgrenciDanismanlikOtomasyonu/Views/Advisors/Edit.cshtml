@@ -6,8 +6,8 @@
 }
 
 @await Html.PartialAsync("_PageHeader", new ViewDataDictionary(ViewData) {
-    ["PHTitle"]    = isNew ? "Yeni Danışman" : "Danışman Düzenle",
-    ["PHSubtitle"] = isNew ? "Yeni bir danışman kaydı ekleyin" : "Danışman bilgilerini güncelleyin"
+    ["HeaderTitle"]    = isNew ? "Yeni Danışman" : "Danışman Düzenle",
+    ["HeaderSubtitle"] = isNew ? "Yeni bir danışman kaydı ekleyin" : "Danışman bilgilerini güncelleyin"
 })
 
 @if (!ViewData.ModelState.IsValid)
@@ -15,11 +15,11 @@
     <div class="alert alert-danger d-flex align-items-start gap-2 mb-3" style="max-width:640px">
         <i class="bi bi-exclamation-triangle-fill flex-shrink-0 mt-1"></i>
         <div>
-            @foreach (var val in ViewData.ModelState.Values)
+            @foreach (var fieldState in ViewData.ModelState.Values)
             {
-                @foreach (var err in val.Errors)
+                @foreach (var fieldError in fieldState.Errors)
                 {
-                    <div>@err.ErrorMessage</div>
+                    <div>@fieldError.ErrorMessage</div>
                 }
             }
         </div>
@@ -61,15 +61,15 @@
                 <label class="form-label required">Bölüm</label>
                 <select name="departmentId" class="form-select" required>
                     <option value="0">-- Bölüm Seçiniz --</option>
-                    @foreach (var d in departments)
+                    @foreach (var department in departments)
                     {
-                        if (d.DepartmentId == Model.DepartmentId)
+                        if (department.DepartmentId == Model.DepartmentId)
                         {
-                            <option value="@d.DepartmentId" selected>@d.DepartmentName</option>
+                            <option value="@department.DepartmentId" selected>@department.DepartmentName</option>
                         }
                         else
                         {
-                            <option value="@d.DepartmentId">@d.DepartmentName</option>
+                            <option value="@department.DepartmentId">@department.DepartmentName</option>
                         }
                     }
                 </select>

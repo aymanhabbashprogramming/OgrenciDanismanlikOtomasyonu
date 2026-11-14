@@ -22,34 +22,34 @@
 <div class="row g-3 mb-4">
     <div class="col-sm-6 col-lg-3">
         @await Html.PartialAsync("_StatCard", new ViewDataDictionary(ViewData) {
-            ["SCIcon"]  = "bi-building",
-            ["SCCount"] = facultyCount,
-            ["SCLabel"] = "Fakülte",
-            ["SCLink"]  = Url.Action("Index", "Faculties")
+            ["CardIcon"]  = "bi-building",
+            ["CardCount"] = facultyCount,
+            ["CardLabel"] = "Fakülte",
+            ["CardLink"]  = Url.Action("Index", "Faculties")
         })
     </div>
     <div class="col-sm-6 col-lg-3">
         @await Html.PartialAsync("_StatCard", new ViewDataDictionary(ViewData) {
-            ["SCIcon"]  = "bi-diagram-3",
-            ["SCCount"] = departmentCount,
-            ["SCLabel"] = "Bölüm",
-            ["SCLink"]  = Url.Action("Index", "Departments")
+            ["CardIcon"]  = "bi-diagram-3",
+            ["CardCount"] = departmentCount,
+            ["CardLabel"] = "Bölüm",
+            ["CardLink"]  = Url.Action("Index", "Departments")
         })
     </div>
     <div class="col-sm-6 col-lg-3">
         @await Html.PartialAsync("_StatCard", new ViewDataDictionary(ViewData) {
-            ["SCIcon"]  = "bi-person-badge",
-            ["SCCount"] = activeAdvisorCount,
-            ["SCLabel"] = "Aktif Danışman",
-            ["SCLink"]  = Url.Action("Index", "Advisors")
+            ["CardIcon"]  = "bi-person-badge",
+            ["CardCount"] = activeAdvisorCount,
+            ["CardLabel"] = "Aktif Danışman",
+            ["CardLink"]  = Url.Action("Index", "Advisors")
         })
     </div>
     <div class="col-sm-6 col-lg-3">
         @await Html.PartialAsync("_StatCard", new ViewDataDictionary(ViewData) {
-            ["SCIcon"]  = "bi-mortarboard",
-            ["SCCount"] = activeStudentCount,
-            ["SCLabel"] = "Aktif Öğrenci",
-            ["SCLink"]  = Url.Action("Index", "Students")
+            ["CardIcon"]  = "bi-mortarboard",
+            ["CardCount"] = activeStudentCount,
+            ["CardLabel"] = "Aktif Öğrenci",
+            ["CardLink"]  = Url.Action("Index", "Students")
         })
     </div>
 </div>

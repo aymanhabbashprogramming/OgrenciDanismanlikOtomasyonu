@@ -4,10 +4,10 @@
 }
 
 @await Html.PartialAsync("_PageHeader", new ViewDataDictionary(ViewData) {
-    ["PHTitle"]      = "Öğrenciler",
-    ["PHSubtitle"]   = "Bölüme kayıtlı öğrenci listesi",
-    ["PHActionText"] = "Yeni Öğrenci",
-    ["PHActionLink"] = Url.Action("Edit", "Students")
+    ["HeaderTitle"]      = "Öğrenciler",
+    ["HeaderSubtitle"]   = "Bölüme kayıtlı öğrenci listesi",
+    ["HeaderActionText"] = "Yeni Öğrenci",
+    ["HeaderActionLink"] = Url.Action("Edit", "Students")
 })
 
 @if (TempData["Success"] is string successMsg)
@@ -25,18 +25,19 @@
     </div>
 }
 
-<div class="mb-3" style="max-width:420px">
-    <input type="text" id="searchBox" class="form-control"
-           placeholder="Ad, soyad veya öğrenci nosu ile ara…" autocomplete="off" />
-</div>
+@await Html.PartialAsync("_SearchBox", new ViewDataDictionary(ViewData) {
+    ["SearchTableId"]     = "studentsTable",
+    ["SearchPlaceholder"] = "Ad, soyad veya öğrenci nosu ile ara…",
+    ["SearchCountLabel"]  = "öğrenci"
+})
 
 @if (!Model.Any())
 {
     @await Html.PartialAsync("_EmptyState", new ViewDataDictionary(ViewData) {
-        ["ESIcon"]       = "bi-mortarboard",
-        ["ESMessage"]    = "Kayıtlı öğrenci bulunamadı.",
-        ["ESActionText"] = "Öğrenci Ekle",
-        ["ESActionLink"] = Url.Action("Edit", "Students")
+        ["EmptyIcon"]       = "bi-mortarboard",
+        ["EmptyMessage"]    = "Kayıtlı öğrenci bulunamadı.",
+        ["EmptyActionText"] = "Öğrenci Ekle",
+        ["EmptyActionLink"] = Url.Action("Edit", "Students")
     })
 }
 else
@@ -116,17 +117,3 @@ else
     </div>
 }
 
-@section Scripts {
-<script>
-    (function () {
-        var box = document.getElementById('searchBox');
-        if (!box) return;
-        box.addEventListener('input', function () {
-            var q = this.value.toLowerCase();
-            document.querySelectorAll('#studentsTable tbody tr').forEach(function (row) {
-                row.hidden = !row.textContent.toLowerCase().includes(q);
-            });
-        });
-    })();
-</script>
-}

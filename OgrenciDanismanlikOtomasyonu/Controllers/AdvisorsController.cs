@@ -119,9 +119,9 @@ namespace OgrenciDanismanlikOtomasyonu.Controllers
 
             if (!ModelState.IsValid)
             {
-                var a = clsAdvisorBusiness.Find(advisorId);
-                if (a is null) return NotFound();
-                return View(a);
+                var foundAdvisor = clsAdvisorBusiness.Find(advisorId);
+                if (foundAdvisor is null) return NotFound();
+                return View(foundAdvisor);
             }
 
             if (clsAdvisorBusiness.ResetPassword(advisorId, newPassword!))

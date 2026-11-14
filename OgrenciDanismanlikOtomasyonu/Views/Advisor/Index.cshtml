@@ -4,15 +4,15 @@
 }
 
 @await Html.PartialAsync("_PageHeader", new ViewDataDictionary(ViewData) {
-    ["PHTitle"]    = "Öğrencilerim",
-    ["PHSubtitle"] = "Size atanmış öğrenci listesi"
+    ["HeaderTitle"]    = "Öğrencilerim",
+    ["HeaderSubtitle"] = "Size atanmış öğrenci listesi"
 })
 
 @if (!Model.Any())
 {
     @await Html.PartialAsync("_EmptyState", new ViewDataDictionary(ViewData) {
-        ["ESIcon"]    = "bi-mortarboard",
-        ["ESMessage"] = "Henüz size atanmış öğrenci bulunmamaktadır."
+        ["EmptyIcon"]    = "bi-mortarboard",
+        ["EmptyMessage"] = "Henüz size atanmış öğrenci bulunmamaktadır."
     })
 }
 else

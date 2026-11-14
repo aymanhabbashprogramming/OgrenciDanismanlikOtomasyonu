@@ -29,18 +29,18 @@ namespace BusinessLogicLayer
             Mode      = enMode.AddNew;
         }
 
-        private clsAdvisorBusiness(clsAdvisor a, string username, bool isActive)
+        private clsAdvisorBusiness(clsAdvisor advisor, string username, bool isActive)
         {
-            AdvisorId     = a.AdvisorId;
-            UserId        = a.UserId;
-            SicilNo       = a.SicilNo;
-            AcademicTitle = a.AcademicTitle;
-            FirstName     = a.FirstName;
-            LastName      = a.LastName;
-            DepartmentId  = a.DepartmentId;
-            Email         = a.Email;
-            Phone         = a.Phone;
-            OfficeNo      = a.OfficeNo;
+            AdvisorId     = advisor.AdvisorId;
+            UserId        = advisor.UserId;
+            SicilNo       = advisor.SicilNo;
+            AcademicTitle = advisor.AcademicTitle;
+            FirstName     = advisor.FirstName;
+            LastName      = advisor.LastName;
+            DepartmentId  = advisor.DepartmentId;
+            Email         = advisor.Email;
+            Phone         = advisor.Phone;
+            OfficeNo      = advisor.OfficeNo;
             Username      = username;
             IsActive      = isActive;
             Mode          = enMode.Update;
@@ -48,10 +48,10 @@ namespace BusinessLogicLayer
 
         public static clsAdvisorBusiness? Find(int advisorId)
         {
-            clsAdvisor? a = clsAdvisorData.GetAdvisorInfoByID(advisorId);
-            if (a is null) return null;
-            clsUser? u = clsUserData.GetUserInfoByID(a.UserId);
-            return new clsAdvisorBusiness(a, u?.Username ?? "", u?.IsActive ?? false);
+            clsAdvisor? advisor = clsAdvisorData.GetAdvisorInfoByID(advisorId);
+            if (advisor is null) return null;
+            clsUser? user = clsUserData.GetUserInfoByID(advisor.UserId);
+            return new clsAdvisorBusiness(advisor, user?.Username ?? "", user?.IsActive ?? false);
         }
 
         private bool _AddNewAdvisor()
@@ -97,7 +97,11 @@ namespace BusinessLogicLayer
             switch (Mode)
             {
                 case enMode.AddNew:
-                    if (_AddNewAdvisor()) { Mode = enMode.Update; return true; }
+                    if (_AddNewAdvisor())
+                    {
+                        Mode = enMode.Update;
+                        return true;
+                    }
                     return false;
                 case enMode.Update:
                     return _UpdateAdvisor();
@@ -126,10 +130,10 @@ namespace BusinessLogicLayer
 
         public static clsAdvisorBusiness? FindByUserId(int userId)
         {
-            clsAdvisor? a = clsAdvisorData.GetAdvisorByUserId(userId);
-            if (a is null) return null;
-            clsUser? u = clsUserData.GetUserInfoByID(a.UserId);
-            return new clsAdvisorBusiness(a, u?.Username ?? "", u?.IsActive ?? false);
+            clsAdvisor? advisor = clsAdvisorData.GetAdvisorByUserId(userId);
+            if (advisor is null) return null;
+            clsUser? user = clsUserData.GetUserInfoByID(advisor.UserId);
+            return new clsAdvisorBusiness(advisor, user?.Username ?? "", user?.IsActive ?? false);
         }
 
         public static List<clsAdvisorInfo> GetActiveAdvisorsForDepartment(int departmentId) =>

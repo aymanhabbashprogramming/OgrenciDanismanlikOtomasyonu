@@ -10,8 +10,8 @@
 }
 
 @await Html.PartialAsync("_PageHeader", new ViewDataDictionary(ViewData) {
-    ["PHTitle"]    = isNew ? "Yeni Öğrenci" : "Öğrenci Düzenle",
-    ["PHSubtitle"] = isNew ? "Yeni bir öğrenci kaydı ekleyin" : "Öğrenci bilgilerini güncelleyin"
+    ["HeaderTitle"]    = isNew ? "Yeni Öğrenci" : "Öğrenci Düzenle",
+    ["HeaderSubtitle"] = isNew ? "Yeni bir öğrenci kaydı ekleyin" : "Öğrenci bilgilerini güncelleyin"
 })
 
 @if (!ViewData.ModelState.IsValid)
@@ -19,11 +19,11 @@
     <div class="alert alert-danger d-flex align-items-start gap-2 mb-3" style="max-width:720px">
         <i class="bi bi-exclamation-triangle-fill flex-shrink-0 mt-1"></i>
         <div>
-            @foreach (var val in ViewData.ModelState.Values)
+            @foreach (var fieldState in ViewData.ModelState.Values)
             {
-                @foreach (var err in val.Errors)
+                @foreach (var fieldError in fieldState.Errors)
                 {
-                    <div>@err.ErrorMessage</div>
+                    <div>@fieldError.ErrorMessage</div>
                 }
             }
         </div>
@@ -67,15 +67,15 @@
                     <label class="form-label required">Bölüm</label>
                     <select name="departmentId" id="departmentSelect" class="form-select" required>
                         <option value="0">-- Bölüm Seçiniz --</option>
-                        @foreach (var d in departments)
+                        @foreach (var department in departments)
                         {
-                            if (d.DepartmentId == Model.DepartmentId)
+                            if (department.DepartmentId == Model.DepartmentId)
                             {
-                                <option value="@d.DepartmentId" selected>@d.DepartmentName</option>
+                                <option value="@department.DepartmentId" selected>@department.DepartmentName</option>
                             }
                             else
                             {
-                                <option value="@d.DepartmentId">@d.DepartmentName</option>
+                                <option value="@department.DepartmentId">@department.DepartmentName</option>
                             }
                         }
                     </select>
@@ -83,7 +83,7 @@
                 <div class="col-sm-6">
                     <label class="form-label required">Öğretim Türü</label>
                     @{
-                        var etOptions = new[] {
+                        var educationTypeOptions = new[] {
                             ("Örgün",   "Örgün Öğretim"),
                             ("İkinci",  "İkinci Öğretim"),
                             ("Uzaktan", "Uzaktan Öğretim")
@@ -91,15 +91,15 @@
                     }
                     <select name="educationType" class="form-select" required>
                         <option value="">-- Seçiniz --</option>
-                        @foreach (var (val, lbl) in etOptions)
+                        @foreach (var (optionValue, optionLabel) in educationTypeOptions)
                         {
-                            if (Model.EducationType == val)
+                            if (Model.EducationType == optionValue)
                             {
-                                <option value="@val" selected>@lbl</option>
+                                <option value="@optionValue" selected>@optionLabel</option>
                             }
                             else
                             {
-                                <option value="@val">@lbl</option>
+                                <option value="@optionValue">@optionLabel</option>
                             }
                         }
                     </select>
@@ -151,9 +151,9 @@
                     <label class="form-label">Danışman (İsteğe Bağlı)</label>
                     <select name="initialAdvisorId" id="advisorSelect" class="form-select">
                         <option value="0">-- Danışman Seçiniz --</option>
-                        @foreach (var a in activeAdvisors)
+                        @foreach (var advisor in activeAdvisors)
                         {
-                            <option value="@a.AdvisorId">@a.FullName</option>
+                            <option value="@advisor.AdvisorId">@advisor.FullName</option>
                         }
                     </select>
                     <div class="form-text">Bölüm seçtikten sonra o bölümün danışmanları listelenir.</div>
@@ -206,30 +206,30 @@
     @section Scripts {
     <script>
         (function () {
-            var deptSel   = document.getElementById('departmentSelect');
-            var advSel    = document.getElementById('advisorSelect');
-            if (!deptSel || !advSel) return;
+            var departmentSelect = document.getElementById('departmentSelect');
+            var advisorSelect    = document.getElementById('advisorSelect');
+            if (!departmentSelect || !advisorSelect) return;
 
-            deptSel.addEventListener('change', function () {
-                var deptId = this.value;
-                advSel.innerHTML = '<option value="0">Yükleniyor…</option>';
-                if (!deptId || deptId === '0') {
-                    advSel.innerHTML = '<option value="0">-- Danışman Seçiniz --</option>';
+            departmentSelect.addEventListener('change', function () {
+                var departmentId = this.value;
+                advisorSelect.innerHTML = '<option value="0">Yükleniyor…</option>';
+                if (!departmentId || departmentId === '0') {
+                    advisorSelect.innerHTML = '<option value="0">-- Danışman Seçiniz --</option>';
                     return;
                 }
-                fetch('/Students/ActiveAdvisors?departmentId=' + deptId)
-                    .then(function (r) { return r.json(); })
+                fetch('/Students/ActiveAdvisors?departmentId=' + departmentId)
+                    .then(function (response) { return response.json(); })
                     .then(function (data) {
-                        advSel.innerHTML = '<option value="0">-- Danışman Seçiniz --</option>';
-                        data.forEach(function (a) {
+                        advisorSelect.innerHTML = '<option value="0">-- Danışman Seçiniz --</option>';
+                        data.forEach(function (advisor) {
                             var opt = document.createElement('option');
-                            opt.value = a.advisorId;
-                            opt.textContent = a.fullName;
-                            advSel.appendChild(opt);
+                            opt.value = advisor.advisorId;
+                            opt.textContent = advisor.fullName;
+                            advisorSelect.appendChild(opt);
                         });
                     })
                     .catch(function () {
-                        advSel.innerHTML = '<option value="0">-- Danışman Seçiniz --</option>';
+                        advisorSelect.innerHTML = '<option value="0">-- Danışman Seçiniz --</option>';
                     });
             });
         })();

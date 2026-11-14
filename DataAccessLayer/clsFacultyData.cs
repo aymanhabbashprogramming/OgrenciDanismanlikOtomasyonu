@@ -15,11 +15,18 @@ namespace DataAccessLayer
                     "SELECT FacultyId, FacultyName FROM Faculties WHERE FacultyId = @FacultyId", conn);
                 cmd.Parameters.AddWithValue("@FacultyId", facultyId);
                 conn.Open();
-                using SqlDataReader r = cmd.ExecuteReader();
-                if (!r.Read()) return null;
-                return new clsFaculty { FacultyId = (int)r["FacultyId"], FacultyName = (string)r["FacultyName"] };
+                using SqlDataReader reader = cmd.ExecuteReader();
+                if (!reader.Read())
+                {
+                    return null;
+                }
+                return new clsFaculty { FacultyId = (int)reader["FacultyId"], FacultyName = (string)reader["FacultyName"] };
             }
-            catch (Exception ex) { Debug.WriteLine($"[clsFacultyData.GetFacultyInfoByID] {ex.Message}"); return null; }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[clsFacultyData.GetFacultyInfoByID] {ex.Message}");
+                return null;
+            }
         }
 
         public static int AddNewFaculty(clsFaculty faculty)
@@ -34,7 +41,11 @@ namespace DataAccessLayer
                 object? result = cmd.ExecuteScalar();
                 return result is not null ? Convert.ToInt32(result) : -1;
             }
-            catch (Exception ex) { Debug.WriteLine($"[clsFacultyData.AddNewFaculty] {ex.Message}"); return -1; }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[clsFacultyData.AddNewFaculty] {ex.Message}");
+                return -1;
+            }
         }
 
         public static bool UpdateFaculty(clsFaculty faculty)
@@ -49,7 +60,11 @@ namespace DataAccessLayer
                 conn.Open();
                 return cmd.ExecuteNonQuery() > 0;
             }
-            catch (Exception ex) { Debug.WriteLine($"[clsFacultyData.UpdateFaculty] {ex.Message}"); return false; }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[clsFacultyData.UpdateFaculty] {ex.Message}");
+                return false;
+            }
         }
 
         public static bool DeleteFaculty(int facultyId)
@@ -63,24 +78,33 @@ namespace DataAccessLayer
                 conn.Open();
                 return cmd.ExecuteNonQuery() > 0;
             }
-            catch (Exception ex) { Debug.WriteLine($"[clsFacultyData.DeleteFaculty] {ex.Message}"); return false; }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[clsFacultyData.DeleteFaculty] {ex.Message}");
+                return false;
+            }
         }
 
         public static List<clsFaculty> GetAllFaculties()
         {
-            List<clsFaculty> list = new();
+            List<clsFaculty> facultyList = new();
             try
             {
                 using SqlConnection conn = new(clsDataAccessSettings.ConnectionString);
                 using SqlCommand cmd = new(
                     "SELECT FacultyId, FacultyName FROM Faculties ORDER BY FacultyName", conn);
                 conn.Open();
-                using SqlDataReader r = cmd.ExecuteReader();
-                while (r.Read())
-                    list.Add(new clsFaculty { FacultyId = (int)r["FacultyId"], FacultyName = (string)r["FacultyName"] });
+                using SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    facultyList.Add(new clsFaculty { FacultyId = (int)reader["FacultyId"], FacultyName = (string)reader["FacultyName"] });
+                }
             }
-            catch (Exception ex) { Debug.WriteLine($"[clsFacultyData.GetAllFaculties] {ex.Message}"); }
-            return list;
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[clsFacultyData.GetAllFaculties] {ex.Message}");
+            }
+            return facultyList;
         }
 
         public static bool IsFacultyExist(int facultyId)
@@ -94,7 +118,11 @@ namespace DataAccessLayer
                 conn.Open();
                 return (int)cmd.ExecuteScalar() > 0;
             }
-            catch (Exception ex) { Debug.WriteLine($"[clsFacultyData.IsFacultyExist] {ex.Message}"); return false; }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[clsFacultyData.IsFacultyExist] {ex.Message}");
+                return false;
+            }
         }
 
         public static bool IsFacultyNameExist(string facultyName, int excludeId)
@@ -109,7 +137,11 @@ namespace DataAccessLayer
                 conn.Open();
                 return (int)cmd.ExecuteScalar() > 0;
             }
-            catch (Exception ex) { Debug.WriteLine($"[clsFacultyData.IsFacultyNameExist] {ex.Message}"); return false; }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[clsFacultyData.IsFacultyNameExist] {ex.Message}");
+                return false;
+            }
         }
     }
 }

@@ -61,21 +61,21 @@ namespace OgrenciDanismanlikOtomasyonu.Controllers
                 return View(model);
             }
 
-            clsDepartmentBusiness dept;
+            clsDepartmentBusiness department;
             if (departmentId == -1)
             {
-                dept = new clsDepartmentBusiness();
+                department = new clsDepartmentBusiness();
             }
             else
             {
                 var found = clsDepartmentBusiness.Find(departmentId);
                 if (found is null) return NotFound();
-                dept = found;
+                department = found;
             }
-            dept.DepartmentName = name;
-            dept.FacultyId      = facultyId;
+            department.DepartmentName = name;
+            department.FacultyId      = facultyId;
 
-            if (dept.Save())
+            if (department.Save())
                 TempData["Success"] = "Bölüm başarıyla kaydedildi.";
             else
                 TempData["Error"] = "Kaydetme sırasında bir hata oluştu.";

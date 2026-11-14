@@ -4,10 +4,10 @@
 }
 
 @await Html.PartialAsync("_PageHeader", new ViewDataDictionary(ViewData) {
-    ["PHTitle"]      = "Fakülteler",
-    ["PHSubtitle"]   = "Fakülte kayıtlarını görüntüleyin ve yönetin",
-    ["PHActionText"] = "Yeni Fakülte",
-    ["PHActionLink"] = Url.Action("Edit", "Faculties")
+    ["HeaderTitle"]      = "Fakülteler",
+    ["HeaderSubtitle"]   = "Fakülte kayıtlarını görüntüleyin ve yönetin",
+    ["HeaderActionText"] = "Yeni Fakülte",
+    ["HeaderActionLink"] = Url.Action("Edit", "Faculties")
 })
 
 @if (TempData["Success"] != null)
@@ -26,10 +26,10 @@
 @if (!Model.Any())
 {
     @await Html.PartialAsync("_EmptyState", new ViewDataDictionary(ViewData) {
-        ["ESIcon"]       = "bi-building-slash",
-        ["ESMessage"]    = "Henüz fakülte kaydı bulunmuyor.",
-        ["ESActionText"] = "Fakülte Ekle",
-        ["ESActionLink"] = Url.Action("Edit", "Faculties")
+        ["EmptyIcon"]       = "bi-building-slash",
+        ["EmptyMessage"]    = "Henüz fakülte kaydı bulunmuyor.",
+        ["EmptyActionText"] = "Fakülte Ekle",
+        ["EmptyActionLink"] = Url.Action("Edit", "Faculties")
     })
 }
 else
@@ -44,21 +44,21 @@ else
                 </tr>
             </thead>
             <tbody>
-                @foreach (var f in Model)
+                @foreach (var faculty in Model)
                 {
                     <tr>
-                        <td class="text-id">@f.FacultyId</td>
-                        <td>@f.FacultyName</td>
+                        <td class="text-id">@faculty.FacultyId</td>
+                        <td>@faculty.FacultyName</td>
                         <td>
                             <div class="d-flex gap-1">
-                                <a asp-action="Edit" asp-route-id="@f.FacultyId"
+                                <a asp-action="Edit" asp-route-id="@faculty.FacultyId"
                                    class="btn-icon btn-icon-primary"
                                    title="Düzenle">
                                     <i class="bi bi-pencil"></i>
                                 </a>
                                 <button type="button" class="btn-icon btn-icon-danger"
                                         data-bs-toggle="modal" data-bs-target="#deleteModal"
-                                        data-id="@f.FacultyId" data-name="@f.FacultyName"
+                                        data-id="@faculty.FacultyId" data-name="@faculty.FacultyName"
                                         title="Sil">
                                     <i class="bi bi-trash3"></i>
                                 </button>

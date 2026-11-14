@@ -14,17 +14,17 @@ namespace BusinessLogicLayer
             Mode      = enMode.AddNew;
         }
 
-        private clsFacultyBusiness(clsFaculty f)
+        private clsFacultyBusiness(clsFaculty faculty)
         {
-            FacultyId   = f.FacultyId;
-            FacultyName = f.FacultyName;
+            FacultyId   = faculty.FacultyId;
+            FacultyName = faculty.FacultyName;
             Mode        = enMode.Update;
         }
 
         public static clsFacultyBusiness? Find(int facultyId)
         {
-            clsFaculty? f = clsFacultyData.GetFacultyInfoByID(facultyId);
-            return f is null ? null : new clsFacultyBusiness(f);
+            clsFaculty? faculty = clsFacultyData.GetFacultyInfoByID(facultyId);
+            return faculty is null ? null : new clsFacultyBusiness(faculty);
         }
 
         private bool _AddNewFaculty()
@@ -44,7 +44,11 @@ namespace BusinessLogicLayer
             switch (Mode)
             {
                 case enMode.AddNew:
-                    if (_AddNewFaculty()) { Mode = enMode.Update; return true; }
+                    if (_AddNewFaculty())
+                    {
+                        Mode = enMode.Update;
+                        return true;
+                    }
                     return false;
                 case enMode.Update:
                     return _UpdateFaculty();
