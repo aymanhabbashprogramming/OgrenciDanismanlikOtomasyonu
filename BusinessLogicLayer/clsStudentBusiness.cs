@@ -180,5 +180,23 @@ namespace BusinessLogicLayer
 
         public static List<clsStudentInfo> GetStudentsWithInactiveAdvisor() =>
             clsStudentData.GetStudentsWithInactiveAdvisor();
+
+        public static List<clsStudentInfo> GetAllStudentsByDepartmentId(int departmentId) =>
+            clsStudentData.GetAllStudentsByDepartmentId(departmentId);
+
+        public static List<clsStudentInfo> GetStudentsWithoutActiveAdvisorByDepartmentId(int departmentId) =>
+            clsStudentData.GetStudentsWithoutActiveAdvisorByDepartmentId(departmentId);
+
+        public static List<clsStudentInfo> GetStudentsWithInactiveAdvisorByDepartmentId(int departmentId) =>
+            clsStudentData.GetStudentsWithInactiveAdvisorByDepartmentId(departmentId);
+
+        public static int GetActiveStudentCountByDepartmentId(int departmentId) =>
+            clsStudentData.GetActiveStudentCountByDepartmentId(departmentId);
+
+        public static int GetActiveStudentsWithoutActiveAdvisorCountByDepartmentId(int departmentId) =>
+            clsStudentData.GetActiveStudentsWithoutActiveAdvisorCountByDepartmentId(departmentId);
+
+        public static int GetInactiveAdvisorsWithStudentsCountByDepartmentId(int departmentId) =>
+            clsStudentData.GetInactiveAdvisorsWithStudentsCountByDepartmentId(departmentId);
     }
 }

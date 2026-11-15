@@ -36,6 +36,10 @@ Tables that never change from the site (e.g. Roles, Semesters, RequestPeriods) g
 
 **Semesters and RequestPeriods are read-only lookup data loaded from DatabaseScripts (official Selçuk academic calendar). The UI never adds/edits/deletes them. Surveys keep their own dates set by the department.**
 
+**Faculties and Departments are read-only lookup data loaded from DatabaseScripts. The UI never adds/edits/deletes them.**
+
+**A department manager only sees and manages data of his own department (DepartmentId claim).**
+
 ### Web pattern
 - One Controller per table
 - `Index`: shows the list

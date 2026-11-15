@@ -2,8 +2,7 @@
 @{
     bool isNew = Model.StudentId == -1;
     ViewData["Title"] = isNew ? "Yeni Öğrenci" : "Öğrenci Düzenle";
-    var departments    = ViewBag.Departments as List<EntityLayer.clsDepartment>
-                         ?? new List<EntityLayer.clsDepartment>();
+    string managerDepartmentName = ViewBag.ManagerDepartmentName as string ?? "";
     var activeAdvisors = ViewBag.ActiveAdvisors as List<EntityLayer.clsAdvisorInfo>
                          ?? new List<EntityLayer.clsAdvisorInfo>();
     var currentAdvisor = ViewBag.CurrentAdvisor as EntityLayer.clsAdvisorInfo;
@@ -64,21 +63,8 @@
 
             <div class="row g-3 mb-3">
                 <div class="col-sm-6">
-                    <label class="form-label required">Bölüm</label>
-                    <select name="departmentId" id="departmentSelect" class="form-select" required>
-                        <option value="0">-- Bölüm Seçiniz --</option>
-                        @foreach (var department in departments)
-                        {
-                            if (department.DepartmentId == Model.DepartmentId)
-                            {
-                                <option value="@department.DepartmentId" selected>@department.DepartmentName</option>
-                            }
-                            else
-                            {
-                                <option value="@department.DepartmentId">@department.DepartmentName</option>
-                            }
-                        }
-                    </select>
+                    <label class="form-label">Bölüm</label>
+                    <p class="form-control-plaintext fw-medium">@managerDepartmentName</p>
                 </div>
                 <div class="col-sm-6">
                     <label class="form-label required">Öğretim Türü</label>
@@ -201,38 +187,3 @@
     </div>
 </form>
 
-@if (isNew)
-{
-    @section Scripts {
-    <script>
-        (function () {
-            var departmentSelect = document.getElementById('departmentSelect');
-            var advisorSelect    = document.getElementById('advisorSelect');
-            if (!departmentSelect || !advisorSelect) return;
-
-            departmentSelect.addEventListener('change', function () {
-                var departmentId = this.value;
-                advisorSelect.innerHTML = '<option value="0">Yükleniyor…</option>';
-                if (!departmentId || departmentId === '0') {
-                    advisorSelect.innerHTML = '<option value="0">-- Danışman Seçiniz --</option>';
-                    return;
-                }
-                fetch('/Students/ActiveAdvisors?departmentId=' + departmentId)
-                    .then(function (response) { return response.json(); })
-                    .then(function (data) {
-                        advisorSelect.innerHTML = '<option value="0">-- Danışman Seçiniz --</option>';
-                        data.forEach(function (advisor) {
-                            var opt = document.createElement('option');
-                            opt.value = advisor.advisorId;
-                            opt.textContent = advisor.fullName;
-                            advisorSelect.appendChild(opt);
-                        });
-                    })
-                    .catch(function () {
-                        advisorSelect.innerHTML = '<option value="0">-- Danışman Seçiniz --</option>';
-                    });
-            });
-        })();
-    </script>
-    }
-}
