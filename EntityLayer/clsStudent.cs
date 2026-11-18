@@ -13,6 +13,7 @@ namespace EntityLayer
         public string? MobilePhone { get; set; }
         public string? Email { get; set; }
         public int? ClassYear { get; set; }
-        public bool IsInternational { get; set; }
+        public bool IsInternational   { get; set; }
+        public int? NationalityCountryId { get; set; }
     }
 }

@@ -310,7 +310,21 @@ SELECT
         WHEN PairNum % 10 IN (1, 2)  THEN N'İkinci'
         ELSE                              N'Örgün'
     END AS EducationType,
-    CAST(CASE WHEN PairNum % 20 = 0 THEN 1 ELSE 0 END AS BIT) AS IsInternational
+    CAST(CASE WHEN PairNum % 20 = 0 THEN 1 ELSE 0 END AS BIT) AS IsInternational,
+    -- Nationality: domestic → TR; international cycled across 10 common origin countries
+    CASE
+        WHEN PairNum % 20 <> 0                     THEN 'TR'
+        WHEN ((PairNum / 20) - 1) % 10 = 0         THEN 'SY'
+        WHEN ((PairNum / 20) - 1) % 10 = 1         THEN 'AZ'
+        WHEN ((PairNum / 20) - 1) % 10 = 2         THEN 'IQ'
+        WHEN ((PairNum / 20) - 1) % 10 = 3         THEN 'TM'
+        WHEN ((PairNum / 20) - 1) % 10 = 4         THEN 'AF'
+        WHEN ((PairNum / 20) - 1) % 10 = 5         THEN 'IR'
+        WHEN ((PairNum / 20) - 1) % 10 = 6         THEN 'KZ'
+        WHEN ((PairNum / 20) - 1) % 10 = 7         THEN 'EG'
+        WHEN ((PairNum / 20) - 1) % 10 = 8         THEN 'SO'
+        ELSE                                             'PS'
+    END AS NationalityIsoCode
 INTO #AllStudents
 FROM Pairs
 WHERE PairNum <= 1041;
@@ -323,7 +337,8 @@ ORDER BY PairNum;
 
 -- Insert Students rows, joining back via Username = StudentNum to get UserId
 INSERT INTO Students (UserId, StudentNumber, FirstName, LastName, NationalId,
-                      DepartmentId, EducationType, ClassYear, IsInternational)
+                      DepartmentId, EducationType, ClassYear, IsInternational,
+                      NationalityCountryId)
 SELECT
     u.UserId,
     temp.StudentNum,
@@ -333,9 +348,11 @@ SELECT
     temp.DepartmentId,
     temp.EducationType,
     temp.ClassYear,
-    temp.IsInternational
+    temp.IsInternational,
+    Country.CountryId
 FROM #AllStudents AS temp
-INNER JOIN Users AS u ON u.Username = temp.StudentNum;
+INNER JOIN Users     AS u       ON u.Username    = temp.StudentNum
+INNER JOIN Countries AS Country ON Country.IsoCode = temp.NationalityIsoCode;
 
 -- Enrollment statuses
 INSERT INTO StudentEnrollmentStatuses (StudentId, Status, StartDate, EndDate, Note)

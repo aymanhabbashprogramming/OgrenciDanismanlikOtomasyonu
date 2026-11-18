@@ -1,4 +1,5 @@
 using BusinessLogicLayer;
+using EntityLayer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -42,6 +43,12 @@ namespace OgrenciDanismanlikOtomasyonu.Controllers
             return View(studentList);
         }
 
+        public JsonResult Countries()
+        {
+            List<clsCountry> countries = clsCountryBusiness.GetTurkiyeFirst();
+            return Json(countries.Select(country => new { country.CountryId, country.CountryName }));
+        }
+
         [HttpGet]
         public IActionResult Edit(int? id)
         {
@@ -68,7 +75,7 @@ namespace OgrenciDanismanlikOtomasyonu.Controllers
         public IActionResult Edit(int studentId, string? studentNumber, string? firstName,
                                   string? lastName, string? nationalId,
                                   string? educationType, string? mobilePhone, string? email,
-                                  int? classYear, bool isInternational,
+                                  int? classYear, bool isInternational, int? nationalityCountryId,
                                   string? username, string? password, int initialAdvisorId = 0)
         {
             int managerDepartmentId = _GetManagerDepartmentId();
@@ -114,13 +121,13 @@ namespace OgrenciDanismanlikOtomasyonu.Controllers
                 clsStudentBusiness model = existing ?? new clsStudentBusiness();
                 model.DepartmentId = managerDepartmentId;
                 _Fill(model, studentNumber, firstName, lastName, nationalId, managerDepartmentId,
-                      educationType, mobilePhone, email, classYear, isInternational, username);
+                      educationType, mobilePhone, email, classYear, isInternational, nationalityCountryId, username);
                 return View(model);
             }
 
             clsStudentBusiness student = existing ?? new clsStudentBusiness();
             _Fill(student, studentNumber, firstName, lastName, nationalId, managerDepartmentId,
-                  educationType, mobilePhone, email, classYear, isInternational, username);
+                  educationType, mobilePhone, email, classYear, isInternational, nationalityCountryId, username);
 
             if (isNew) student.SetPassword(password!);
 
@@ -142,6 +149,7 @@ namespace OgrenciDanismanlikOtomasyonu.Controllers
         {
             EntityLayer.clsDepartment? department = clsDepartmentBusiness.Find(managerDepartmentId);
             ViewBag.ManagerDepartmentName = department?.DepartmentName ?? "";
+            ViewBag.Countries             = clsCountryBusiness.GetTurkiyeFirst();
 
             if (isNew)
                 ViewBag.ActiveAdvisors = clsAdvisorBusiness.GetActiveAdvisorsForDepartment(managerDepartmentId);
@@ -255,6 +263,80 @@ namespace OgrenciDanismanlikOtomasyonu.Controllers
         }
 
         [HttpGet]
+        public IActionResult EnrollmentStatus(int id)
+        {
+            int managerDepartmentId = _GetManagerDepartmentId();
+            clsStudentBusiness? student = clsStudentBusiness.Find(id);
+            if (student is null) return NotFound();
+            if (student.DepartmentId != managerDepartmentId) return NotFound();
+
+            ViewBag.CurrentStatus  = clsStudentEnrollmentStatusBusiness.GetCurrentStatus(id);
+            ViewBag.StatusHistory  = clsStudentEnrollmentStatusBusiness.GetStatusHistory(id);
+            ViewBag.ExchangeHistory = clsStudentEnrollmentStatusBusiness.GetExchangeHistory(id);
+            ViewBag.AllStatuses    = clsStudentEnrollmentStatusBusiness.AllStatuses;
+            ViewBag.Semesters      = clsSemesterBusiness.GetAllSemesters();
+            return View(student);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult ChangeEnrollmentStatus(int studentId, string? newStatus, string? note,
+                                                    string? hostUniversity, string? country, int semesterId = 0)
+        {
+            int managerDepartmentId = _GetManagerDepartmentId();
+
+            clsStudentBusiness? student = clsStudentBusiness.Find(studentId);
+            if (student is null) return NotFound();
+            if (student.DepartmentId != managerDepartmentId) return NotFound();
+
+            if (string.IsNullOrWhiteSpace(newStatus))
+                ModelState.AddModelError("", "Lütfen bir kayıt durumu seçiniz.");
+
+            bool isExchange = !string.IsNullOrEmpty(newStatus) &&
+                              clsStudentEnrollmentStatusBusiness.IsExchangeStatus(newStatus);
+
+            if (isExchange && semesterId <= 0)
+                ModelState.AddModelError("", "Değişim programı için yarıyıl seçilmesi zorunludur.");
+
+            if (!ModelState.IsValid)
+            {
+                ViewBag.CurrentStatus   = clsStudentEnrollmentStatusBusiness.GetCurrentStatus(studentId);
+                ViewBag.StatusHistory   = clsStudentEnrollmentStatusBusiness.GetStatusHistory(studentId);
+                ViewBag.ExchangeHistory = clsStudentEnrollmentStatusBusiness.GetExchangeHistory(studentId);
+                ViewBag.AllStatuses     = clsStudentEnrollmentStatusBusiness.AllStatuses;
+                ViewBag.Semesters       = clsSemesterBusiness.GetAllSemesters();
+                return View("EnrollmentStatus", student);
+            }
+
+            EntityLayer.clsExchangeProgram? exchangeProgram = null;
+            if (isExchange)
+            {
+                exchangeProgram = new EntityLayer.clsExchangeProgram
+                {
+                    ProgramName    = newStatus!,
+                    HostUniversity = string.IsNullOrWhiteSpace(hostUniversity) ? null : hostUniversity.Trim(),
+                    Country        = string.IsNullOrWhiteSpace(country) ? null : country.Trim(),
+                    SemesterId     = semesterId
+                };
+            }
+
+            if (clsStudentEnrollmentStatusBusiness.ChangeStatus(
+                    studentId, newStatus!, note?.Trim(), exchangeProgram, managerDepartmentId))
+            {
+                TempData["Success"] = "Kayıt durumu başarıyla güncellendi.";
+                return RedirectToAction("Index");
+            }
+
+            ModelState.AddModelError("", "Durum güncellenirken bir hata oluştu. Seçilen durum mevcut durum ile aynı olabilir.");
+            ViewBag.CurrentStatus   = clsStudentEnrollmentStatusBusiness.GetCurrentStatus(studentId);
+            ViewBag.StatusHistory   = clsStudentEnrollmentStatusBusiness.GetStatusHistory(studentId);
+            ViewBag.ExchangeHistory = clsStudentEnrollmentStatusBusiness.GetExchangeHistory(studentId);
+            ViewBag.AllStatuses     = clsStudentEnrollmentStatusBusiness.AllStatuses;
+            ViewBag.Semesters       = clsSemesterBusiness.GetAllSemesters();
+            return View("EnrollmentStatus", student);
+        }
+
+        [HttpGet]
         public JsonResult ActiveAdvisors()
         {
             int managerDepartmentId = _GetManagerDepartmentId();
@@ -269,19 +351,21 @@ namespace OgrenciDanismanlikOtomasyonu.Controllers
 
         private static void _Fill(clsStudentBusiness student, string? studentNumber, string? firstName,
             string? lastName, string? nationalId, int departmentId, string? educationType,
-            string? mobilePhone, string? email, int? classYear, bool isInternational, string? username)
+            string? mobilePhone, string? email, int? classYear, bool isInternational,
+            int? nationalityCountryId, string? username)
         {
-            student.StudentNumber   = studentNumber?.Trim()  ?? "";
-            student.FirstName       = firstName?.Trim()      ?? "";
-            student.LastName        = lastName?.Trim()       ?? "";
-            student.NationalId      = nationalId?.Trim()     ?? "";
-            student.DepartmentId    = departmentId;
-            student.EducationType   = educationType?.Trim()  ?? "";
-            student.MobilePhone     = string.IsNullOrWhiteSpace(mobilePhone) ? null : mobilePhone.Trim();
-            student.Email           = string.IsNullOrWhiteSpace(email)       ? null : email.Trim();
-            student.ClassYear       = classYear;
-            student.IsInternational = isInternational;
-            student.Username        = username?.Trim()       ?? "";
+            student.StudentNumber        = studentNumber?.Trim() ?? "";
+            student.FirstName            = firstName?.Trim()     ?? "";
+            student.LastName             = lastName?.Trim()      ?? "";
+            student.NationalId           = nationalId?.Trim()    ?? "";
+            student.DepartmentId         = departmentId;
+            student.EducationType        = educationType?.Trim() ?? "";
+            student.MobilePhone          = string.IsNullOrWhiteSpace(mobilePhone) ? null : mobilePhone.Trim();
+            student.Email                = string.IsNullOrWhiteSpace(email)       ? null : email.Trim();
+            student.ClassYear            = classYear;
+            student.IsInternational      = isInternational;
+            student.NationalityCountryId = nationalityCountryId > 0 ? nationalityCountryId : null;
+            student.Username             = username?.Trim() ?? "";
         }
     }
 }

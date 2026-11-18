@@ -6,6 +6,8 @@
     var activeAdvisors = ViewBag.ActiveAdvisors as List<EntityLayer.clsAdvisorInfo>
                          ?? new List<EntityLayer.clsAdvisorInfo>();
     var currentAdvisor = ViewBag.CurrentAdvisor as EntityLayer.clsAdvisorInfo;
+    var countries      = ViewBag.Countries as List<EntityLayer.clsCountry>
+                         ?? new List<EntityLayer.clsCountry>();
 }
 
 @await Html.PartialAsync("_PageHeader", new ViewDataDictionary(ViewData) {
@@ -51,7 +53,7 @@
             <div class="row g-3 mb-3">
                 <div class="col-sm-6">
                     <label class="form-label required">Öğrenci Numarası</label>
-                    <input type="text" name="studentNumber" value="@Model.StudentNumber"
+                    <input type="text" id="studentNumber" name="studentNumber" value="@Model.StudentNumber"
                            class="form-control" maxlength="20" required />
                 </div>
                 <div class="col-sm-6">
@@ -122,12 +124,31 @@
                 </div>
             </div>
 
-            <div class="mb-3">
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" name="isInternational"
-                           id="isInternational" value="true" @(Model.IsInternational ? "checked" : "") />
-                    <input type="hidden" name="isInternational" value="false" />
-                    <label class="form-check-label" for="isInternational">Uluslararası Öğrenci</label>
+            <div class="row g-3 mb-3">
+                <div class="col-sm-6 d-flex align-items-center pt-sm-4">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="isInternational"
+                               id="isInternational" value="true" @(Model.IsInternational ? "checked" : "") />
+                        <input type="hidden" name="isInternational" value="false" />
+                        <label class="form-check-label" for="isInternational">Uluslararası Öğrenci</label>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <label class="form-label">Uyruk</label>
+                    <select name="nationalityCountryId" class="form-select">
+                        <option value="0">-- Seçiniz --</option>
+                        @foreach (var country in countries)
+                        {
+                            if (Model.NationalityCountryId == country.CountryId)
+                            {
+                                <option value="@country.CountryId" selected>@country.CountryName</option>
+                            }
+                            else
+                            {
+                                <option value="@country.CountryId">@country.CountryName</option>
+                            }
+                        }
+                    </select>
                 </div>
             </div>
 
@@ -163,16 +184,28 @@
 
             <div class="mb-3">
                 <label class="form-label required">Kullanıcı Adı</label>
-                <input type="text" name="username" value="@Model.Username"
-                       class="form-control" maxlength="100" required />
+                @if (isNew)
+                {
+                    <input type="text" id="username" name="username" value="@Model.Username"
+                           class="form-control" maxlength="100" required
+                           readonly onfocus="this.removeAttribute('readonly')" />
+                    <div class="form-text">Öğrenci numarasından otomatik doldurulur; düzenlemek için tıklayın.</div>
+                }
+                else
+                {
+                    <input type="text" name="username" value="@Model.Username"
+                           class="form-control" maxlength="100" required />
+                }
             </div>
 
             @if (isNew)
             {
                 <div class="mb-0">
                     <label class="form-label required">Şifre</label>
-                    <input type="password" name="password"
-                           class="form-control" minlength="6" required />
+                    <input type="password" name="password" id="password"
+                           class="form-control" minlength="6" required
+                           autocomplete="new-password" readonly
+                           onfocus="this.removeAttribute('readonly')" />
                     <div class="form-text">En az 6 karakter.</div>
                 </div>
             }
@@ -186,4 +219,29 @@
         </div>
     </div>
 </form>
+
+@if (isNew)
+{
+    @section Scripts {
+    <script>
+    (function () {
+        var studentNumberInput = document.getElementById('studentNumber');
+        var usernameInput      = document.getElementById('username');
+        if (!studentNumberInput || !usernameInput) return;
+
+        var usernameManuallyEdited = false;
+
+        usernameInput.addEventListener('input', function () {
+            usernameManuallyEdited = true;
+        });
+
+        studentNumberInput.addEventListener('input', function () {
+            if (!usernameManuallyEdited) {
+                usernameInput.value = this.value;
+            }
+        });
+    })();
+    </script>
+    }
+}
 

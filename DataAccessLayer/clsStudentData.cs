@@ -8,40 +8,44 @@ namespace DataAccessLayer
     {
         private static clsStudent _MapStudent(SqlDataReader reader) => new clsStudent
         {
-            StudentId       = (int)reader["StudentId"],
-            UserId          = (int)reader["UserId"],
-            StudentNumber   = (string)reader["StudentNumber"],
-            FirstName       = (string)reader["FirstName"],
-            LastName        = (string)reader["LastName"],
-            NationalId      = (string)reader["NationalId"],
-            DepartmentId    = (int)reader["DepartmentId"],
-            EducationType   = (string)reader["EducationType"],
-            MobilePhone     = reader["MobilePhone"] == DBNull.Value ? null : (string)reader["MobilePhone"],
-            Email           = reader["Email"]        == DBNull.Value ? null : (string)reader["Email"],
-            ClassYear       = reader["ClassYear"]    == DBNull.Value ? null : (int?)(int)reader["ClassYear"],
-            IsInternational = (bool)reader["IsInternational"]
+            StudentId            = (int)reader["StudentId"],
+            UserId               = (int)reader["UserId"],
+            StudentNumber        = (string)reader["StudentNumber"],
+            FirstName            = (string)reader["FirstName"],
+            LastName             = (string)reader["LastName"],
+            NationalId           = (string)reader["NationalId"],
+            DepartmentId         = (int)reader["DepartmentId"],
+            EducationType        = (string)reader["EducationType"],
+            MobilePhone          = reader["MobilePhone"] == DBNull.Value ? null : (string)reader["MobilePhone"],
+            Email                = reader["Email"]        == DBNull.Value ? null : (string)reader["Email"],
+            ClassYear            = reader["ClassYear"]    == DBNull.Value ? null : (int?)(int)reader["ClassYear"],
+            IsInternational      = (bool)reader["IsInternational"],
+            NationalityCountryId = reader["NationalityCountryId"] == DBNull.Value ? null : (int?)(int)reader["NationalityCountryId"]
         };
 
         private static clsStudentInfo _MapStudentInfo(SqlDataReader reader) => new clsStudentInfo
         {
-            StudentId        = (int)reader["StudentId"],
-            UserId           = (int)reader["UserId"],
-            StudentNumber    = (string)reader["StudentNumber"],
-            FirstName        = (string)reader["FirstName"],
-            LastName         = (string)reader["LastName"],
-            NationalId       = (string)reader["NationalId"],
-            DepartmentId     = (int)reader["DepartmentId"],
-            DepartmentName   = (string)reader["DepartmentName"],
-            EducationType    = (string)reader["EducationType"],
-            MobilePhone      = reader["MobilePhone"] == DBNull.Value ? null : (string)reader["MobilePhone"],
-            Email            = reader["Email"]        == DBNull.Value ? null : (string)reader["Email"],
-            ClassYear        = reader["ClassYear"]    == DBNull.Value ? null : (int?)(int)reader["ClassYear"],
-            IsInternational  = (bool)reader["IsInternational"],
-            Username         = (string)reader["Username"],
-            IsActive         = (bool)reader["IsActive"],
-            CurrentAdvisorId = reader["CurrentAdvisorId"] == DBNull.Value ? null : (int?)(int)reader["CurrentAdvisorId"],
-            AdvisorFullName  = reader["AdvisorFullName"]  == DBNull.Value ? null : (string)reader["AdvisorFullName"],
-            IsAdvisorActive  = reader["AdvisorIsActive"]  == DBNull.Value ? (bool?)null : (bool)reader["AdvisorIsActive"]
+            StudentId              = (int)reader["StudentId"],
+            UserId                 = (int)reader["UserId"],
+            StudentNumber          = (string)reader["StudentNumber"],
+            FirstName              = (string)reader["FirstName"],
+            LastName               = (string)reader["LastName"],
+            NationalId             = (string)reader["NationalId"],
+            DepartmentId           = (int)reader["DepartmentId"],
+            DepartmentName         = (string)reader["DepartmentName"],
+            EducationType          = (string)reader["EducationType"],
+            MobilePhone            = reader["MobilePhone"] == DBNull.Value ? null : (string)reader["MobilePhone"],
+            Email                  = reader["Email"]        == DBNull.Value ? null : (string)reader["Email"],
+            ClassYear              = reader["ClassYear"]    == DBNull.Value ? null : (int?)(int)reader["ClassYear"],
+            IsInternational        = (bool)reader["IsInternational"],
+            Username               = (string)reader["Username"],
+            IsActive               = (bool)reader["IsActive"],
+            CurrentAdvisorId       = reader["CurrentAdvisorId"] == DBNull.Value ? null : (int?)(int)reader["CurrentAdvisorId"],
+            AdvisorFullName        = reader["AdvisorFullName"]  == DBNull.Value ? null : (string)reader["AdvisorFullName"],
+            IsAdvisorActive        = reader["AdvisorIsActive"]  == DBNull.Value ? (bool?)null : (bool)reader["AdvisorIsActive"],
+            CurrentEnrollmentStatus = reader["CurrentEnrollmentStatus"] == DBNull.Value ? null : (string)reader["CurrentEnrollmentStatus"],
+            NationalityCountryId   = reader["NationalityCountryId"]   == DBNull.Value ? null : (int?)(int)reader["NationalityCountryId"],
+            NationalityCountryName = reader["NationalityCountryName"] == DBNull.Value ? null : (string)reader["NationalityCountryName"]
         };
 
         private const string _infoSelect = @"
@@ -52,13 +56,18 @@ namespace DataAccessLayer
                    CASE WHEN Advisor.AdvisorId IS NULL THEN NULL
                         ELSE ISNULL(Advisor.AcademicTitle + ' ', '') + Advisor.FirstName + ' ' + Advisor.LastName
                    END AS AdvisorFullName,
-                   AdvisorUser.IsActive AS AdvisorIsActive
+                   AdvisorUser.IsActive AS AdvisorIsActive,
+                   CurrentEnrollment.Status AS CurrentEnrollmentStatus,
+                   Student.NationalityCountryId,
+                   NationalityCountry.CountryName AS NationalityCountryName
             FROM   Students AS Student
             INNER JOIN Users       AS StudentUser       ON Student.UserId       = StudentUser.UserId
             INNER JOIN Departments AS Department        ON Student.DepartmentId = Department.DepartmentId
-            LEFT  JOIN AdvisorAssignments AS AdvisorAssignment ON AdvisorAssignment.StudentId = Student.StudentId AND AdvisorAssignment.EndDate IS NULL
-            LEFT  JOIN Advisors    AS Advisor            ON AdvisorAssignment.AdvisorId        = Advisor.AdvisorId
-            LEFT  JOIN Users       AS AdvisorUser        ON Advisor.UserId                     = AdvisorUser.UserId";
+            LEFT  JOIN AdvisorAssignments        AS AdvisorAssignment  ON AdvisorAssignment.StudentId  = Student.StudentId AND AdvisorAssignment.EndDate IS NULL
+            LEFT  JOIN Advisors                  AS Advisor            ON AdvisorAssignment.AdvisorId  = Advisor.AdvisorId
+            LEFT  JOIN Users                     AS AdvisorUser        ON Advisor.UserId               = AdvisorUser.UserId
+            LEFT  JOIN StudentEnrollmentStatuses AS CurrentEnrollment  ON CurrentEnrollment.StudentId  = Student.StudentId AND CurrentEnrollment.EndDate IS NULL
+            LEFT  JOIN Countries                 AS NationalityCountry ON Student.NationalityCountryId = NationalityCountry.CountryId";
 
         public static clsStudent? GetStudentInfoByID(int studentId)
         {
@@ -67,7 +76,8 @@ namespace DataAccessLayer
                 using SqlConnection conn = new(clsDataAccessSettings.ConnectionString);
                 using SqlCommand cmd = new(@"
                     SELECT StudentId, UserId, StudentNumber, FirstName, LastName, NationalId,
-                           DepartmentId, EducationType, MobilePhone, Email, ClassYear, IsInternational
+                           DepartmentId, EducationType, MobilePhone, Email, ClassYear, IsInternational,
+                           NationalityCountryId
                     FROM Students WHERE StudentId = @StudentId", conn);
                 cmd.Parameters.AddWithValue("@StudentId", studentId);
                 conn.Open();
@@ -88,7 +98,8 @@ namespace DataAccessLayer
                 using SqlConnection conn = new(clsDataAccessSettings.ConnectionString);
                 using SqlCommand cmd = new(@"
                     SELECT StudentId, UserId, StudentNumber, FirstName, LastName, NationalId,
-                           DepartmentId, EducationType, MobilePhone, Email, ClassYear, IsInternational
+                           DepartmentId, EducationType, MobilePhone, Email, ClassYear, IsInternational,
+                           NationalityCountryId
                     FROM Students WHERE UserId = @UserId", conn);
                 cmd.Parameters.AddWithValue("@UserId", userId);
                 conn.Open();
@@ -131,22 +142,25 @@ namespace DataAccessLayer
                     using SqlCommand cmdStudent = new(@"
                         INSERT INTO Students
                             (UserId, StudentNumber, FirstName, LastName, NationalId,
-                             DepartmentId, EducationType, MobilePhone, Email, ClassYear, IsInternational)
+                             DepartmentId, EducationType, MobilePhone, Email, ClassYear, IsInternational,
+                             NationalityCountryId)
                         VALUES
                             (@UserId, @StudentNumber, @FirstName, @LastName, @NationalId,
-                             @DepartmentId, @EducationType, @MobilePhone, @Email, @ClassYear, @IsInternational);
+                             @DepartmentId, @EducationType, @MobilePhone, @Email, @ClassYear, @IsInternational,
+                             @NationalityCountryId);
                         SELECT SCOPE_IDENTITY();", conn, transaction);
-                    cmdStudent.Parameters.AddWithValue("@UserId",          userId);
-                    cmdStudent.Parameters.AddWithValue("@StudentNumber",   student.StudentNumber);
-                    cmdStudent.Parameters.AddWithValue("@FirstName",       student.FirstName);
-                    cmdStudent.Parameters.AddWithValue("@LastName",        student.LastName);
-                    cmdStudent.Parameters.AddWithValue("@NationalId",      student.NationalId);
-                    cmdStudent.Parameters.AddWithValue("@DepartmentId",    student.DepartmentId);
-                    cmdStudent.Parameters.AddWithValue("@EducationType",   student.EducationType);
-                    cmdStudent.Parameters.AddWithValue("@MobilePhone",     (object?)student.MobilePhone  ?? DBNull.Value);
-                    cmdStudent.Parameters.AddWithValue("@Email",           (object?)student.Email        ?? DBNull.Value);
-                    cmdStudent.Parameters.AddWithValue("@ClassYear",       (object?)student.ClassYear    ?? DBNull.Value);
-                    cmdStudent.Parameters.AddWithValue("@IsInternational", student.IsInternational);
+                    cmdStudent.Parameters.AddWithValue("@UserId",               userId);
+                    cmdStudent.Parameters.AddWithValue("@StudentNumber",        student.StudentNumber);
+                    cmdStudent.Parameters.AddWithValue("@FirstName",            student.FirstName);
+                    cmdStudent.Parameters.AddWithValue("@LastName",             student.LastName);
+                    cmdStudent.Parameters.AddWithValue("@NationalId",           student.NationalId);
+                    cmdStudent.Parameters.AddWithValue("@DepartmentId",         student.DepartmentId);
+                    cmdStudent.Parameters.AddWithValue("@EducationType",        student.EducationType);
+                    cmdStudent.Parameters.AddWithValue("@MobilePhone",          (object?)student.MobilePhone          ?? DBNull.Value);
+                    cmdStudent.Parameters.AddWithValue("@Email",                (object?)student.Email                ?? DBNull.Value);
+                    cmdStudent.Parameters.AddWithValue("@ClassYear",            (object?)student.ClassYear            ?? DBNull.Value);
+                    cmdStudent.Parameters.AddWithValue("@IsInternational",      student.IsInternational);
+                    cmdStudent.Parameters.AddWithValue("@NationalityCountryId", (object?)student.NationalityCountryId ?? DBNull.Value);
                     object? studentResult = cmdStudent.ExecuteScalar();
                     if (studentResult is null)
                     {
@@ -195,28 +209,30 @@ namespace DataAccessLayer
 
                     using SqlCommand cmdStudent = new(@"
                         UPDATE Students SET
-                            StudentNumber   = @StudentNumber,
-                            FirstName       = @FirstName,
-                            LastName        = @LastName,
-                            NationalId      = @NationalId,
-                            DepartmentId    = @DepartmentId,
-                            EducationType   = @EducationType,
-                            MobilePhone     = @MobilePhone,
-                            Email           = @Email,
-                            ClassYear       = @ClassYear,
-                            IsInternational = @IsInternational
+                            StudentNumber        = @StudentNumber,
+                            FirstName            = @FirstName,
+                            LastName             = @LastName,
+                            NationalId           = @NationalId,
+                            DepartmentId         = @DepartmentId,
+                            EducationType        = @EducationType,
+                            MobilePhone          = @MobilePhone,
+                            Email                = @Email,
+                            ClassYear            = @ClassYear,
+                            IsInternational      = @IsInternational,
+                            NationalityCountryId = @NationalityCountryId
                         WHERE StudentId = @StudentId", conn, transaction);
-                    cmdStudent.Parameters.AddWithValue("@StudentNumber",   student.StudentNumber);
-                    cmdStudent.Parameters.AddWithValue("@FirstName",       student.FirstName);
-                    cmdStudent.Parameters.AddWithValue("@LastName",        student.LastName);
-                    cmdStudent.Parameters.AddWithValue("@NationalId",      student.NationalId);
-                    cmdStudent.Parameters.AddWithValue("@DepartmentId",    student.DepartmentId);
-                    cmdStudent.Parameters.AddWithValue("@EducationType",   student.EducationType);
-                    cmdStudent.Parameters.AddWithValue("@MobilePhone",     (object?)student.MobilePhone  ?? DBNull.Value);
-                    cmdStudent.Parameters.AddWithValue("@Email",           (object?)student.Email        ?? DBNull.Value);
-                    cmdStudent.Parameters.AddWithValue("@ClassYear",       (object?)student.ClassYear    ?? DBNull.Value);
-                    cmdStudent.Parameters.AddWithValue("@IsInternational", student.IsInternational);
-                    cmdStudent.Parameters.AddWithValue("@StudentId",       student.StudentId);
+                    cmdStudent.Parameters.AddWithValue("@StudentNumber",        student.StudentNumber);
+                    cmdStudent.Parameters.AddWithValue("@FirstName",            student.FirstName);
+                    cmdStudent.Parameters.AddWithValue("@LastName",             student.LastName);
+                    cmdStudent.Parameters.AddWithValue("@NationalId",           student.NationalId);
+                    cmdStudent.Parameters.AddWithValue("@DepartmentId",         student.DepartmentId);
+                    cmdStudent.Parameters.AddWithValue("@EducationType",        student.EducationType);
+                    cmdStudent.Parameters.AddWithValue("@MobilePhone",          (object?)student.MobilePhone          ?? DBNull.Value);
+                    cmdStudent.Parameters.AddWithValue("@Email",                (object?)student.Email                ?? DBNull.Value);
+                    cmdStudent.Parameters.AddWithValue("@ClassYear",            (object?)student.ClassYear            ?? DBNull.Value);
+                    cmdStudent.Parameters.AddWithValue("@IsInternational",      student.IsInternational);
+                    cmdStudent.Parameters.AddWithValue("@NationalityCountryId", (object?)student.NationalityCountryId ?? DBNull.Value);
+                    cmdStudent.Parameters.AddWithValue("@StudentId",            student.StudentId);
                     int rowsAffected = cmdStudent.ExecuteNonQuery();
 
                     if (rowsAffected == 0)
@@ -618,13 +634,18 @@ namespace DataAccessLayer
                            Student.ClassYear, Student.IsInternational, StudentUser.Username, StudentUser.IsActive,
                            AdvisorAssignment.AdvisorId AS CurrentAdvisorId,
                            ISNULL(Advisor.AcademicTitle + ' ', '') + Advisor.FirstName + ' ' + Advisor.LastName AS AdvisorFullName,
-                           AdvisorUser.IsActive AS AdvisorIsActive
+                           AdvisorUser.IsActive AS AdvisorIsActive,
+                           CurrentEnrollment.Status AS CurrentEnrollmentStatus,
+                           Student.NationalityCountryId,
+                           NationalityCountry.CountryName AS NationalityCountryName
                     FROM   Students AS Student
                     INNER JOIN Users       AS StudentUser       ON Student.UserId       = StudentUser.UserId
                     INNER JOIN Departments AS Department        ON Student.DepartmentId = Department.DepartmentId
                     INNER JOIN AdvisorAssignments AS AdvisorAssignment ON AdvisorAssignment.StudentId = Student.StudentId AND AdvisorAssignment.EndDate IS NULL
                     INNER JOIN Advisors    AS Advisor            ON AdvisorAssignment.AdvisorId        = Advisor.AdvisorId
                     INNER JOIN Users       AS AdvisorUser        ON Advisor.UserId                     = AdvisorUser.UserId
+                    LEFT  JOIN StudentEnrollmentStatuses AS CurrentEnrollment  ON CurrentEnrollment.StudentId  = Student.StudentId AND CurrentEnrollment.EndDate IS NULL
+                    LEFT  JOIN Countries                 AS NationalityCountry ON Student.NationalityCountryId = NationalityCountry.CountryId
                     WHERE StudentUser.IsActive = 1 AND AdvisorUser.IsActive = 0
                     ORDER BY Student.LastName, Student.FirstName", conn);
                 conn.Open();
@@ -712,13 +733,18 @@ namespace DataAccessLayer
                            Student.ClassYear, Student.IsInternational, StudentUser.Username, StudentUser.IsActive,
                            AdvisorAssignment.AdvisorId AS CurrentAdvisorId,
                            ISNULL(Advisor.AcademicTitle + ' ', '') + Advisor.FirstName + ' ' + Advisor.LastName AS AdvisorFullName,
-                           AdvisorUser.IsActive AS AdvisorIsActive
+                           AdvisorUser.IsActive AS AdvisorIsActive,
+                           CurrentEnrollment.Status AS CurrentEnrollmentStatus,
+                           Student.NationalityCountryId,
+                           NationalityCountry.CountryName AS NationalityCountryName
                     FROM   Students AS Student
                     INNER JOIN Users       AS StudentUser       ON Student.UserId       = StudentUser.UserId
                     INNER JOIN Departments AS Department        ON Student.DepartmentId = Department.DepartmentId
                     INNER JOIN AdvisorAssignments AS AdvisorAssignment ON AdvisorAssignment.StudentId = Student.StudentId AND AdvisorAssignment.EndDate IS NULL
                     INNER JOIN Advisors    AS Advisor            ON AdvisorAssignment.AdvisorId        = Advisor.AdvisorId
                     INNER JOIN Users       AS AdvisorUser        ON Advisor.UserId                     = AdvisorUser.UserId
+                    LEFT  JOIN StudentEnrollmentStatuses AS CurrentEnrollment  ON CurrentEnrollment.StudentId  = Student.StudentId AND CurrentEnrollment.EndDate IS NULL
+                    LEFT  JOIN Countries                 AS NationalityCountry ON Student.NationalityCountryId = NationalityCountry.CountryId
                     WHERE StudentUser.IsActive   = 1
                       AND AdvisorUser.IsActive   = 0
                       AND Student.DepartmentId   = @DepartmentId

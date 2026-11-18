@@ -1,0 +1,217 @@
+@model BusinessLogicLayer.clsStudentBusiness
+@{
+    ViewData["Title"] = "Kayıt Durumu";
+
+    var currentStatus  = ViewBag.CurrentStatus  as EntityLayer.clsStudentEnrollmentStatus;
+    var statusHistory  = ViewBag.StatusHistory  as List<EntityLayer.clsEnrollmentStatusHistory>
+                         ?? new List<EntityLayer.clsEnrollmentStatusHistory>();
+    var exchangeHistory = ViewBag.ExchangeHistory as List<EntityLayer.clsExchangeProgram>
+                         ?? new List<EntityLayer.clsExchangeProgram>();
+    var allStatuses    = ViewBag.AllStatuses    as string[] ?? Array.Empty<string>();
+    var semesters      = ViewBag.Semesters      as List<EntityLayer.clsSemester>
+                         ?? new List<EntityLayer.clsSemester>();
+
+    string currentStatusValue = currentStatus?.Status ?? "—";
+}
+
+@await Html.PartialAsync("_PageHeader", new ViewDataDictionary(ViewData) {
+    ["HeaderTitle"]    = "Kayıt Durumu",
+    ["HeaderSubtitle"] = $"{Model.GetFullName()} · Kayıt durumu güncelleme"
+})
+
+@if (!ViewData.ModelState.IsValid)
+{
+    <div class="alert alert-danger d-flex align-items-start gap-2 mb-3" style="max-width:560px">
+        <i class="bi bi-exclamation-triangle-fill flex-shrink-0 mt-1"></i>
+        <div>
+            @foreach (var fieldState in ViewData.ModelState.Values)
+            {
+                @foreach (var fieldError in fieldState.Errors)
+                {
+                    <div>@fieldError.ErrorMessage</div>
+                }
+            }
+        </div>
+    </div>
+}
+
+<div class="mb-4" style="max-width:560px">
+    <span class="text-muted me-2">Mevcut Durum:</span>
+    <span class="badge fs-6 @_StatusBadgeClass(currentStatusValue)">@currentStatusValue</span>
+</div>
+
+<form method="post" asp-action="ChangeEnrollmentStatus" id="enrollmentForm">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="studentId" value="@Model.StudentId" />
+    <div class="form-card mb-4" style="max-width:560px">
+        <div class="form-card-body">
+
+            <div class="mb-3">
+                <label class="form-label required">Yeni Durum</label>
+                <select name="newStatus" id="newStatusSelect" class="form-select" required>
+                    <option value="">-- Durum Seçiniz --</option>
+                    @foreach (var status in allStatuses)
+                    {
+                        if (status == currentStatusValue)
+                        {
+                            <option value="@status" disabled>@status (mevcut)</option>
+                        }
+                        else
+                        {
+                            <option value="@status">@status</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Not</label>
+                <input type="text" name="note" class="form-control" maxlength="500"
+                       placeholder="İsteğe bağlı açıklama…" />
+            </div>
+
+            <div id="exchangeFields" style="display:none">
+                <hr class="my-3" />
+                <p class="text-muted small mb-3">
+                    <i class="bi bi-info-circle me-1"></i>
+                    Değişim programı bilgileri (isteğe bağlı alanlar hariç yarıyıl zorunludur).
+                </p>
+                <div class="mb-3">
+                    <label class="form-label required">Yarıyıl</label>
+                    <select name="semesterId" id="semesterSelect" class="form-select">
+                        <option value="0">-- Yarıyıl Seçiniz --</option>
+                        @foreach (var semester in semesters)
+                        {
+                            if (semester.IsCurrent)
+                            {
+                                <option value="@semester.SemesterId" selected>@semester.AcademicYear @semester.Term</option>
+                            }
+                            else
+                            {
+                                <option value="@semester.SemesterId">@semester.AcademicYear @semester.Term</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Ev Sahibi Üniversite</label>
+                    <input type="text" name="hostUniversity" class="form-control" maxlength="200"
+                           placeholder="Üniversite adı…" />
+                </div>
+                <div class="mb-0">
+                    <label class="form-label">Ülke</label>
+                    <input type="text" name="country" class="form-control" maxlength="100"
+                           placeholder="Ülke adı…" />
+                </div>
+            </div>
+
+        </div>
+        <div class="form-card-footer">
+            <a asp-action="Index" class="btn btn-secondary">İptal</a>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-check2 me-1"></i>Güncelle
+            </button>
+        </div>
+    </div>
+</form>
+
+<h2 class="section-title mb-3">Durum Geçmişi</h2>
+@if (!statusHistory.Any())
+{
+    @await Html.PartialAsync("_EmptyState", new ViewDataDictionary(ViewData) {
+        ["EmptyIcon"]    = "bi-clock-history",
+        ["EmptyMessage"] = "Henüz kayıt durumu değişikliği yapılmamış."
+    })
+}
+else
+{
+    <div class="card-table mb-4" style="max-width:720px">
+        <table class="table data-table mb-0">
+            <thead>
+                <tr>
+                    <th>Durum</th>
+                    <th>Başlangıç</th>
+                    <th>Bitiş</th>
+                    <th>Not</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in statusHistory)
+                {
+                    <tr>
+                        <td data-label="Durum">
+                            <span class="badge @_StatusBadgeClass(item.Status)">@item.Status</span>
+                        </td>
+                        <td data-label="Başlangıç">@item.StartDate.ToString("dd.MM.yyyy")</td>
+                        <td data-label="Bitiş">@(item.EndDate.HasValue ? item.EndDate.Value.ToString("dd.MM.yyyy") : "—")</td>
+                        <td data-label="Not">@(string.IsNullOrWhiteSpace(item.Note) ? "—" : item.Note)</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@if (exchangeHistory.Any())
+{
+    <h2 class="section-title mb-3">Değişim Programı Geçmişi</h2>
+    <div class="card-table" style="max-width:720px">
+        <table class="table data-table mb-0">
+            <thead>
+                <tr>
+                    <th>Program</th>
+                    <th>Üniversite</th>
+                    <th>Ülke</th>
+                    <th>Başlangıç</th>
+                    <th>Bitiş</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in exchangeHistory)
+                {
+                    <tr>
+                        <td data-label="Program">@item.ProgramName</td>
+                        <td data-label="Üniversite">@(item.HostUniversity ?? "—")</td>
+                        <td data-label="Ülke">@(item.Country ?? "—")</td>
+                        <td data-label="Başlangıç">@(item.StartDate.HasValue ? item.StartDate.Value.ToString("dd.MM.yyyy") : "—")</td>
+                        <td data-label="Bitiş">@(item.EndDate.HasValue ? item.EndDate.Value.ToString("dd.MM.yyyy") : "—")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+
+@functions {
+    private static string _StatusBadgeClass(string status) => status switch
+    {
+        "Aktif"           => "bg-success",
+        "Kayıt Dondurma"  => "bg-warning text-dark",
+        "Erasmus"         => "bg-primary",
+        "Farabi"          => "bg-primary",
+        "Mevlana"         => "bg-primary",
+        "Mezun"           => "bg-secondary",
+        "İlişik Kesme"    => "bg-danger",
+        _                 => "bg-secondary"
+    };
+}
+
+@section Scripts {
+    <script>
+        (function () {
+            const exchangeStatuses = ["Erasmus", "Farabi", "Mevlana"];
+            const statusSelect     = document.getElementById("newStatusSelect");
+            const exchangeFields   = document.getElementById("exchangeFields");
+            const semesterSelect   = document.getElementById("semesterSelect");
+
+            function toggleExchangeFields() {
+                const isExchange = exchangeStatuses.includes(statusSelect.value);
+                exchangeFields.style.display = isExchange ? "" : "none";
+                semesterSelect.required = isExchange;
+            }
+
+            statusSelect.addEventListener("change", toggleExchangeFields);
+            toggleExchangeFields();
+        })();
+    </script>
+}

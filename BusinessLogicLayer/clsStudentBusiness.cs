@@ -40,10 +40,11 @@ namespace BusinessLogicLayer
             MobilePhone     = student.MobilePhone;
             Email           = student.Email;
             ClassYear       = student.ClassYear;
-            IsInternational = student.IsInternational;
-            Username        = username;
-            IsActive        = isActive;
-            Mode            = enMode.Update;
+            IsInternational      = student.IsInternational;
+            NationalityCountryId = student.NationalityCountryId;
+            Username             = username;
+            IsActive             = isActive;
+            Mode                 = enMode.Update;
         }
 
         public static clsStudentBusiness? Find(int studentId)
