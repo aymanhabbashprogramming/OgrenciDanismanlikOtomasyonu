@@ -29,7 +29,8 @@
             var query   = toLowerTurkish(inputEl.value);
             var visible = 0;
             allRows.forEach(function (row) {
-                var match = !query || toLowerTurkish(row.textContent).includes(query);
+                var natHidden = row.dataset.natHidden === '1';
+                var match     = !natHidden && (!query || toLowerTurkish(row.textContent).includes(query));
                 row.style.display = match ? '' : 'none';
                 if (match) visible++;
             });

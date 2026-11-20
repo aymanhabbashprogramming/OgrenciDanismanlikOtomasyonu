@@ -17,8 +17,12 @@ namespace EntityLayer
         public bool    IsInternational  { get; set; }
         public string  Username         { get; set; } = string.Empty;
         public bool    IsActive         { get; set; }
-        public int?    CurrentAdvisorId { get; set; }
-        public string? AdvisorFullName  { get; set; }
+        public int?    CurrentAdvisorId        { get; set; }
+        public string? AdvisorFullName         { get; set; }
+        public bool?   IsAdvisorActive         { get; set; }
+        public string? CurrentEnrollmentStatus { get; set; }
+        public int?    NationalityCountryId    { get; set; }
+        public string? NationalityCountryName  { get; set; }
 
         public string FullName => $"{FirstName} {LastName}".Trim();
     }

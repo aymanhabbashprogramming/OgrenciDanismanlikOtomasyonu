@@ -38,6 +38,12 @@ namespace OgrenciDanismanlikOtomasyonu.Controllers
                 new Claim(ClaimTypes.Role,           roleName)
             };
 
+            if (roleName == "DepartmentManager")
+            {
+                int departmentId = clsDepartmentManagerBusiness.GetDepartmentIdByUserId(user.UserId);
+                claims.Add(new Claim("DepartmentId", departmentId.ToString()));
+            }
+
             ClaimsIdentity identity = new(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             await HttpContext.SignInAsync(
                 CookieAuthenticationDefaults.AuthenticationScheme,

@@ -1,12 +1,41 @@
 @model List<EntityLayer.clsStudentInfo>
 @{
     ViewData["Title"] = "Öğrencilerim";
+    int studentCount = ViewBag.StudentCount ?? 0;
+
+    string EnrollmentBadgeClass(string? status) => status switch
+    {
+        "Aktif"          => "bg-success",
+        "Kayıt Dondurma" => "bg-warning text-dark",
+        "Erasmus"        => "bg-primary",
+        "Farabi"         => "bg-primary",
+        "Mevlana"        => "bg-primary",
+        "Mezun"          => "bg-secondary",
+        "İlişik Kesme"   => "bg-danger",
+        _                => "bg-secondary"
+    };
 }
 
 @await Html.PartialAsync("_PageHeader", new ViewDataDictionary(ViewData) {
     ["HeaderTitle"]    = "Öğrencilerim",
     ["HeaderSubtitle"] = "Size atanmış öğrenci listesi"
 })
+
+<div class="row g-3 mb-4">
+    <div class="col-lg-6">
+        @await Html.PartialAsync("_CurrentSemester", new ViewDataDictionary(ViewData) {
+            ["CurrentSemester"] = ViewBag.CurrentSemester as EntityLayer.clsSemester
+        })
+    </div>
+    <div class="col-sm-6 col-lg-3">
+        @await Html.PartialAsync("_StatCard", new ViewDataDictionary(ViewData) {
+            ["CardIcon"]  = "bi-mortarboard",
+            ["CardCount"] = studentCount,
+            ["CardLabel"] = "Öğrencilerim",
+            ["CardLink"]  = Url.Action("Index", "Advisor")
+        })
+    </div>
+</div>
 
 @if (!Model.Any())
 {
@@ -33,19 +62,18 @@ else
                 @foreach (var item in Model)
                 {
                     <tr>
-                        <td class="text-id">@item.StudentNumber</td>
-                        <td>@item.FullName</td>
-                        <td>@item.DepartmentName</td>
-                        <td>@item.EducationType</td>
-                        <td>@(item.ClassYear.HasValue ? item.ClassYear + ". Sınıf" : "—")</td>
-                        <td>
-                            @if (item.IsActive)
+                        <td class="text-id" data-label="Öğrenci No">@item.StudentNumber</td>
+                        <td data-label="Ad Soyad">@item.FullName</td>
+                        <td data-label="Bölüm">@item.DepartmentName</td>
+                        <td data-label="Öğretim Türü">@item.EducationType</td>
+                        <td data-label="Sınıf">@(item.ClassYear.HasValue ? item.ClassYear + ". Sınıf" : "—")</td>
+                        <td data-label="Durum">
+                            <span class="badge @EnrollmentBadgeClass(item.CurrentEnrollmentStatus)">
+                                @(item.CurrentEnrollmentStatus ?? "—")
+                            </span>
+                            @if (!item.IsActive)
                             {
-                                <span class="status-accepted">Aktif</span>
-                            }
-                            else
-                            {
-                                <span class="status-sent">Pasif</span>
+                                <span class="badge bg-secondary ms-1">Hesap Pasif</span>
                             }
                         </td>
                     </tr>

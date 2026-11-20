@@ -1,0 +1,37 @@
+@using EntityLayer
+@{
+    var semester = ViewData["CurrentSemester"] as clsSemester;
+}
+
+<div class="dashboard-info-card">
+    <div class="dashboard-info-card-header">
+        <div class="dashboard-info-card-icon">
+            <i class="bi bi-calendar3"></i>
+        </div>
+        <div class="dashboard-info-card-title">Aktif Dönem</div>
+    </div>
+    @if (semester != null)
+    {
+        var today    = DateOnly.FromDateTime(DateTime.Today);
+        int daysLeft = (semester.EndDate.ToDateTime(TimeOnly.MinValue) - DateTime.Today).Days;
+        string dateRange = $"{semester.StartDate.ToString("dd.MM.yyyy")} – {semester.EndDate.ToString("dd.MM.yyyy")}";
+        <div class="dashboard-info-card-body">
+            <div class="current-semester-name">@semester.AcademicYear @semester.Term</div>
+            <div class="current-semester-dates">@dateRange</div>
+            @if (daysLeft > 0)
+            {
+                <span class="current-semester-days-left">Dönemin bitmesine @daysLeft gün kaldı</span>
+            }
+            else if (daysLeft == 0)
+            {
+                <span class="current-semester-days-left">Dönem bugün sona eriyor</span>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="dashboard-info-card-body">
+            <span class="text-muted">Aktif dönem yok</span>
+        </div>
+    }
+</div>
