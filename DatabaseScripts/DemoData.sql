@@ -5,8 +5,7 @@
 SET NOCOUNT ON;
 SET XACT_ABORT ON;
 
--- BCrypt hash of '123456' (BCrypt.Net-Next, work factor 11, verified)
-DECLARE @PasswordHash NVARCHAR(100) = N'$2a$11$fVpd8gh94tnqetQc3tOFh.gxA21wicvpeD0r9B2xCxlv9XLAn7t.W';
+DECLARE @PasswordHash NVARCHAR(100) = N'$2a$11$6hFvc2VpnTS6UmT/IEIMruc0RDLJd616UVHWHxYjfug.Ip31TTsAG';
 
 DECLARE @RoleAdvisor INT = (SELECT RoleId FROM Roles WHERE RoleName = N'Danışman');
 DECLARE @RoleStudent INT = (SELECT RoleId FROM Roles WHERE RoleName = N'Öğrenci');
