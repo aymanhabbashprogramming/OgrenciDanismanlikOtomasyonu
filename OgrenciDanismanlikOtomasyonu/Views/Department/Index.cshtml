@@ -7,7 +7,8 @@
                   : (now.Hour < 18)                 ? "İyi günler"
                   : (now.Hour < 22)                 ? "İyi akşamlar"
                   : "İyi geceler";
-    var userName           = User.Identity?.Name ?? "";
+    var userName           = User.FindFirstValue(System.Security.Claims.ClaimTypes.GivenName)
+                           ?? User.Identity?.Name ?? "";
     int activeAdvisorCount = ViewBag.ActiveAdvisorCount ?? 0;
     int activeStudentCount = ViewBag.ActiveStudentCount ?? 0;
 }

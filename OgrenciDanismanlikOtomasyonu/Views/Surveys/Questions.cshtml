@@ -1,0 +1,137 @@
+@{
+    var survey       = ViewBag.Survey       as BusinessLogicLayer.clsSurveyBusiness;
+    var questionList = ViewBag.QuestionList as List<EntityLayer.clsSurveyQuestion>
+                       ?? new List<EntityLayer.clsSurveyQuestion>();
+    bool isDraft     = survey?.Status == "Taslak";
+    ViewData["Title"] = "Sorular";
+}
+
+@await Html.PartialAsync("_PageHeader", new ViewDataDictionary(ViewData) {
+    ["HeaderTitle"]    = survey?.Title ?? "Sorular",
+    ["HeaderSubtitle"] = isDraft ? "Soruları ekleyin veya silin" : "Yayınlandı — sorular kilitli"
+})
+
+@if (TempData["Success"] is string successMsg)
+{
+    <div class="alert alert-success d-flex align-items-center gap-2 mb-3">
+        <i class="bi bi-check-circle-fill flex-shrink-0"></i>
+        <span>@successMsg</span>
+    </div>
+}
+@if (TempData["Error"] is string errorMsg)
+{
+    <div class="alert alert-danger d-flex align-items-center gap-2 mb-3">
+        <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+        <span>@errorMsg</span>
+    </div>
+}
+
+@if (!isDraft)
+{
+    <div class="alert alert-info d-flex align-items-center gap-2 mb-3">
+        <i class="bi bi-lock-fill flex-shrink-0"></i>
+        <span>Bu anket yayınlandı. Sorular artık değiştirilemez.</span>
+    </div>
+}
+
+<div class="form-card mb-4" style="max-width:720px">
+    <div class="form-card-body">
+        @if (!questionList.Any())
+        {
+            <p class="text-muted mb-0">Henüz soru eklenmedi.</p>
+        }
+        else
+        {
+            <ol class="mb-0 ps-3">
+                @foreach (var question in questionList)
+                {
+                    <li class="mb-3">
+                        <div class="d-flex align-items-start gap-2">
+                            <div class="flex-grow-1">
+                                <div>@question.QuestionText</div>
+                                <span class="badge @(question.QuestionType == "Puanlama" ? "bg-primary" : "bg-secondary") mt-1">
+                                    @(question.QuestionType == "Puanlama" ? "Puanlama (1–5)" : "Serbest Metin")
+                                </span>
+                            </div>
+                            @if (isDraft)
+                            {
+                                <form asp-action="DeleteQuestion" method="post" class="flex-shrink-0"
+                                      onsubmit="return confirm('Bu soruyu silmek istediğinize emin misiniz?')">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="questionId" value="@question.SurveyQuestionId" />
+                                    <input type="hidden" name="surveyId"   value="@survey!.SurveyId" />
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Soruyu sil">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            }
+                        </div>
+                    </li>
+                }
+            </ol>
+        }
+    </div>
+</div>
+
+@if (isDraft)
+{
+    <div class="form-card mb-4" style="max-width:720px">
+        <div class="form-card-body">
+            <h6 class="mb-3">Yeni Soru Ekle</h6>
+            <form asp-action="AddQuestion" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="surveyId" value="@survey!.SurveyId" />
+
+                <div class="mb-3">
+                    <label class="form-label required">Soru Metni</label>
+                    <textarea name="questionText" class="form-control" rows="2"
+                              maxlength="500" required placeholder="Soruyu buraya yazın…"></textarea>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label required">Soru Türü</label>
+                    <div class="d-flex gap-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="questionType"
+                                   id="typePuanlama" value="Puanlama" checked />
+                            <label class="form-check-label" for="typePuanlama">Puanlama (1–5)</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="questionType"
+                                   id="typeSerbestMetin" value="SerbestMetin" />
+                            <label class="form-check-label" for="typeSerbestMetin">Serbest Metin</label>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-outline-primary">
+                    <i class="bi bi-plus-circle me-1"></i>Soru Ekle
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="d-flex gap-2" style="max-width:720px">
+        @if (questionList.Any())
+        {
+            <form asp-action="Publish" method="post"
+                  onsubmit="return confirm('Anketi yayınlamak istediğinize emin misiniz? Yayınlandıktan sonra sorular değiştirilemez.')">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="surveyId" value="@survey!.SurveyId" />
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-send me-1"></i>Yayınla
+                </button>
+            </form>
+        }
+        <a asp-action="Index" class="btn btn-outline-secondary">Ankete Dön</a>
+    </div>
+}
+else
+{
+    <div class="d-flex gap-2">
+        <a asp-action="Results" asp-route-surveyId="@survey!.SurveyId" class="btn btn-primary">
+            <i class="bi bi-bar-chart-line me-1"></i>Sonuçları Gör
+        </a>
+        <a asp-action="Index" class="btn btn-outline-secondary">Listeye Dön</a>
+    </div>
+}

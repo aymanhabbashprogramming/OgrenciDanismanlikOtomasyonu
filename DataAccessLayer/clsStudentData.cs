@@ -838,5 +838,43 @@ namespace DataAccessLayer
                 return 0;
             }
         }
+
+        public static string GetFirstNameByUserId(int userId)
+        {
+            try
+            {
+                using SqlConnection conn = new(clsDataAccessSettings.ConnectionString);
+                using SqlCommand cmd = new(
+                    "SELECT FirstName FROM Students WHERE UserId = @UserId", conn);
+                cmd.Parameters.AddWithValue("@UserId", userId);
+                conn.Open();
+                object? result = cmd.ExecuteScalar();
+                return result is not null ? (string)result : string.Empty;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[clsStudentData.GetFirstNameByUserId] {ex.Message}");
+                return string.Empty;
+            }
+        }
+
+        public static bool IsStudentAktif(int studentId)
+        {
+            try
+            {
+                using SqlConnection conn = new(clsDataAccessSettings.ConnectionString);
+                using SqlCommand cmd = new(@"
+                    SELECT COUNT(*) FROM StudentEnrollmentStatuses
+                    WHERE StudentId = @StudentId AND Status = 'Aktif' AND EndDate IS NULL", conn);
+                cmd.Parameters.AddWithValue("@StudentId", studentId);
+                conn.Open();
+                return (int)cmd.ExecuteScalar() > 0;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[clsStudentData.IsStudentAktif] {ex.Message}");
+                return false;
+            }
+        }
     }
 }

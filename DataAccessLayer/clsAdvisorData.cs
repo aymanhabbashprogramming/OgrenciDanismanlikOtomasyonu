@@ -578,5 +578,24 @@ namespace DataAccessLayer
                 return 0;
             }
         }
+
+        public static string GetFirstNameByUserId(int userId)
+        {
+            try
+            {
+                using SqlConnection conn = new(clsDataAccessSettings.ConnectionString);
+                using SqlCommand cmd = new(
+                    "SELECT FirstName FROM Advisors WHERE UserId = @UserId", conn);
+                cmd.Parameters.AddWithValue("@UserId", userId);
+                conn.Open();
+                object? result = cmd.ExecuteScalar();
+                return result is not null ? (string)result : string.Empty;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[clsAdvisorData.GetFirstNameByUserId] {ex.Message}");
+                return string.Empty;
+            }
+        }
     }
 }

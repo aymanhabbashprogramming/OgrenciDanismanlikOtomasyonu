@@ -31,10 +31,19 @@ namespace OgrenciDanismanlikOtomasyonu.Controllers
 
             string roleName = ((clsUserBusiness.enRole)user.RoleId).ToString();
 
+            string firstName = roleName switch
+            {
+                "Student"           => clsStudentBusiness.GetFirstNameByUserId(user.UserId),
+                "Advisor"           => clsAdvisorBusiness.GetFirstNameByUserId(user.UserId),
+                "DepartmentManager" => clsDepartmentManagerBusiness.GetFirstNameByUserId(user.UserId),
+                _                   => string.Empty
+            };
+
             List<Claim> claims = new()
             {
                 new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
                 new Claim(ClaimTypes.Name,           user.Username),
+                new Claim(ClaimTypes.GivenName,      firstName),
                 new Claim(ClaimTypes.Role,           roleName)
             };
 

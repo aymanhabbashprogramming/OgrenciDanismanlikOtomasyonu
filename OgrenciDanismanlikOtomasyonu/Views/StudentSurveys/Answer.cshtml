@@ -1,0 +1,124 @@
+@using Microsoft.AspNetCore.Http
+@{
+    var survey      = ViewBag.Survey      as BusinessLogicLayer.clsSurveyBusiness;
+    var questions   = ViewBag.Questions   as List<EntityLayer.clsSurveyQuestion>
+                      ?? new List<EntityLayer.clsSurveyQuestion>();
+    var savedValues = ViewBag.SavedValues as IFormCollection;
+    ViewData["Title"] = "Anketi Yanıtla";
+}
+
+@await Html.PartialAsync("_PageHeader", new ViewDataDictionary(ViewData) {
+    ["HeaderTitle"]    = survey?.Title ?? "Anketi Yanıtla",
+    ["HeaderSubtitle"] = "Yanıtlarınız anonim olarak kaydedilir."
+})
+
+@if (TempData["Error"] is string errorMsg)
+{
+    <div class="alert alert-danger d-flex align-items-center gap-2 mb-3" style="max-width:720px">
+        <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+        <span>@errorMsg</span>
+    </div>
+}
+
+@if (!string.IsNullOrWhiteSpace(survey?.Description))
+{
+    <div class="alert alert-secondary mb-4" style="max-width:720px">
+        @survey.Description
+    </div>
+}
+
+<form method="post" asp-action="Answer" asp-route-surveyId="@survey?.SurveyId">
+    @Html.AntiForgeryToken()
+
+    @for (int questionIndex = 0; questionIndex < questions.Count; questionIndex++)
+    {
+        var question  = questions[questionIndex];
+        string fieldKey = $"q_{question.SurveyQuestionId}";
+        <div class="form-card mb-3" style="max-width:720px">
+            <div class="form-card-body">
+                <div class="mb-2">
+                    <span class="text-muted small">Soru @(questionIndex + 1)</span>
+                    <div class="fw-semibold">@question.QuestionText</div>
+                </div>
+
+                @if (question.QuestionType == "Puanlama")
+                {
+                    string? savedScore = savedValues?[fieldKey];
+                    <div class="score-button-group mt-2">
+                        @for (int score = 1; score <= 10; score++)
+                        {
+                            string scoreId   = $"q_{question.SurveyQuestionId}_score_{score}";
+                            bool   isChecked = savedScore == score.ToString();
+                            <input type="radio" class="score-radio visually-hidden"
+                                   name="@fieldKey" id="@scoreId"
+                                   value="@score" required
+                                   @(isChecked ? "checked" : "") />
+                            <label class="score-btn @(isChecked ? "selected" : "")" for="@scoreId">@score</label>
+                        }
+                    </div>
+                    <div class="score-feedback mt-2 @(savedScore != null ? "" : "d-none")" id="feedback_@fieldKey">
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="score-bar-track">
+                                <div class="score-bar-fill"
+                                     style="width:@(savedScore != null ? savedScore + "0%" : "0")"></div>
+                            </div>
+                            <span class="score-label fw-semibold small">@(savedScore != null ? savedScore + "/10" : "")</span>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    string? savedComment = savedValues?[fieldKey];
+                    <textarea name="@fieldKey" class="form-control mt-2" rows="3"
+                              maxlength="500"
+                              placeholder="Yanıtınızı buraya yazın (isteğe bağlı)…">@savedComment</textarea>
+                }
+            </div>
+        </div>
+    }
+
+    <div class="d-flex gap-2" style="max-width:720px">
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-send me-1"></i>Gönder
+        </button>
+        <a asp-action="Index" class="btn btn-outline-secondary">İptal</a>
+    </div>
+</form>
+
+<script>
+(function () {
+    function scoreColor(score) {
+        if (score <= 3) return 'var(--score-low)';
+        if (score <= 6) return 'var(--score-medium)';
+        if (score <= 8) return 'var(--score-good)';
+        return 'var(--score-excellent)';
+    }
+
+    function applyFeedback(radio) {
+        var fieldKey = radio.name;
+        var score    = parseInt(radio.value, 10);
+        var feedback = document.getElementById('feedback_' + fieldKey);
+        if (!feedback) return;
+
+        var bar   = feedback.querySelector('.score-bar-fill');
+        var label = feedback.querySelector('.score-label');
+        var color = scoreColor(score);
+
+        feedback.classList.remove('d-none');
+        bar.style.width           = (score * 10) + '%';
+        bar.style.backgroundColor = color;
+        label.textContent         = score + '/10';
+        label.style.color         = color;
+
+        var group = radio.closest('form').querySelectorAll('label[for^="' + fieldKey + '_score_"]');
+        group.forEach(function (btn) { btn.classList.remove('selected'); });
+        var active = document.querySelector('label[for="' + radio.id + '"]');
+        if (active) active.classList.add('selected');
+    }
+
+    document.querySelectorAll('.score-radio').forEach(function (radio) {
+        if (radio.checked) applyFeedback(radio);
+        radio.addEventListener('change', function () { applyFeedback(this); });
+    });
+}());
+</script>
