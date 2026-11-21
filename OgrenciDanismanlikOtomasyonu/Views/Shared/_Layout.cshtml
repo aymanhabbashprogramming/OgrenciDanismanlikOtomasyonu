@@ -58,9 +58,23 @@
                    asp-controller="Students" asp-action="Index">
                     <i class="bi bi-mortarboard"></i><span>Öğrenciler</span>
                 </a>
+                <a class="sidebar-link @SidebarActive("DepartmentSummary")"
+                   asp-controller="DepartmentSummary" asp-action="Index">
+                    <i class="bi bi-clipboard-data"></i><span>Bölüm Özeti</span>
+                </a>
                 <a class="sidebar-link @SidebarActive("AdvisorStatistics")"
                    asp-controller="AdvisorStatistics" asp-action="Index">
                     <i class="bi bi-bar-chart"></i><span>Danışman İstatistikleri</span>
+                </a>
+                <a class="sidebar-link @SidebarActive("Attention")"
+                   asp-controller="Attention" asp-action="Index">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <span>Dikkat Gerektirenler</span>
+                    @await Component.InvokeAsync("AttentionBadge")
+                </a>
+                <a class="sidebar-link @SidebarActive("Activities")"
+                   asp-controller="Activities" asp-action="Index">
+                    <i class="bi bi-calendar-event"></i><span>Faaliyetler</span>
                 </a>
                 <a class="sidebar-link @SidebarActive("Surveys")"
                    asp-controller="Surveys" asp-action="Index">

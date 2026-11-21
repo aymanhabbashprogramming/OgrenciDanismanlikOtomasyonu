@@ -108,8 +108,8 @@ END
 
 -- ── 2. Link existing 'baskan' (UserId=1) to Bilgisayar ──────────────────────
 IF NOT EXISTS (SELECT 1 FROM DepartmentManagers WHERE UserId = 1)
-    INSERT INTO DepartmentManagers (UserId, DepartmentId, FirstName, LastName, Position)
-    VALUES (1, @DeptBilgisayar, N'Berk', N'Karahan', N'Bölüm Başkanı');
+    INSERT INTO DepartmentManagers (UserId, DepartmentId, FirstName, LastName, Position, Email, Phone)
+    VALUES (1, @DeptBilgisayar, N'Berk', N'Karahan', N'Bölüm Başkanı', N'bilgisayar@selcuk.edu.tr', N'0332 223 4001');
 
 -- ── 3. New department managers ───────────────────────────────────────────────
 INSERT INTO Users (Username, PasswordHash, RoleId, IsActive, CreatedAt) VALUES
@@ -121,10 +121,10 @@ DECLARE @UserElektrikManager   INT = (SELECT UserId FROM Users WHERE Username = 
 DECLARE @UserMakineManager     INT = (SELECT UserId FROM Users WHERE Username = N'baskan.makine');
 DECLARE @UserMekatronikManager INT = (SELECT UserId FROM Users WHERE Username = N'baskan.mekatronik');
 
-INSERT INTO DepartmentManagers (UserId, DepartmentId, FirstName, LastName, Position) VALUES
-(@UserElektrikManager,   @DeptElektrik,   N'Serhat', N'Bozkurt', N'Bölüm Başkanı'),
-(@UserMakineManager,     @DeptMakine,     N'Leyla',  N'Çınar',   N'Bölüm Başkanı'),
-(@UserMekatronikManager, @DeptMekatronik, N'Kemal',  N'Erdoğan', N'Bölüm Başkanı');
+INSERT INTO DepartmentManagers (UserId, DepartmentId, FirstName, LastName, Position, Email, Phone) VALUES
+(@UserElektrikManager,   @DeptElektrik,   N'Serhat', N'Bozkurt', N'Bölüm Başkanı', N'elektrik@selcuk.edu.tr',   N'0332 223 4002'),
+(@UserMakineManager,     @DeptMakine,     N'Leyla',  N'Çınar',   N'Bölüm Başkanı', N'makine@selcuk.edu.tr',     N'0332 223 4003'),
+(@UserMekatronikManager, @DeptMekatronik, N'Kemal',  N'Erdoğan', N'Bölüm Başkanı', N'mekatronik@selcuk.edu.tr', N'0332 223 4004');
 
 -- ── 4. Advisors for Bilgisayar (5 new active + 1 inactive) ──────────────────
 INSERT INTO Users (Username, PasswordHash, RoleId, IsActive, CreatedAt) VALUES

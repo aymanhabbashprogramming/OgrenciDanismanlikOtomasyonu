@@ -1,0 +1,70 @@
+@model EntityLayer.clsProfileCardInfo
+@if (Model is null) { return; }
+
+@{
+    string fullName      = Model.FullName;
+    string roleName      = Model.RoleName;
+    string facultyName   = string.IsNullOrEmpty(Model.FacultyName)   ? "—" : Model.FacultyName;
+    string departmentName= string.IsNullOrEmpty(Model.DepartmentName)? "—" : Model.DepartmentName;
+}
+
+<div class="profile-card mb-4">
+
+    <div class="profile-card-left">
+        <div class="profile-card-photo-circle" aria-hidden="true">
+            <i class="bi bi-person-fill"></i>
+        </div>
+        <div class="profile-card-left-divider"></div>
+        @if (!string.IsNullOrEmpty(roleName))
+        {
+            <div class="profile-card-role-line">@roleName</div>
+        }
+        <div class="profile-card-name-line">@fullName</div>
+    </div>
+
+    <div class="profile-card-right">
+        <table class="profile-card-table">
+            <tbody>
+                <tr>
+                    <td class="profile-card-label">Ad Soyad</td>
+                    <td class="profile-card-value">@fullName</td>
+                </tr>
+                <tr>
+                    <td class="profile-card-label">Fakülte</td>
+                    <td class="profile-card-value">@facultyName</td>
+                </tr>
+                <tr>
+                    <td class="profile-card-label">Bölüm</td>
+                    <td class="profile-card-value">@departmentName</td>
+                </tr>
+                <tr>
+                    <td class="profile-card-label">E-posta</td>
+                    <td class="profile-card-value">
+                        @if (!string.IsNullOrEmpty(Model.Email))
+                        {
+                            <a href="mailto:@Model.Email" class="profile-card-link">@Model.Email</a>
+                        }
+                        else
+                        {
+                            <span>—</span>
+                        }
+                    </td>
+                </tr>
+                <tr>
+                    <td class="profile-card-label">Telefon</td>
+                    <td class="profile-card-value">
+                        @if (!string.IsNullOrEmpty(Model.Phone))
+                        {
+                            <a href="tel:@Model.Phone" class="profile-card-link">@Model.Phone</a>
+                        }
+                        else
+                        {
+                            <span>—</span>
+                        }
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>

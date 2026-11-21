@@ -1,0 +1,10 @@
+@model IEnumerable<EntityLayer.clsLabelCountRow>
+<div class="summary-tile-grid">
+    @foreach (var tile in Model)
+    {
+        <div class="summary-tile">
+            <span class="summary-tile-label">@tile.Label</span>
+            <span class="summary-tile-count">@tile.Count</span>
+        </div>
+    }
+</div>

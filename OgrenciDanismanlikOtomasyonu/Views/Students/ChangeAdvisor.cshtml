@@ -74,7 +74,7 @@
 }
 else
 {
-    <div class="card-table" style="max-width:720px">
+    <div class="card-table table-stack-mobile" style="max-width:720px">
         <table class="table data-table mb-0">
             <thead>
                 <tr>
@@ -88,10 +88,10 @@ else
                 @foreach (var assignment in history)
                 {
                     <tr>
-                        <td>@assignment.AdvisorFullName</td>
-                        <td>@assignment.StartDate.ToString("dd.MM.yyyy")</td>
-                        <td>@(assignment.EndDate.HasValue ? assignment.EndDate.Value.ToString("dd.MM.yyyy") : "—")</td>
-                        <td>@(string.IsNullOrWhiteSpace(assignment.ChangeReason) ? "—" : assignment.ChangeReason)</td>
+                        <td data-label="Danışman">@assignment.AdvisorFullName</td>
+                        <td data-label="Başlangıç">@assignment.StartDate.ToString("dd.MM.yyyy")</td>
+                        <td data-label="Bitiş">@(assignment.EndDate.HasValue ? assignment.EndDate.Value.ToString("dd.MM.yyyy") : "—")</td>
+                        <td data-label="Neden">@(string.IsNullOrWhiteSpace(assignment.ChangeReason) ? "—" : assignment.ChangeReason)</td>
                     </tr>
                 }
             </tbody>

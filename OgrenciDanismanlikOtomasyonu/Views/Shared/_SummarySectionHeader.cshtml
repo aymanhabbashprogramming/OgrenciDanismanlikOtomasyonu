@@ -1,0 +1,23 @@
+@{
+    string icon      = ViewData["SectionIcon"]      as string ?? "bi-grid";
+    string title     = ViewData["SectionTitle"]     as string ?? "";
+    string rightText = ViewData["SectionRightText"] as string ?? "";
+    string rightUrl  = ViewData["SectionRightUrl"]  as string ?? "";
+}
+<div class="summary-section-header">
+    <div class="summary-section-header-left">
+        <div class="summary-section-icon"><i class="bi @icon"></i></div>
+        <h2 class="summary-section-title">@title</h2>
+    </div>
+    @if (!string.IsNullOrEmpty(rightText))
+    {
+        if (!string.IsNullOrEmpty(rightUrl))
+        {
+            <a href="@rightUrl" class="summary-section-link">@rightText</a>
+        }
+        else
+        {
+            <span class="summary-section-right-text">@rightText</span>
+        }
+    }
+</div>
