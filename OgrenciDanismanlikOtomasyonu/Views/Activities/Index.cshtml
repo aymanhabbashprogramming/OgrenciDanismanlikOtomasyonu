@@ -1,0 +1,109 @@
+@model List<EntityLayer.clsActivityInfo>
+@{
+    ViewData["Title"] = "Faaliyetler";
+    string activeFilter = ViewBag.StatusFilter as string ?? "Tümü";
+    string searchTerm   = ViewBag.Search       as string ?? string.Empty;
+
+    string FilterClass(string value) => activeFilter == value ? "btn btn-primary btn-sm" : "btn btn-outline-secondary btn-sm";
+
+    string StatusBadgeClass(string status) => status switch
+    {
+        "Taslak"    => "bg-secondary",
+        "Yayında"   => "bg-success",
+        "Sona Erdi" => "bg-primary",
+        _           => "bg-info text-dark"
+    };
+}
+
+@await Html.PartialAsync("_PageHeader", new ViewDataDictionary(ViewData) {
+    ["HeaderTitle"]    = "Faaliyetler",
+    ["HeaderSubtitle"] = "Bölüm faaliyetleri ve katılım bilgileri"
+})
+
+<div class="mb-3 d-flex flex-wrap align-items-center gap-2">
+    <a asp-action="Index" asp-route-search="@searchTerm" asp-route-statusFilter="Tümü"
+       class="@FilterClass("Tümü")">Tümü</a>
+    <a asp-action="Index" asp-route-search="@searchTerm" asp-route-statusFilter="Yayında"
+       class="@FilterClass("Yayında")">Yayında</a>
+    <a asp-action="Index" asp-route-search="@searchTerm" asp-route-statusFilter="Taslak"
+       class="@FilterClass("Taslak")">Taslak</a>
+    <a asp-action="Index" asp-route-search="@searchTerm" asp-route-statusFilter="Sona Erdi"
+       class="@FilterClass("Sona Erdi")">Sona Erdi</a>
+
+    <form method="get" asp-action="Index" class="ms-auto">
+        <input type="hidden" name="statusFilter" value="@activeFilter" />
+        @await Html.PartialAsync("_SearchBox", new ViewDataDictionary(ViewData) {
+            ["SearchValue"]       = searchTerm,
+            ["SearchPlaceholder"] = "Faaliyet veya dönem ara…",
+            ["SearchName"]        = "search"
+        })
+    </form>
+</div>
+
+@if (!Model.Any())
+{
+    @await Html.PartialAsync("_EmptyState", new ViewDataDictionary(ViewData) {
+        ["EmptyIcon"]    = "bi-calendar-x",
+        ["EmptyMessage"] = "Seçilen filtreyle eşleşen faaliyet bulunamadı."
+    })
+}
+else
+{
+    <div class="card-table table-stack-mobile">
+        <table class="table data-table mb-0" id="activitiesTable">
+            <thead>
+                <tr>
+                    <th>Faaliyet</th>
+                    <th>Tür</th>
+                    <th>Dönem</th>
+                    <th>Başlangıç</th>
+                    <th>Bitiş</th>
+                    <th>Durum</th>
+                    <th>Katılımcı</th>
+                    <th>Katılım Oranı</th>
+                    <th class="cell-actions">İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var activity in Model)
+                {
+                    int participationPct = activity.TotalParticipants > 0
+                        ? (int)Math.Round(100.0 * activity.ParticipationCount / activity.TotalParticipants)
+                        : 0;
+
+                    <tr>
+                        <td data-label="Faaliyet"><strong>@activity.Title</strong></td>
+                        <td data-label="Tür">@activity.ActivityType</td>
+                        <td data-label="Dönem">@activity.SemesterName</td>
+                        <td data-label="Başlangıç">@activity.StartsAt.ToString("dd.MM.yyyy")</td>
+                        <td data-label="Bitiş">@activity.EndsAt.ToString("dd.MM.yyyy")</td>
+                        <td data-label="Durum">
+                            <span class="badge @StatusBadgeClass(activity.Status)">@activity.Status</span>
+                        </td>
+                        <td data-label="Katılımcı">
+                            @activity.ParticipationCount / @activity.TotalParticipants
+                        </td>
+                        <td data-label="Katılım Oranı">
+                            <div class="activity-participation-wrap">
+                                <div class="advisor-stats-bar-track">
+                                    <div class="advisor-stats-bar-fill" style="width: @participationPct%"></div>
+                                </div>
+                                <span class="advisor-stats-count">@participationPct%</span>
+                            </div>
+                        </td>
+                        <td class="cell-actions" data-label="">
+                            @if (activity.Status != "Taslak")
+                            {
+                                <a asp-controller="Surveys" asp-action="Results"
+                                   asp-route-surveyId="@activity.ActivityId"
+                                   class="btn btn-sm btn-outline-info">
+                                    <i class="bi bi-bar-chart-line me-1"></i>Sonuçlar
+                                </a>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

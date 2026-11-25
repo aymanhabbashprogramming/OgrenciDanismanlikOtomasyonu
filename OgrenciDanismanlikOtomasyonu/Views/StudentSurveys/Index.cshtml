@@ -1,0 +1,87 @@
+@model List<EntityLayer.clsSurveyInfo>
+@{
+    ViewData["Title"]   = "Anketler";
+    var answeredIds     = ViewBag.AnsweredIds as HashSet<int> ?? new HashSet<int>();
+    bool notAktif       = ViewBag.NotAktif is true;
+}
+
+@await Html.PartialAsync("_PageHeader", new ViewDataDictionary(ViewData) {
+    ["HeaderTitle"]    = "Anketler",
+    ["HeaderSubtitle"] = "Bölümünüze ait açık anketler"
+})
+
+@if (TempData["Success"] is string successMsg)
+{
+    <div class="alert alert-success d-flex align-items-center gap-2 mb-3">
+        <i class="bi bi-check-circle-fill flex-shrink-0"></i>
+        <span>@successMsg</span>
+    </div>
+}
+@if (TempData["Error"] is string errorMsg)
+{
+    <div class="alert alert-danger d-flex align-items-center gap-2 mb-3">
+        <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+        <span>@errorMsg</span>
+    </div>
+}
+
+@if (notAktif)
+{
+    <div class="alert alert-warning d-flex align-items-center gap-2">
+        <i class="bi bi-exclamation-circle-fill flex-shrink-0"></i>
+        <span>Anketlere katılmak için kayıt durumunuzun <strong>Aktif</strong> olması gerekir.</span>
+    </div>
+}
+else if (!Model.Any())
+{
+    @await Html.PartialAsync("_EmptyState", new ViewDataDictionary(ViewData) {
+        ["EmptyIcon"]    = "bi-clipboard2-check",
+        ["EmptyMessage"] = "Şu an bölümünüzde açık bir anket bulunmuyor."
+    })
+}
+else
+{
+    <div class="row g-3">
+        @foreach (var survey in Model)
+        {
+            bool answered = answeredIds.Contains(survey.SurveyId);
+            <div class="col-sm-6 col-lg-4">
+                <div class="form-card h-100 @(answered ? "opacity-75" : "")">
+                    <div class="form-card-body d-flex flex-column gap-2">
+                        <div class="d-flex align-items-start justify-content-between gap-2">
+                            <strong class="flex-grow-1">@survey.Title</strong>
+                            @if (answered)
+                            {
+                                <span class="badge bg-success flex-shrink-0">Tamamlandı</span>
+                            }
+                            else
+                            {
+                                <span class="badge bg-primary flex-shrink-0">Açık</span>
+                            }
+                        </div>
+                        @if (!string.IsNullOrWhiteSpace(survey.Description))
+                        {
+                            <p class="text-muted small mb-0">@survey.Description</p>
+                        }
+                        <div class="text-muted small">
+                            <i class="bi bi-calendar3 me-1"></i>
+                            Kapanış: @survey.ClosesAt.ToString("dd.MM.yyyy HH:mm")
+                        </div>
+                        <div class="text-muted small">
+                            <i class="bi bi-list-check me-1"></i>@survey.QuestionCount soru
+                        </div>
+                    </div>
+                    @if (!answered)
+                    {
+                        <div class="form-card-footer">
+                            <a asp-action="Answer" asp-route-surveyId="@survey.SurveyId"
+                               class="btn btn-primary btn-sm w-100">
+                                Anketi Doldur
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}

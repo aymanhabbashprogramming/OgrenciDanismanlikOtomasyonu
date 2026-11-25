@@ -156,5 +156,8 @@ namespace BusinessLogicLayer
 
         public static int GetActiveAdvisorCountByDepartmentId(int departmentId) =>
             clsAdvisorData.GetActiveAdvisorCountByDepartmentId(departmentId);
+
+        public static string GetFirstNameByUserId(int userId) =>
+            clsAdvisorData.GetFirstNameByUserId(userId);
     }
 }

@@ -1,61 +1,78 @@
 @{
     ViewData["Title"] = "Ana Sayfa";
-    var trCulture = new System.Globalization.CultureInfo("tr-TR");
-    var now       = DateTime.Now;
-    var today     = now.ToString("d MMMM yyyy, dddd", trCulture);
-    var greeting  = (now.Hour >= 5 && now.Hour < 12) ? "Günaydın"
-                  : (now.Hour < 18)                 ? "İyi günler"
-                  : (now.Hour < 22)                 ? "İyi akşamlar"
-                  : "İyi geceler";
-    var userName           = User.Identity?.Name ?? "";
-    int activeAdvisorCount = ViewBag.ActiveAdvisorCount ?? 0;
-    int activeStudentCount = ViewBag.ActiveStudentCount ?? 0;
+    var semester = ViewBag.CurrentSemester as EntityLayer.clsSemester;
 }
 
-<div class="dashboard-greeting">
-    <p class="dashboard-greeting-text">@greeting, @userName!</p>
-    <p class="dashboard-date">@today</p>
-</div>
+@await Html.PartialAsync("_ProfileCard", ViewBag.ManagerProfile as EntityLayer.clsProfileCardInfo)
 
-<div class="row g-3 mb-4">
-    <div class="col-sm-6">
-        @await Html.PartialAsync("_StatCard", new ViewDataDictionary(ViewData) {
-            ["CardIcon"]  = "bi-person-badge",
-            ["CardCount"] = activeAdvisorCount,
-            ["CardLabel"] = "Aktif Danışman",
-            ["CardLink"]  = Url.Action("Index", "Advisors")
-        })
+<div class="dashboard-info-card">
+    <div class="dashboard-info-card-header">
+        <div class="dashboard-info-card-icon">
+            <i class="bi bi-calendar3"></i>
+        </div>
+        <div class="dashboard-info-card-title">Aktif Dönem</div>
     </div>
-    <div class="col-sm-6">
-        @await Html.PartialAsync("_StatCard", new ViewDataDictionary(ViewData) {
-            ["CardIcon"]  = "bi-mortarboard",
-            ["CardCount"] = activeStudentCount,
-            ["CardLabel"] = "Aktif Öğrenci",
-            ["CardLink"]  = Url.Action("Index", "Students")
-        })
-    </div>
-</div>
 
-<div class="row g-3 mb-4">
-    <div class="col-lg-6">
-        @await Html.PartialAsync("_CurrentSemester", new ViewDataDictionary(ViewData) {
-            ["CurrentSemester"] = ViewBag.CurrentSemester as EntityLayer.clsSemester
-        })
-    </div>
-    <div class="col-lg-6">
-        @await Html.PartialAsync("_AttentionItems", new ViewDataDictionary(ViewData) {
-            ["StudentsWithoutAdvisorCount"]       = ViewBag.StudentsWithoutAdvisorCount,
-            ["InactiveAdvisorsWithStudentsCount"]  = ViewBag.InactiveAdvisorsWithStudentsCount,
-            ["NoAdvisorUrl"]                       = Url.Action("Index", "Students", new { filter = "noAdvisor" }),
-            ["InactiveAdvisorUrl"]                 = Url.Action("Index", "Advisors", new { filter = "inactiveWithStudents" })
-        })
-    </div>
-</div>
+    @if (semester != null)
+    {
+        int daysLeft  = (semester.EndDate.ToDateTime(TimeOnly.MinValue) - DateTime.Today).Days;
+        double totalDays = (semester.EndDate.ToDateTime(TimeOnly.MinValue) - semester.StartDate.ToDateTime(TimeOnly.MinValue)).TotalDays;
+        double elapsed   = (DateTime.Today - semester.StartDate.ToDateTime(TimeOnly.MinValue)).TotalDays;
+        int progressPct  = totalDays > 0
+            ? (int)Math.Min(100, Math.Max(0, Math.Round(elapsed / totalDays * 100)))
+            : 0;
 
-<div class="row g-3">
-    <div class="col-12">
-        @await Html.PartialAsync("_AdvisorStatistics", new ViewDataDictionary(ViewData) {
-            ["AdvisorStatisticsList"] = ViewBag.AdvisorStatisticsList as List<EntityLayer.clsAdvisorStatisticsInfo>
-        })
-    </div>
+        <table class="profile-card-table">
+            <tbody>
+                <tr>
+                    <td class="profile-card-label">Dönem</td>
+                    <td class="profile-card-value">@semester.AcademicYear @semester.Term</td>
+                </tr>
+                <tr>
+                    <td class="profile-card-label">Başlangıç</td>
+                    <td class="profile-card-value">@semester.StartDate.ToString("dd.MM.yyyy")</td>
+                </tr>
+                <tr>
+                    <td class="profile-card-label">Bitiş</td>
+                    <td class="profile-card-value">@semester.EndDate.ToString("dd.MM.yyyy")</td>
+                </tr>
+                <tr>
+                    <td class="profile-card-label">Kalan Gün</td>
+                    <td class="profile-card-value">
+                        @if (daysLeft > 0)
+                        {
+                            <span>@daysLeft gün</span>
+                        }
+                        else if (daysLeft == 0)
+                        {
+                            <span>Bugün sona eriyor</span>
+                        }
+                        else
+                        {
+                            <span class="text-muted">Dönem sona erdi</span>
+                        }
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="semester-progress-wrap">
+            <div class="progress semester-progress-bar">
+                <div class="progress-bar bg-primary" role="progressbar"
+                     style="width: @progressPct%"
+                     aria-valuenow="@progressPct" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+            <div class="semester-progress-labels">
+                <span>@semester.StartDate.ToString("dd.MM.yyyy")</span>
+                <span>@progressPct% tamamlandı</span>
+                <span>@semester.EndDate.ToString("dd.MM.yyyy")</span>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="dashboard-info-card-body">
+            <span class="text-muted">Aktif dönem yok.</span>
+        </div>
+    }
 </div>

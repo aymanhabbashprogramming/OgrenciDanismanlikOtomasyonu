@@ -1,0 +1,173 @@
+@using EntityLayer
+@{
+    ViewData["Title"] = "Bölüm Özeti";
+    var summary = ViewBag.Summary as clsDepartmentSummaryInfo ?? new clsDepartmentSummaryInfo();
+
+    var allStatuses = new (string Label, string ColorClass)[]
+    {
+        ("Aktif",           "tile-success"),
+        ("Kayıt Dondurma",  "tile-warning"),
+        ("Erasmus",         "tile-primary"),
+        ("Farabi",          "tile-primary"),
+        ("Mevlana",         "tile-primary"),
+        ("Mezun",           "tile-muted"),
+        ("İlişik Kesme",    "tile-danger"),
+        ("Belirtilmemiş",   "")
+    };
+
+    var enrollmentByLabel = summary.EnrollmentStatusCounts
+        .ToDictionary(row => row.Label, row => row.Count);
+    int totalStudents = summary.EnrollmentStatusCounts.Sum(row => row.Count);
+
+    var natSummary      = summary.NationalitySummary;
+    int natTotal        = natSummary.DomesticCount + natSummary.InternationalCount;
+    int domesticPct     = natTotal > 0 ? (int)Math.Round(100.0 * natSummary.DomesticCount  / natTotal) : 0;
+    int intlPct         = natTotal > 0 ? 100 - domesticPct : 0;
+    int countryCount    = natSummary.TopCountries.Count;
+    int maxCountryCount = natSummary.TopCountries.Any() ? natSummary.TopCountries.Max(c => c.Count) : 0;
+}
+
+@await Html.PartialAsync("_PageHeader", new ViewDataDictionary(ViewData) {
+    ["HeaderTitle"]    = "Bölüm Özeti",
+    ["HeaderSubtitle"] = "Bölüme ait öğrenci ve danışman istatistikleri"
+})
+
+<!-- ── Öğrenciler ─────────────────────────────────────────────── -->
+<div class="summary-section">
+    @await Html.PartialAsync("_SummarySectionHeader", new ViewDataDictionary(ViewData) {
+        ["SectionIcon"]      = "bi-mortarboard",
+        ["SectionTitle"]     = "Öğrenciler",
+        ["SectionRightText"] = $"Toplam {totalStudents}"
+    })
+    <div class="summary-section-body">
+        <div class="summary-tile-grid">
+            @foreach (var status in allStatuses)
+            {
+                int count = enrollmentByLabel.TryGetValue(status.Label, out int found) ? found : 0;
+                <div class="summary-tile @status.ColorClass">
+                    <span class="summary-tile-label">@status.Label</span>
+                    <span class="summary-tile-count">@count</span>
+                </div>
+            }
+        </div>
+
+        @if (summary.ClassYearCounts.Any())
+        {
+            <p class="summary-sub-heading">Sınıf yılına göre</p>
+            @await Html.PartialAsync("_SummaryTiles", summary.ClassYearCounts)
+        }
+    </div>
+</div>
+
+<!-- ── Uyruk ─────────────────────────────────────────────────── -->
+<div class="summary-section">
+    @await Html.PartialAsync("_SummarySectionHeader", new ViewDataDictionary(ViewData) {
+        ["SectionIcon"]  = "bi-globe2",
+        ["SectionTitle"] = "Uyruk"
+    })
+    <div class="summary-section-body">
+        <div class="summary-tile-grid">
+            <div class="summary-tile">
+                <span class="summary-tile-label">Türkiye</span>
+                <span class="summary-tile-count">@natSummary.DomesticCount</span>
+            </div>
+            <div class="summary-tile nat-tile-role"
+                 id="natExpandBtn"
+                 role="button"
+                 tabindex="0"
+                 aria-expanded="false"
+                 aria-controls="natCountryPanel">
+                <span class="summary-tile-label">Yurt dışı</span>
+                <span class="nat-tile-pill">
+                    Ülkeler
+                    <i class="bi bi-chevron-down nat-pill-chevron-down" aria-hidden="true"></i>
+                    <i class="bi bi-chevron-up nat-pill-chevron-up" aria-hidden="true"></i>
+                </span>
+                <span class="summary-tile-count">@natSummary.InternationalCount</span>
+            </div>
+            <div class="summary-tile">
+                <span class="summary-tile-label">Ülke sayısı</span>
+                <span class="summary-tile-count">@countryCount</span>
+            </div>
+        </div>
+
+        <div class="ratio-bar-wrap">
+            <div class="ratio-bar">
+                <div class="ratio-bar-segment-domestic"      style="width: @domesticPct%"></div>
+                <div class="ratio-bar-segment-international" style="width: @intlPct%"></div>
+            </div>
+            <div class="ratio-bar-labels">
+                <span class="ratio-bar-label-left">Türkiye %@domesticPct</span>
+                <span class="ratio-bar-label-right">Yurt dışı %@intlPct</span>
+            </div>
+        </div>
+
+        @if (natSummary.InternationalCount > 0)
+        {
+            <div class="nat-country-panel" id="natCountryPanel" hidden>
+                <div class="nat-country-search-wrap">
+                    <input type="search" class="nat-country-search" id="natCountrySearch"
+                           placeholder="Ülke ara…" autocomplete="off" />
+                </div>
+                <table class="nat-country-table">
+                    <thead>
+                        <tr>
+                            <th>Ülke</th>
+                            <th>Dağılım</th>
+                            <th>Öğrenci Sayısı</th>
+                            <th>Oran</th>
+                        </tr>
+                    </thead>
+                    <tbody id="natCountryList">
+                        @foreach (var country in natSummary.TopCountries)
+                        {
+                            int pct    = natSummary.InternationalCount > 0
+                                ? (int)Math.Round(100.0 * country.Count / natSummary.InternationalCount)
+                                : 0;
+                            int barPct = maxCountryCount > 0
+                                ? (int)Math.Round(100.0 * country.Count / maxCountryCount)
+                                : 0;
+                            <tr class="nat-country-row" data-name="@country.Label">
+                                <td class="nat-country-name">@country.Label</td>
+                                <td>
+                                    <div class="nat-country-bar-track">
+                                        <div class="nat-country-bar-fill" style="width: @barPct%"></div>
+                                    </div>
+                                </td>
+                                <td class="nat-country-count">@country.Count</td>
+                                <td class="nat-country-pct">%@pct</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                <p class="nat-country-empty" id="natNoResults" hidden>Eşleşen ülke bulunamadı.</p>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- ── Danışmanlar ───────────────────────────────────────────── -->
+<div class="summary-section">
+    @await Html.PartialAsync("_SummarySectionHeader", new ViewDataDictionary(ViewData) {
+        ["SectionIcon"]      = "bi-person-badge",
+        ["SectionTitle"]     = "Danışmanlar",
+        ["SectionRightText"] = "Tümünü gör →",
+        ["SectionRightUrl"]  = Url.Action("Index", "AdvisorStatistics")
+    })
+    <div class="summary-section-body">
+        <div class="summary-tile-grid">
+            <div class="summary-tile tile-success">
+                <span class="summary-tile-label">Aktif</span>
+                <span class="summary-tile-count">@summary.ActiveAdvisorCount</span>
+            </div>
+            <div class="summary-tile tile-muted">
+                <span class="summary-tile-label">Pasif</span>
+                <span class="summary-tile-count">@summary.InactiveAdvisorCount</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/js/nationality-expand.js" asp-append-version="true"></script>
+}

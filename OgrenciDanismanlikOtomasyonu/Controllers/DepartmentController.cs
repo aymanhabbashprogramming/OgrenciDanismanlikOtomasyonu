@@ -11,24 +11,18 @@ namespace OgrenciDanismanlikOtomasyonu.Controllers
     {
         public IActionResult Index()
         {
-            int managerDepartmentId = _GetManagerDepartmentId();
+            int managerUserId = _GetManagerUserId();
 
-            ViewBag.ActiveAdvisorCount                = clsAdvisorBusiness.GetActiveAdvisorCountByDepartmentId(managerDepartmentId);
-            ViewBag.ActiveStudentCount                = clsStudentBusiness.GetActiveStudentCountByDepartmentId(managerDepartmentId);
-            ViewBag.CurrentSemester                   = clsSemesterBusiness.GetCurrentSemester();
-            ViewBag.StudentsWithoutAdvisorCount       = clsStudentBusiness.GetActiveStudentsWithoutActiveAdvisorCountByDepartmentId(managerDepartmentId);
-            ViewBag.InactiveAdvisorsWithStudentsCount = clsStudentBusiness.GetInactiveAdvisorsWithStudentsCountByDepartmentId(managerDepartmentId);
-            ViewBag.AdvisorStatisticsList              = clsAdvisorBusiness.GetAdvisorStatisticsListByDepartmentId(managerDepartmentId)
-                                                            .Where(stat => stat.IsActive)
-                                                            .Take(5)
-                                                            .ToList();
+            ViewBag.ManagerProfile  = clsDepartmentManagerBusiness.GetManagerProfileInfoByUserId(managerUserId);
+            ViewBag.CurrentSemester = clsSemesterBusiness.GetCurrentSemester();
+
             return View();
         }
 
-        private int _GetManagerDepartmentId()
+        private int _GetManagerUserId()
         {
-            string? value = User.FindFirstValue("DepartmentId");
-            return int.TryParse(value, out int departmentId) ? departmentId : 0;
+            string? value = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return int.TryParse(value, out int userId) ? userId : 0;
         }
     }
 }

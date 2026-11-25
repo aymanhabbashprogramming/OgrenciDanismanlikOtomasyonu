@@ -8,7 +8,8 @@
                   : (now.Hour < 18)                 ? "İyi günler"
                   : (now.Hour < 22)                 ? "İyi akşamlar"
                   : "İyi geceler";
-    var userName  = User.Identity?.Name ?? "";
+    var userName  = User.FindFirstValue(System.Security.Claims.ClaimTypes.GivenName)
+                   ?? User.Identity?.Name ?? "";
 }
 
 <div class="dashboard-greeting">
@@ -43,4 +44,26 @@
             </div>
         </div>
     </div>
+    @if (ViewBag.HasOpenSurveys == true)
+    {
+        <div class="col-sm-10 col-md-6 col-lg-5">
+            <div class="form-card">
+                <div class="form-card-body">
+                    <div class="d-flex align-items-center gap-3 mb-2">
+                        <div class="stat-card-icon" style="width:48px;height:48px;font-size:1.4rem">
+                            <i class="bi bi-clipboard2-check"></i>
+                        </div>
+                        <div>
+                            <div class="text-muted" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.05em">Anketler</div>
+                            <div class="fw-semibold fs-5">@ViewBag.OpenSurveyCount açık anket</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-card-footer">
+                    <a asp-controller="StudentSurveys" asp-action="Index"
+                       class="btn btn-primary btn-sm w-100">Anketlere Git</a>
+                </div>
+            </div>
+        </div>
+    }
 </div>

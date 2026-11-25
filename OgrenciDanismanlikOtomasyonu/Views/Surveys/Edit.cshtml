@@ -1,0 +1,85 @@
+@model BusinessLogicLayer.clsSurveyBusiness
+@{
+    bool isNew = Model.SurveyId == -1;
+    ViewData["Title"] = isNew ? "Yeni Anket" : "Anketi Düzenle";
+    var semesters = ViewBag.Semesters as List<EntityLayer.clsSemester>
+                    ?? new List<EntityLayer.clsSemester>();
+}
+
+@await Html.PartialAsync("_PageHeader", new ViewDataDictionary(ViewData) {
+    ["HeaderTitle"]    = isNew ? "Yeni Anket" : "Anketi Düzenle",
+    ["HeaderSubtitle"] = isNew ? "Bölüm için yeni bir anket oluşturun" : "Anket bilgilerini güncelleyin"
+})
+
+@if (TempData["Error"] is string errorMsg)
+{
+    <div class="alert alert-danger d-flex align-items-center gap-2 mb-3" style="max-width:720px">
+        <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+        <span>@errorMsg</span>
+    </div>
+}
+
+<form method="post" asp-action="Edit">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="surveyId" value="@Model.SurveyId" />
+
+    <div class="form-card" style="max-width:720px">
+        <div class="form-card-body">
+
+            <div class="mb-3">
+                <label class="form-label required">Başlık</label>
+                <input type="text" name="title" value="@Model.Title"
+                       class="form-control" maxlength="200" required autofocus />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Açıklama</label>
+                <textarea name="description" class="form-control" rows="3"
+                          maxlength="500">@Model.Description</textarea>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label required">Dönem</label>
+                <select name="semesterId" class="form-select" required>
+                    <option value="">— Dönem seçin —</option>
+                    @foreach (var semester in semesters)
+                    {
+                        string label = semester.AcademicYear + " " + semester.Term
+                                       + (semester.IsCurrent ? " (Aktif)" : "");
+                        if (semester.SemesterId == Model.SemesterId)
+                        {
+                            <option value="@semester.SemesterId" selected>@label</option>
+                        }
+                        else
+                        {
+                            <option value="@semester.SemesterId">@label</option>
+                        }
+                    }
+                </select>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-sm-6">
+                    <label class="form-label required">Açılış Tarihi</label>
+                    <input type="text" name="opensAt"
+                           value="@Model.OpensAt.ToString("yyyy-MM-dd")"
+                           class="form-control datepicker" required />
+                </div>
+                <div class="col-sm-6">
+                    <label class="form-label required">Kapanış Tarihi</label>
+                    <input type="text" name="closesAt"
+                           value="@Model.ClosesAt.ToString("yyyy-MM-dd")"
+                           class="form-control datepicker" required />
+                </div>
+            </div>
+
+        </div>
+        <div class="form-card-footer d-flex gap-2">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-floppy me-1"></i>
+                @(isNew ? "Oluştur ve Sorulara Geç" : "Kaydet")
+            </button>
+            <a asp-action="Index" class="btn btn-outline-secondary">İptal</a>
+        </div>
+    </div>
+</form>

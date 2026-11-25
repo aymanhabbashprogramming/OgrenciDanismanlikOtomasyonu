@@ -1,0 +1,73 @@
+@{
+    ViewData["Title"] = "Dikkat Gerektirenler";
+
+    int studentsWithoutAdvisor       = ViewBag.StudentsWithoutAdvisorCount       ?? 0;
+    int inactiveAdvisorsWithStudents = ViewBag.InactiveAdvisorsWithStudentsCount ?? 0;
+    bool allOk                       = studentsWithoutAdvisor == 0 && inactiveAdvisorsWithStudents == 0;
+    string noAdvisorUrl              = ViewBag.NoAdvisorUrl       as string ?? "#";
+    string inactiveAdvisorUrl        = ViewBag.InactiveAdvisorUrl as string ?? "#";
+    int totalIssues                  = studentsWithoutAdvisor + inactiveAdvisorsWithStudents;
+}
+
+@await Html.PartialAsync("_PageHeader", new ViewDataDictionary(ViewData) {
+    ["HeaderTitle"]    = "Dikkat Gerektirenler",
+    ["HeaderSubtitle"] = "İncelenmesi gereken durumlar"
+})
+
+@if (allOk)
+{
+    <div class="dashboard-info-card">
+        <div class="attention-ok-full">
+            <i class="bi bi-check-circle-fill attention-ok-icon"></i>
+            <p class="attention-ok-title">Şu anda dikkat gerektiren bir durum bulunmuyor.</p>
+            <p class="attention-ok-subtitle">Tüm öğrencilerin aktif bir danışmanı var ve pasif danışmanlara bağlı öğrenci yok.</p>
+        </div>
+    </div>
+}
+else
+{
+    <div class="card-table">
+        <table class="table data-table mb-0">
+            <thead>
+                <tr>
+                    <th>Durum</th>
+                    <th>Sayı</th>
+                    <th>Açıklama</th>
+                    <th class="cell-actions">İşlem</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (studentsWithoutAdvisor > 0)
+                {
+                    <tr>
+                        <td data-label="Durum">
+                            <span class="badge bg-warning text-dark">Danışmansız Öğrenci</span>
+                        </td>
+                        <td data-label="Sayı"><strong>@studentsWithoutAdvisor</strong></td>
+                        <td data-label="Açıklama">Aktif öğrenci hesabı olan ancak aktif bir danışmanı bulunmayan öğrenciler.</td>
+                        <td class="cell-actions" data-label="">
+                            <a href="@noAdvisorUrl" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-box-arrow-up-right me-1"></i>Görüntüle
+                            </a>
+                        </td>
+                    </tr>
+                }
+                @if (inactiveAdvisorsWithStudents > 0)
+                {
+                    <tr>
+                        <td data-label="Durum">
+                            <span class="badge bg-danger">Pasif Danışman</span>
+                        </td>
+                        <td data-label="Sayı"><strong>@inactiveAdvisorsWithStudents</strong></td>
+                        <td data-label="Açıklama">Hesabı pasif olan ancak üzerine kayıtlı öğrencisi bulunan danışmanlar.</td>
+                        <td class="cell-actions" data-label="">
+                            <a href="@inactiveAdvisorUrl" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-box-arrow-up-right me-1"></i>Görüntüle
+                            </a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}

@@ -1,0 +1,119 @@
+@model List<EntityLayer.clsSurveyInfo>
+@{
+    ViewData["Title"] = "Anketler";
+    string StatusBadgeClass(string status, bool isOpen, bool hasEnded) => status switch
+    {
+        "Taslak"    => "bg-secondary",
+        "Yayınlandı" when isOpen    => "bg-success",
+        "Yayınlandı" when hasEnded  => "bg-primary",
+        _                           => "bg-info text-dark"
+    };
+    string StatusLabel(string status, bool isOpen, bool hasEnded) => status switch
+    {
+        "Taslak"    => "Taslak",
+        "Yayınlandı" when isOpen    => "Aktif",
+        "Yayınlandı" when hasEnded  => "Sona Erdi",
+        _                           => "Beklemede"
+    };
+}
+
+@await Html.PartialAsync("_PageHeader", new ViewDataDictionary(ViewData) {
+    ["HeaderTitle"]      = "Anketler",
+    ["HeaderSubtitle"]   = "Bölüm anketlerini yönetin",
+    ["HeaderActionText"] = "Yeni Anket",
+    ["HeaderActionLink"] = Url.Action("Edit", "Surveys")
+})
+
+@if (TempData["Success"] is string successMsg)
+{
+    <div class="alert alert-success d-flex align-items-center gap-2 mb-3">
+        <i class="bi bi-check-circle-fill flex-shrink-0"></i>
+        <span>@successMsg</span>
+    </div>
+}
+@if (TempData["Error"] is string errorMsg)
+{
+    <div class="alert alert-danger d-flex align-items-center gap-2 mb-3">
+        <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+        <span>@errorMsg</span>
+    </div>
+}
+
+@if (!Model.Any())
+{
+    @await Html.PartialAsync("_EmptyState", new ViewDataDictionary(ViewData) {
+        ["EmptyIcon"]       = "bi-clipboard2-x",
+        ["EmptyMessage"]    = "Bölümünüz için henüz anket oluşturulmadı.",
+        ["EmptyActionText"] = "Yeni Anket",
+        ["EmptyActionLink"] = Url.Action("Edit", "Surveys")
+    })
+}
+else
+{
+    <div class="table-responsive">
+        <table class="table table-hover align-middle" id="surveysTable">
+            <thead>
+                <tr>
+                    <th>Başlık</th>
+                    <th>Dönem</th>
+                    <th>Durum</th>
+                    <th>Açılış</th>
+                    <th>Kapanış</th>
+                    <th>Sorular</th>
+                    <th>Katılım</th>
+                    <th class="cell-actions">İşlemler</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var survey in Model)
+                {
+                    bool isOpen   = survey.IsOpen;
+                    bool hasEnded = survey.HasEnded;
+                    <tr>
+                        <td data-label="Başlık"><strong>@survey.Title</strong></td>
+                        <td data-label="Dönem">@survey.SemesterName</td>
+                        <td data-label="Durum">
+                            <span class="badge @StatusBadgeClass(survey.Status, isOpen, hasEnded)">
+                                @StatusLabel(survey.Status, isOpen, hasEnded)
+                            </span>
+                        </td>
+                        <td data-label="Açılış">@survey.OpensAt.ToString("dd.MM.yyyy")</td>
+                        <td data-label="Kapanış">@survey.ClosesAt.ToString("dd.MM.yyyy")</td>
+                        <td data-label="Sorular">@survey.QuestionCount</td>
+                        <td data-label="Katılım">@survey.ParticipationCount</td>
+                        <td class="cell-actions" data-label="">
+                            <div class="d-flex flex-wrap gap-1">
+                                <a asp-action="Questions" asp-route-surveyId="@survey.SurveyId"
+                                   class="btn btn-sm btn-outline-secondary">
+                                    <i class="bi bi-list-ul"></i>
+                                </a>
+                                @if (survey.Status == "Taslak")
+                                {
+                                    <a asp-action="Edit" asp-route-id="@survey.SurveyId"
+                                       class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <form asp-action="Delete" method="post" class="d-inline"
+                                          onsubmit="return confirm('Bu anketi silmek istediğinize emin misiniz?')">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="surveyId" value="@survey.SurveyId" />
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                }
+                                @if (survey.Status == "Yayınlandı")
+                                {
+                                    <a asp-action="Results" asp-route-surveyId="@survey.SurveyId"
+                                       class="btn btn-sm btn-outline-info">
+                                        <i class="bi bi-bar-chart-line"></i>
+                                    </a>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
