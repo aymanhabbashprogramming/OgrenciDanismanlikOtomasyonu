@@ -117,7 +117,6 @@ namespace BusinessLogicLayer
 
         public static List<clsStudentInfo> GetAllStudents() =>
             clsStudentData.GetAllStudents();
-
         public static List<clsStudentInfo> GetStudentsByAdvisorId(int advisorId) =>
             clsStudentData.GetStudentsByAdvisorId(advisorId);
 
@@ -202,7 +201,6 @@ namespace BusinessLogicLayer
 
         public static string GetFirstNameByUserId(int userId) =>
             clsStudentData.GetFirstNameByUserId(userId);
-
         public static bool IsStudentAktif(int studentId) =>
             clsStudentData.IsStudentAktif(studentId);
     }
