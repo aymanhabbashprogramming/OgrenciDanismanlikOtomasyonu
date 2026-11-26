@@ -1,0 +1,151 @@
+@model EntityLayer.clsStudentAdvisorPageInfo
+@{
+    ViewData["Title"] = "Danışmanım";
+}
+
+<!-- ── Page heading ─────────────────────────────────────────── -->
+<div class="student-page-heading">
+    <h1>Danışmanım</h1>
+</div>
+
+@if (!Model.HasCurrentAdvisor)
+{
+    <div class="student-card mb-3">
+        <div class="student-card-header">
+            <span><i class="bi bi-person-badge me-2"></i>Danışman Bilgileri</span>
+        </div>
+        <div class="student-card-body">
+            <p class="text-muted mb-0">Henüz danışman atanmamış.</p>
+        </div>
+    </div>
+}
+else
+{
+    <!-- ── Advisor profile card ──────────────────────────────── -->
+    <div class="student-profile-card student-profile-card--advisor mb-3">
+
+        <div class="student-profile-left">
+            <div class="student-profile-icon-circle" aria-hidden="true">
+                <i class="bi bi-person-fill"></i>
+            </div>
+        </div>
+
+        <div class="student-profile-right">
+            @if (!string.IsNullOrWhiteSpace(Model.AdvisorAcademicTitle))
+            {
+                <div class="student-profile-role">@Model.AdvisorAcademicTitle</div>
+            }
+            <div class="student-profile-name">@Model.AdvisorFirstName @Model.AdvisorLastName</div>
+
+            @if (!string.IsNullOrWhiteSpace(Model.AdvisorEmail))
+            {
+                <div class="text-muted small mt-1 mb-2">
+                    <i class="bi bi-envelope me-1"></i>
+                    <a href="mailto:@Model.AdvisorEmail" class="profile-card-link">@Model.AdvisorEmail</a>
+                </div>
+            }
+
+            @if (Model.AssignmentStartDate.HasValue)
+            {
+                <div class="text-muted small mb-3">
+                    <i class="bi bi-calendar-check me-1"></i>
+                    Danışmanınız: @Model.AssignmentStartDate.Value.ToString("dd/MM/yyyy")'dan beri
+                </div>
+            }
+
+            <div class="d-flex flex-wrap gap-2">
+                <a href="#" class="btn-student-primary">
+                    <i class="bi bi-chat-dots"></i>Mesaj Gönder
+                </a>
+                <a href="#" class="btn btn-outline-secondary btn-sm d-inline-flex align-items-center gap-1">
+                    <i class="bi bi-calendar-plus"></i>Randevu Al
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ── Office hours card ─────────────────────────────────── -->
+    <div class="student-card mb-3">
+        <div class="student-card-header">
+            <span><i class="bi bi-clock me-2"></i>Görüşme Saatleri</span>
+        </div>
+        <div class="student-card-body">
+            @if (Model.OfficeHours.Count == 0)
+            {
+                <p class="text-muted mb-0">Danışmanınız henüz görüşme saati eklememiş.</p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-sm mb-0">
+                        <thead>
+                            <tr>
+                                <th data-label="">Gün</th>
+                                <th data-label="">Saat</th>
+                                <th data-label="">Yer</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var officeHour in Model.OfficeHours)
+                            {
+                                <tr>
+                                    <td data-label="Gün">@officeHour.DayOfWeek</td>
+                                    <td data-label="Saat">
+                                        @officeHour.StartTime.ToString("HH:mm") – @officeHour.EndTime.ToString("HH:mm")
+                                    </td>
+                                    <td data-label="Yer">@(officeHour.Location ?? "—")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+<!-- ── Assignment history card ──────────────────────────────── -->
+@if (Model.AssignmentHistory.Count > 0)
+{
+    <div class="student-card mb-3">
+        <div class="student-card-header">
+            <span><i class="bi bi-clock-history me-2"></i>Danışman Geçmişi</span>
+        </div>
+        <div class="student-card-body">
+            <div class="table-responsive">
+                <table class="table table-sm mb-0">
+                    <thead>
+                        <tr>
+                            <th data-label="">Danışman</th>
+                            <th data-label="">Başlangıç</th>
+                            <th data-label="">Bitiş</th>
+                            <th data-label="">Durum</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var assignment in Model.AssignmentHistory)
+                        {
+                            bool isCurrent = !assignment.EndDate.HasValue;
+                            <tr>
+                                <td data-label="Danışman">@assignment.AdvisorFullName</td>
+                                <td data-label="Başlangıç">@assignment.StartDate.ToString("dd/MM/yyyy")</td>
+                                <td data-label="Bitiş">
+                                    @(assignment.EndDate.HasValue
+                                        ? assignment.EndDate.Value.ToString("dd/MM/yyyy")
+                                        : "—")
+                                </td>
+                                <td data-label="Durum" class="cell-actions">
+                                    @if (isCurrent)
+                                    {
+                                        <span class="badge bg-success">Mevcut</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}

@@ -23,6 +23,18 @@ namespace OgrenciDanismanlikOtomasyonu.Controllers
         }
 
         [HttpGet]
+        public IActionResult MyAdvisor()
+        {
+            int studentId = _GetStudentId();
+            if (studentId <= 0) return NotFound();
+
+            clsStudentAdvisorPageInfo pageInfo =
+                clsStudentAdvisorPageBusiness.GetAdvisorPageInfo(studentId);
+
+            return View(pageInfo);
+        }
+
+        [HttpGet]
         public IActionResult MyInformation()
         {
             int studentId = _GetStudentId();

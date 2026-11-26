@@ -2313,6 +2313,56 @@ body {
   }
 }
 
+/* ── Advisor profile card modifier (white left column) ──────── */
+.student-profile-card--advisor .student-profile-left {
+  background-color: var(--color-white);
+  color: var(--color-text);
+  border-right: 1.5px solid var(--color-primary-light);
+}
+
+.student-profile-card--advisor .student-profile-icon-circle {
+  background-color: var(--color-primary-light);
+  color: var(--student-body-color);
+  margin-bottom: 0;
+}
+
+.student-profile-card--advisor .student-profile-role {
+  text-transform: none;
+  opacity: 1;
+  color: var(--color-text-muted);
+  font-weight: 500;
+  margin-bottom: 0.2rem;
+}
+
+.student-profile-card--advisor .student-profile-name {
+  color: var(--color-text);
+}
+
+@media (max-width: 600px) {
+  .student-profile-card--advisor .student-profile-left {
+    border-right: none;
+    border-bottom: 1.5px solid var(--color-primary-light);
+  }
+}
+
+/* ── Shared page heading for student area (white text on blue) ── */
+.student-page-heading {
+  margin-bottom: var(--space-xl);
+}
+
+.student-page-heading h1 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--color-on-primary);
+  margin-bottom: 0;
+}
+
+.student-page-heading p {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.875rem;
+  margin-bottom: 0;
+}
+
 /* ── Student portal mobile ───────────────────────────────────── */
 @media (max-width: 767px) {
   .student-navbar-toggler {
