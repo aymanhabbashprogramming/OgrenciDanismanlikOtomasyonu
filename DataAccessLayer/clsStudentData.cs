@@ -876,5 +876,68 @@ namespace DataAccessLayer
                 return false;
             }
         }
+
+        public static clsStudentHomeInfo? GetStudentHomeProfile(int studentId)
+        {
+            try
+            {
+                using SqlConnection conn = new(clsDataAccessSettings.ConnectionString);
+                using SqlCommand cmd = new(@"
+                    SELECT Student.StudentId, Student.StudentNumber,
+                           Student.FirstName, Student.LastName,
+                           Student.DepartmentId, Department.DepartmentName,
+                           Faculty.FacultyName,
+                           Student.ClassYear, Student.EducationType,
+                           Student.Email    AS StudentEmail,
+                           Student.MobilePhone,
+                           CurrentEnrollment.Status AS EnrollmentStatus,
+                           Advisor.AdvisorId,
+                           CASE WHEN Advisor.AdvisorId IS NULL THEN NULL
+                                ELSE ISNULL(Advisor.AcademicTitle + N' ', N'')
+                                     + Advisor.FirstName + N' ' + Advisor.LastName
+                           END AS AdvisorFullName,
+                           Advisor.Email AS AdvisorEmail
+                    FROM   Students AS Student
+                    INNER JOIN Departments AS Department ON Student.DepartmentId = Department.DepartmentId
+                    INNER JOIN Faculties   AS Faculty    ON Department.FacultyId  = Faculty.FacultyId
+                    LEFT  JOIN AdvisorAssignments        AS AdvisorAssignment
+                                 ON AdvisorAssignment.StudentId = Student.StudentId
+                                AND AdvisorAssignment.EndDate   IS NULL
+                    LEFT  JOIN Advisors AS Advisor
+                                 ON Advisor.AdvisorId = AdvisorAssignment.AdvisorId
+                    LEFT  JOIN StudentEnrollmentStatuses AS CurrentEnrollment
+                                 ON CurrentEnrollment.StudentId = Student.StudentId
+                                AND CurrentEnrollment.EndDate   IS NULL
+                    WHERE  Student.StudentId = @StudentId", conn);
+                cmd.Parameters.AddWithValue("@StudentId", studentId);
+                conn.Open();
+                using SqlDataReader reader = cmd.ExecuteReader();
+                if (!reader.Read()) return null;
+
+                return new clsStudentHomeInfo
+                {
+                    StudentId        = (int)reader["StudentId"],
+                    StudentNumber    = (string)reader["StudentNumber"],
+                    FirstName        = (string)reader["FirstName"],
+                    LastName         = (string)reader["LastName"],
+                    DepartmentId     = (int)reader["DepartmentId"],
+                    DepartmentName   = (string)reader["DepartmentName"],
+                    FacultyName      = (string)reader["FacultyName"],
+                    ClassYear        = reader["ClassYear"]      == DBNull.Value ? null : (int?)(int)reader["ClassYear"],
+                    EducationType    = (string)reader["EducationType"],
+                    EnrollmentStatus = reader["EnrollmentStatus"] == DBNull.Value ? null : (string)reader["EnrollmentStatus"],
+                    StudentEmail     = reader["StudentEmail"]   == DBNull.Value ? null : (string)reader["StudentEmail"],
+                    MobilePhone      = reader["MobilePhone"]    == DBNull.Value ? null : (string)reader["MobilePhone"],
+                    AdvisorId        = reader["AdvisorId"]      == DBNull.Value ? null : (int?)(int)reader["AdvisorId"],
+                    AdvisorFullName  = reader["AdvisorFullName"] == DBNull.Value ? null : (string)reader["AdvisorFullName"],
+                    AdvisorEmail     = reader["AdvisorEmail"]   == DBNull.Value ? null : (string)reader["AdvisorEmail"]
+                };
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[clsStudentData.GetStudentHomeProfile] {ex.Message}");
+                return null;
+            }
+        }
     }
 }

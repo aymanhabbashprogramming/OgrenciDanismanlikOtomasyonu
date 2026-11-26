@@ -85,6 +85,11 @@
   /* ── Login card dimensions ───────────────────────────────── */
   --login-card-width:           880px;
   --login-card-height:          520px;
+
+  /* ── Student portal ──────────────────────────────────────── */
+  --student-navbar-color:       #767171;
+  --student-body-color:         #46B0E1;
+  --student-navbar-height:      56px;
 }
 
 
@@ -1920,5 +1925,440 @@ body {
   .nat-country-table thead th:nth-child(2),
   .nat-country-table tbody td:nth-child(2) {
     display: none;
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   STUDENT PORTAL LAYOUT
+═══════════════════════════════════════════════════════════════ */
+.student-layout-body {
+  background-color: var(--color-white);
+}
+
+.student-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--student-navbar-height);
+  background-color: var(--student-navbar-color);
+  z-index: 300;
+  display: flex;
+  align-items: center;
+}
+
+.student-navbar-inner {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-lg);
+  gap: var(--space-md);
+}
+
+.student-navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-on-primary);
+  font-weight: 700;
+  font-size: 1.1rem;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.student-navbar-brand:hover {
+  color: var(--color-on-primary);
+}
+
+.student-navbar-brand i {
+  font-size: 1.3rem;
+}
+
+.student-navbar-links {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+}
+
+.student-nav-link {
+  color: rgba(255, 255, 255, 0.85);
+  text-decoration: none;
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: background-color 0.15s, color 0.15s;
+  white-space: nowrap;
+}
+
+.student-nav-link:hover {
+  color: var(--color-on-primary);
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.student-nav-link.active {
+  color: var(--color-on-primary);
+  background-color: rgba(255, 255, 255, 0.25);
+  font-weight: 600;
+}
+
+.student-navbar-right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  flex-shrink: 0;
+  color: var(--color-on-primary);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.student-navbar-username {
+  display: none;
+}
+
+@media (min-width: 480px) {
+  .student-navbar-username {
+    display: inline;
+  }
+}
+
+.btn-student-logout {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: var(--color-on-primary);
+  border-radius: var(--radius-md);
+  padding: 0.3rem 0.7rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s;
+  white-space: nowrap;
+  font-family: var(--font-sans);
+}
+
+.btn-student-logout:hover {
+  background: rgba(255, 255, 255, 0.25);
+  color: var(--color-on-primary);
+}
+
+.student-navbar-toggler {
+  display: none;
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: var(--color-on-primary);
+  padding: 0.3rem 0.5rem;
+  border-radius: var(--radius-md);
+  font-size: 1.2rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+.student-main {
+  padding-top: var(--student-navbar-height);
+  min-height: 100vh;
+  background-color: var(--color-white);
+  padding-left: var(--space-lg);
+  padding-right: var(--space-lg);
+  padding-bottom: var(--space-xl);
+}
+
+.student-content-column {
+  max-width: 1000px;
+  margin: 0 auto;
+  background-color: var(--student-body-color);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+}
+
+/* ── Student area cards ──────────────────────────────────────── */
+.student-card {
+  background: var(--color-white);
+  border: 1.5px solid var(--student-navbar-color);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.student-card-header {
+  background-color: var(--student-navbar-color);
+  color: var(--color-on-primary);
+  padding: 0.65rem 1.25rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.student-card-header-link {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.8rem;
+  font-weight: 400;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.student-card-header-link:hover {
+  color: var(--color-on-primary);
+}
+
+.student-card-body {
+  padding: 1.25rem;
+  flex: 1;
+}
+
+.student-info-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #ebebeb;
+  font-size: 0.875rem;
+}
+
+.student-info-row:last-child {
+  border-bottom: none;
+}
+
+.student-info-label {
+  min-width: 140px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+  padding-top: 0.05rem;
+}
+
+.student-info-value {
+  color: var(--color-text);
+  flex: 1;
+  min-width: 0;
+}
+
+.btn-student-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background-color: var(--student-body-color);
+  border: none;
+  color: var(--color-on-primary);
+  border-radius: var(--radius-md);
+  padding: 0.4rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  font-family: var(--font-sans);
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+.btn-student-primary:hover {
+  opacity: 0.88;
+  color: var(--color-on-primary);
+}
+
+.student-survey-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid #ebebeb;
+  font-size: 0.875rem;
+}
+
+.student-survey-row:last-child {
+  border-bottom: none;
+}
+
+.student-survey-title {
+  flex: 1;
+  min-width: 0;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.student-survey-date {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Student profile card */
+.student-profile-card {
+  background: var(--color-white);
+  border: 1.5px solid var(--student-navbar-color);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  display: flex;
+  margin-bottom: 1.5rem;
+}
+
+.student-profile-left {
+  background-color: var(--student-navbar-color);
+  color: var(--color-on-primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+  min-width: 180px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.student-profile-icon-circle {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.student-profile-role {
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.75;
+  margin-bottom: 0.4rem;
+}
+
+.student-profile-name {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.student-profile-number {
+  font-size: 0.8rem;
+  opacity: 0.8;
+  margin-top: 0.2rem;
+}
+
+.student-profile-right {
+  flex: 1;
+  padding: 1.25rem 1.5rem;
+  min-width: 0;
+}
+
+.student-profile-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.student-profile-table td {
+  padding: 0.5rem 0.5rem;
+  font-size: 0.875rem;
+  vertical-align: top;
+  border-bottom: 1px solid #ebebeb;
+}
+
+.student-profile-table tr:last-child td {
+  border-bottom: none;
+}
+
+.student-profile-table td:first-child {
+  font-weight: 600;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  padding-right: 1.5rem;
+  width: 160px;
+}
+
+.student-profile-table td:last-child {
+  color: var(--color-text);
+}
+
+@media (max-width: 600px) {
+  .student-profile-card {
+    flex-direction: column;
+  }
+
+  .student-profile-left {
+    min-width: 0;
+    padding: 1.25rem 1rem;
+    flex-direction: row;
+    gap: 1rem;
+    text-align: left;
+    justify-content: flex-start;
+  }
+
+  .student-profile-icon-circle {
+    width: 56px;
+    height: 56px;
+    font-size: 1.75rem;
+    margin-bottom: 0;
+    flex-shrink: 0;
+  }
+
+  .student-info-label {
+    min-width: 110px;
+  }
+
+  .student-profile-table td:first-child {
+    width: 110px;
+    padding-right: 0.75rem;
+  }
+}
+
+/* ── Student portal mobile ───────────────────────────────────── */
+@media (max-width: 767px) {
+  .student-navbar-toggler {
+    display: block;
+  }
+
+  .student-navbar-links {
+    display: none;
+    position: absolute;
+    top: var(--student-navbar-height);
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: var(--space-sm) var(--space-md);
+    gap: var(--space-xs);
+    background-color: var(--student-navbar-color);
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 299;
+  }
+
+  .student-navbar-links.show {
+    display: flex;
+  }
+
+  .student-nav-link {
+    width: 100%;
+  }
+
+  .student-main {
+    padding-left: var(--space-md);
+    padding-right: var(--space-md);
+  }
+
+  .student-content-column {
+    padding: var(--space-lg) var(--space-md);
+  }
+}
+
+@media (max-width: 575px) {
+  .student-main {
+    padding-left: var(--space-sm);
+    padding-right: var(--space-sm);
+  }
+
+  .student-content-column {
+    padding: var(--space-md);
   }
 }

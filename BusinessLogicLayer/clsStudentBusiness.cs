@@ -201,7 +201,27 @@ namespace BusinessLogicLayer
 
         public static string GetFirstNameByUserId(int userId) =>
             clsStudentData.GetFirstNameByUserId(userId);
+
         public static bool IsStudentAktif(int studentId) =>
             clsStudentData.IsStudentAktif(studentId);
+
+        public static EntityLayer.clsStudentHomeInfo? GetStudentHomeInfo(int studentId)
+        {
+            EntityLayer.clsStudentHomeInfo? info = clsStudentData.GetStudentHomeProfile(studentId);
+            if (info is null) return null;
+
+            if (clsStudentData.IsStudentAktif(studentId))
+            {
+                List<EntityLayer.clsSurveyInfo> openSurveys =
+                    clsSurveyBusiness.GetOpenByDepartment(info.DepartmentId);
+                HashSet<int> answeredIds =
+                    clsSurveyParticipationData.GetAnsweredSurveyIds(studentId);
+                info.OpenUnansweredSurveys = openSurveys
+                    .Where(survey => !answeredIds.Contains(survey.SurveyId))
+                    .ToList();
+            }
+
+            return info;
+        }
     }
 }

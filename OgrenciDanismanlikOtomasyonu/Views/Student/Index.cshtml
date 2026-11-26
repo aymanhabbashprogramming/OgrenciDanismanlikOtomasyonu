@@ -1,69 +1,175 @@
-@model EntityLayer.clsAdvisorInfo?
+@model EntityLayer.clsStudentHomeInfo
 @{
     ViewData["Title"] = "Ana Sayfa";
     var trCulture = new System.Globalization.CultureInfo("tr-TR");
     var now       = DateTime.Now;
     var today     = now.ToString("d MMMM yyyy, dddd", trCulture);
     var greeting  = (now.Hour >= 5 && now.Hour < 12) ? "Günaydın"
-                  : (now.Hour < 18)                 ? "İyi günler"
-                  : (now.Hour < 22)                 ? "İyi akşamlar"
+                  : (now.Hour < 18)                  ? "İyi günler"
+                  : (now.Hour < 22)                  ? "İyi akşamlar"
                   : "İyi geceler";
-    var userName  = User.FindFirstValue(System.Security.Claims.ClaimTypes.GivenName)
-                   ?? User.Identity?.Name ?? "";
+
+    string ClassYearLabel(int? year) => year switch
+    {
+        1 => "1. Sınıf",
+        2 => "2. Sınıf",
+        3 => "3. Sınıf",
+        4 => "4. Sınıf",
+        _ => "—"
+    };
+    string enrollmentStatus = Model?.EnrollmentStatus ?? "—";
+    string enrollmentBadgeClass = enrollmentStatus == "Aktif" ? "bg-success" : "bg-secondary";
 }
 
-<div class="dashboard-greeting">
-    <p class="dashboard-greeting-text">@greeting, @userName!</p>
-    <p class="dashboard-date">@today</p>
+<div class="dashboard-greeting" style="color: var(--color-on-primary)">
+    <p class="dashboard-greeting-text" style="color: var(--color-on-primary)">@greeting, @Model?.FirstName!</p>
+    <p class="dashboard-date" style="color: rgba(255,255,255,0.8)">@today</p>
 </div>
 
-<div class="row g-3">
-    <div class="col-sm-10 col-md-6 col-lg-5">
-        <div class="form-card">
-            <div class="form-card-body">
-                <div class="d-flex align-items-center gap-3 mb-2">
-                    <div class="stat-card-icon" style="width:48px;height:48px;font-size:1.4rem">
-                        <i class="bi bi-person-badge"></i>
-                    </div>
-                    <div>
-                        <div class="text-muted" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.05em">Danışmanım</div>
-                        @if (Model != null)
+@if (Model is null) { return; }
+
+<!-- ── Profile card ────────────────────────────────────────────── -->
+<div class="student-profile-card">
+
+    <div class="student-profile-left">
+        <div class="student-profile-icon-circle" aria-hidden="true">
+            <i class="bi bi-person-fill"></i>
+        </div>
+        <div>
+            <div class="student-profile-role">Öğrenci</div>
+            <div class="student-profile-name">@Model.FullName</div>
+            <div class="student-profile-number">@Model.StudentNumber</div>
+        </div>
+    </div>
+
+    <div class="student-profile-right">
+        <table class="student-profile-table">
+            <tbody>
+                <tr>
+                    <td>Ad Soyad</td>
+                    <td>@Model.FullName</td>
+                </tr>
+                <tr>
+                    <td>Öğrenci No</td>
+                    <td>@Model.StudentNumber</td>
+                </tr>
+                <tr>
+                    <td>Fakülte / Bölüm</td>
+                    <td>@Model.FacultyName / @Model.DepartmentName</td>
+                </tr>
+                <tr>
+                    <td>Sınıf / Öğretim</td>
+                    <td>@ClassYearLabel(Model.ClassYear) · @Model.EducationType</td>
+                </tr>
+                <tr>
+                    <td>Kayıt Durumu</td>
+                    <td>
+                        <span class="badge @enrollmentBadgeClass">@enrollmentStatus</span>
+                    </td>
+                </tr>
+                <tr>
+                    <td>E-posta</td>
+                    <td>
+                        @if (!string.IsNullOrWhiteSpace(Model.StudentEmail))
                         {
-                            <div class="fw-semibold fs-5">@Model.FullName</div>
-                            @if (!string.IsNullOrWhiteSpace(Model.DepartmentName))
-                            {
-                                <div class="text-muted" style="font-size:.875rem">@Model.DepartmentName</div>
-                            }
+                            <a href="mailto:@Model.StudentEmail" class="profile-card-link">@Model.StudentEmail</a>
                         }
                         else
                         {
-                            <div class="text-muted">Henüz danışman atanmamış.</div>
+                            <span>—</span>
                         }
-                    </div>
-                </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td>Telefon</td>
+                    <td>
+                        @if (!string.IsNullOrWhiteSpace(Model.MobilePhone))
+                        {
+                            <a href="tel:@Model.MobilePhone" class="profile-card-link">@Model.MobilePhone</a>
+                        }
+                        else
+                        {
+                            <span>—</span>
+                        }
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<!-- ── Two cards row ───────────────────────────────────────────── -->
+<div class="row g-3">
+
+    <!-- Danışmanım -->
+    <div class="col-12 col-md-6">
+        <div class="student-card h-100">
+            <div class="student-card-header">
+                <span><i class="bi bi-person-badge me-2"></i>Danışmanım</span>
+            </div>
+            <div class="student-card-body">
+                @if (Model.AdvisorId.HasValue)
+                {
+                    <div class="fw-semibold mb-1" style="font-size:1rem">@Model.AdvisorFullName</div>
+                    @if (!string.IsNullOrWhiteSpace(Model.AdvisorEmail))
+                    {
+                        <div class="text-muted small mb-3">
+                            <i class="bi bi-envelope me-1"></i>
+                            <a href="mailto:@Model.AdvisorEmail" style="color:inherit">@Model.AdvisorEmail</a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-muted small mb-3">—</div>
+                    }
+                    <a href="#" class="btn-student-primary">
+                        <i class="bi bi-chat-dots"></i>Mesaj Gönder
+                    </a>
+                }
+                else
+                {
+                    <div class="text-muted">Henüz danışman atanmamış.</div>
+                }
             </div>
         </div>
     </div>
-    @if (ViewBag.HasOpenSurveys == true)
-    {
-        <div class="col-sm-10 col-md-6 col-lg-5">
-            <div class="form-card">
-                <div class="form-card-body">
-                    <div class="d-flex align-items-center gap-3 mb-2">
-                        <div class="stat-card-icon" style="width:48px;height:48px;font-size:1.4rem">
-                            <i class="bi bi-clipboard2-check"></i>
-                        </div>
-                        <div>
-                            <div class="text-muted" style="font-size:.8rem;text-transform:uppercase;letter-spacing:.05em">Anketler</div>
-                            <div class="fw-semibold fs-5">@ViewBag.OpenSurveyCount açık anket</div>
-                        </div>
+
+    <!-- Anketler -->
+    <div class="col-12 col-md-6">
+        <div class="student-card h-100">
+            <div class="student-card-header">
+                <span><i class="bi bi-clipboard2-check me-2"></i>Anketler</span>
+                <a asp-controller="StudentSurveys" asp-action="Index" class="student-card-header-link">Tümü →</a>
+            </div>
+            <div class="student-card-body">
+                @if (Model.EnrollmentStatus != "Aktif")
+                {
+                    <div class="text-muted small">
+                        Anketlere katılmak için kayıt durumunuzun <strong>Aktif</strong> olması gerekir.
                     </div>
-                </div>
-                <div class="form-card-footer">
-                    <a asp-controller="StudentSurveys" asp-action="Index"
-                       class="btn btn-primary btn-sm w-100">Anketlere Git</a>
-                </div>
+                }
+                else if (Model.OpenUnansweredSurveys.Count == 0)
+                {
+                    <div class="text-muted small">Şu anda açık anket yok.</div>
+                }
+                else
+                {
+                    @foreach (var survey in Model.OpenUnansweredSurveys)
+                    {
+                        <div class="student-survey-row">
+                            <div class="student-survey-title">@survey.Title</div>
+                            <div class="student-survey-date">
+                                Son gün: @survey.ClosesAt.ToString("dd/MM/yyyy")
+                            </div>
+                            <a asp-controller="StudentSurveys" asp-action="Answer"
+                               asp-route-surveyId="@survey.SurveyId"
+                               class="btn-student-primary flex-shrink-0">Doldur</a>
+                        </div>
+                    }
+                }
             </div>
         </div>
-    }
+    </div>
+
 </div>
