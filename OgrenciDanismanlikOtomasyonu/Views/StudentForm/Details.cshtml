@@ -1,0 +1,211 @@
+@model EntityLayer.clsStudentFormInfo
+@{
+    ViewData["Title"] = "Öğrenci Bilgi Formu";
+    var trCulture = new System.Globalization.CultureInfo("tr-TR");
+
+    string Display(string? value)             => string.IsNullOrWhiteSpace(value) ? "—" : value;
+    string DisplayBool(bool? value, string trueLabel, string falseLabel) =>
+        value == true ? trueLabel : value == false ? falseLabel : "—";
+    string DisplayDecimal(decimal? value)     => value.HasValue ? value.Value.ToString("N2", trCulture) + " ₺" : "—";
+    string DisplayInt(int? value)             => value.HasValue ? value.Value.ToString() : "—";
+    string DisplayDate(DateOnly? value)       => value.HasValue ? value.Value.ToString("dd.MM.yyyy") : "—";
+
+    bool hasFile = Model.StudentFileId > 0;
+}
+
+@await Html.PartialAsync("_PageHeader", new ViewDataDictionary(ViewData) {
+    ["HeaderTitle"]    = "Öğrenci Bilgi Formu",
+    ["HeaderSubtitle"] = Model.FullName + " — TF-ÖİŞL-13"
+})
+
+@if (!hasFile)
+{
+    @await Html.PartialAsync("_EmptyState", new ViewDataDictionary(ViewData) {
+        ["EmptyIcon"]    = "bi-file-earmark-person",
+        ["EmptyMessage"] = "Bu öğrenci henüz bilgi formunu doldurmadı."
+    })
+    return;
+}
+
+<div class="text-muted small mb-3">
+    <i class="bi bi-clock me-1"></i>
+    Son güncelleme: @(Model.UpdatedAt.HasValue ? Model.UpdatedAt.Value.ToString("dd.MM.yyyy HH:mm", trCulture) : "—")
+</div>
+
+@{
+    void ReadOnlyRow(string label, string value)
+    {
+        <div class="col-sm-6 col-md-4 mb-2">
+            <div class="text-muted small">@label</div>
+            <div class="fw-medium">@value</div>
+        </div>
+    }
+}
+
+@* ── Section 1 ── *@
+<div class="form-card mb-3">
+    <div class="form-card-body">
+        <h2 class="mb-3" style="font-size:1rem;font-weight:600">
+            <i class="bi bi-person-vcard me-2 text-muted"></i>1. Kişisel Bilgiler
+        </h2>
+        <div class="row">
+            @{ ReadOnlyRow("Ad Soyad",         Display(Model.FullName)); }
+            @{ ReadOnlyRow("TC Kimlik No",      Display(Model.NationalId)); }
+            @{ ReadOnlyRow("Öğrenci No",        Display(Model.StudentNumber)); }
+            @{ ReadOnlyRow("Bölüm",             Display(Model.DepartmentName)); }
+            @{ ReadOnlyRow("Öğretim Türü",      Display(Model.EducationType)); }
+            @{ ReadOnlyRow("Uyruk",             Display(Model.NationalityLabel)); }
+            @{ ReadOnlyRow("Cep Telefonu",      Display(Model.MobilePhone)); }
+            @{ ReadOnlyRow("E-posta",           Display(Model.Email)); }
+            @{ ReadOnlyRow("Kan Grubu",         Display(Model.BloodType)); }
+            @{ ReadOnlyRow("Doğum Yeri",        Display(Model.BirthPlace)); }
+            @{ ReadOnlyRow("Doğum Tarihi",      DisplayDate(Model.BirthDate)); }
+            @{ ReadOnlyRow("Mezun Olduğu Okul", Display(Model.PreviousSchool)); }
+            @{ ReadOnlyRow("GANO",              Model.Gano.HasValue ? Model.Gano.Value.ToString("F2") : "—"); }
+        </div>
+    </div>
+</div>
+
+@* ── Section 2 ── *@
+<div class="form-card mb-3">
+    <div class="form-card-body">
+        <h2 class="mb-3" style="font-size:1rem;font-weight:600">
+            <i class="bi bi-house me-2 text-muted"></i>2. Adres Bilgileri
+        </h2>
+        <div class="row">
+            @{
+                string housingDisplay = string.IsNullOrWhiteSpace(Model.HousingType) ? "—"
+                    : Model.HousingType == "Diğer" && !string.IsNullOrWhiteSpace(Model.HousingTypeDescription)
+                        ? $"Diğer — {Model.HousingTypeDescription}"
+                        : Model.HousingType;
+            }
+            @{ ReadOnlyRow("Kaldığı Yer",        housingDisplay); }
+            @{ ReadOnlyRow("Öğrencinin Adresi",  Display(Model.Address)); }
+            @{ ReadOnlyRow("Ailenin Adresi",     Display(Model.FamilyAddress)); }
+            @{ ReadOnlyRow("Ailenin Telefonu",   Display(Model.FamilyPhone)); }
+        </div>
+    </div>
+</div>
+
+@* ── Section 3 ── *@
+<div class="form-card mb-3">
+    <div class="form-card-body">
+        <h2 class="mb-3" style="font-size:1rem;font-weight:600">
+            <i class="bi bi-shield-check me-2 text-muted"></i>3. Özel Durumlar
+        </h2>
+        <div class="row">
+            @{
+                string disabilityDisplay = Model.HasDisability == true
+                    ? $"Var — %{Model.DisabilityRate?.ToString() ?? "?"}" +
+                      (string.IsNullOrWhiteSpace(Model.DisabilityDescription) ? "" : $", {Model.DisabilityDescription}")
+                    : Model.HasDisability == false ? "Yok" : "—";
+                string chronicDisplay = Model.HasChronicIllness == true
+                    ? "Var" + (string.IsNullOrWhiteSpace(Model.ChronicIllnessDetails) ? "" : $" — {Model.ChronicIllnessDetails}")
+                    : Model.HasChronicIllness == false ? "Yok" : "—";
+            }
+            @{ ReadOnlyRow("Engellilik Durumu",        disabilityDisplay); }
+            @{ ReadOnlyRow("Kronik Hastalık",          chronicDisplay); }
+            @{ ReadOnlyRow("Şehit/Gazi Çocuğu",       DisplayBool(Model.IsMartyrOrVeteranChild, "Evet", "Hayır")); }
+            @{ ReadOnlyRow("Yetiştirme Yurdunda Kaldı", DisplayBool(Model.StayedInCareHome, "Evet", "Hayır")); }
+        </div>
+    </div>
+</div>
+
+@* ── Sections 4 & 5: Parents ── *@
+@foreach (var (parent, sectionNum, sectionTitle) in new[] {
+    (Model.Mother, "4", "Anne Bilgileri"),
+    (Model.Father, "5", "Baba Bilgileri")
+})
+{
+    <div class="form-card mb-3">
+        <div class="form-card-body">
+            <h2 class="mb-3" style="font-size:1rem;font-weight:600">
+                <i class="bi @(sectionNum == "4" ? "bi-gender-female" : "bi-gender-male") me-2 text-muted"></i>@sectionNum. @sectionTitle
+            </h2>
+            <div class="row">
+                @{
+                    string parentFullName = string.Join(" ", new[] { parent.FirstName, parent.LastName }.Where(x => !string.IsNullOrWhiteSpace(x)));
+                    string aliveDisplay   = parent.IsAlive == false
+                        ? $"Vefat — {parent.DeathYear?.ToString() ?? "?"}"
+                        : DisplayBool(parent.IsAlive, "Sağ", "Vefat");
+                }
+                @{ ReadOnlyRow("Adı Soyadı",        string.IsNullOrWhiteSpace(parentFullName) ? "—" : parentFullName); }
+                @{ ReadOnlyRow("Cep Telefonu",      Display(parent.Phone)); }
+                @{ ReadOnlyRow("Mesleği",           Display(parent.Occupation)); }
+                @{ ReadOnlyRow("Sosyal Güvence",    DisplayBool(parent.HasSocialSecurity, "Var", "Yok")); }
+                @{ ReadOnlyRow("İş Yeri",           Display(parent.Workplace)); }
+                @{ ReadOnlyRow("Aylık Gelir",       DisplayDecimal(parent.MonthlyIncome)); }
+                @{ ReadOnlyRow("Öğrenim Durumu",    Display(parent.EducationLevel)); }
+                @{ ReadOnlyRow("Hayatta mı",        aliveDisplay); }
+            </div>
+        </div>
+    </div>
+}
+
+@* ── Section 6 ── *@
+<div class="form-card mb-3">
+    <div class="form-card-body">
+        <h2 class="mb-3" style="font-size:1rem;font-weight:600">
+            <i class="bi bi-people me-2 text-muted"></i>6. Aile Bilgileri
+        </h2>
+        <div class="row">
+            @{
+                var disabledList = new List<string>();
+                if (Model.IsMotherDisabled == true)  disabledList.Add("Anne");
+                if (Model.IsFatherDisabled == true)  disabledList.Add("Baba");
+                if (Model.IsSiblingDisabled == true) disabledList.Add("Kardeş");
+                string disabledDisplay = disabledList.Count > 0 ? string.Join(", ", disabledList) : "Yok";
+                int totalSiblings = (Model.SiblingsPrimary ?? 0) + (Model.SiblingsHighSchool ?? 0)
+                                  + (Model.SiblingsUniInCity ?? 0) + (Model.SiblingsUniOutCity ?? 0);
+                var propertyList = new List<string>();
+                if (Model.OwnsSummerHouse == true) propertyList.Add("Yazlık Ev");
+                if (Model.OwnsShop == true)        propertyList.Add("Dükkan");
+                if (Model.OwnsRentalHouse == true) propertyList.Add("Kira Getiren Ev");
+                if (Model.OwnsCar == true)         propertyList.Add("Araba");
+                string propertyDisplay = propertyList.Count > 0 ? string.Join(", ", propertyList) : "Yok";
+            }
+            @{ ReadOnlyRow("Anne-Baba Durumu",         Display(Model.ParentsStatus)); }
+            @{ ReadOnlyRow("Ailede Engelli Birey",     disabledDisplay); }
+            @{ ReadOnlyRow("Ortalama Aile Geliri",     DisplayDecimal(Model.FamilyMonthlyIncome)); }
+            @{ ReadOnlyRow("Oturulan Ev",              Display(Model.FamilyHomeType)); }
+            @{ ReadOnlyRow("Sahip Olunanlar",          propertyDisplay); }
+            @{ ReadOnlyRow("Kardeş — Okul Öncesi–Orta", DisplayInt(Model.SiblingsPrimary)); }
+            @{ ReadOnlyRow("Kardeş — Lise–Açık Öğretim", DisplayInt(Model.SiblingsHighSchool)); }
+            @{ ReadOnlyRow("Kardeş — Üni. Kent İçi",  DisplayInt(Model.SiblingsUniInCity)); }
+            @{ ReadOnlyRow("Kardeş — Üni. Kent Dışı", DisplayInt(Model.SiblingsUniOutCity)); }
+            @{ ReadOnlyRow("Toplam Kardeş",            totalSiblings.ToString()); }
+        </div>
+    </div>
+</div>
+
+@* ── Section 7 ── *@
+<div class="form-card mb-3">
+    <div class="form-card-body">
+        <h2 class="mb-3" style="font-size:1rem;font-weight:600">
+            <i class="bi bi-cash-coin me-2 text-muted"></i>7. Maddi Destek
+        </h2>
+        <div class="row">
+            @{
+                string bursCombined = Model.ReceivesScholarship == true
+                    ? $"Evet — {DisplayDecimal(Model.ScholarshipAmount)}"
+                    : DisplayBool(Model.ReceivesScholarship, "Evet", "Hayır");
+                string loanCombined = Model.ReceivesLoan == true
+                    ? $"Evet — {DisplayDecimal(Model.LoanAmount)}"
+                    : DisplayBool(Model.ReceivesLoan, "Evet", "Hayır");
+                string workCombined = Model.IsWorking == true
+                    ? $"Evet — {DisplayDecimal(Model.WorkIncome)}"
+                    : DisplayBool(Model.IsWorking, "Evet", "Hayır");
+            }
+            @{ ReadOnlyRow("Burs",             bursCombined); }
+            @{ ReadOnlyRow("Öğrenim Kredisi",  loanCombined); }
+            @{ ReadOnlyRow("Çalışıyor mu",     workCombined); }
+        </div>
+    </div>
+</div>
+
+<div class="mb-4">
+    <a asp-action="Details" asp-route-studentId="@Model.StudentId"
+       class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Geri
+    </a>
+</div>

@@ -169,6 +169,12 @@ else
                                    data-bs-toggle="tooltip" title="Şifre Sıfırla">
                                     <i class="bi bi-key"></i>
                                 </a>
+                                <a asp-controller="StudentForm" asp-action="Details"
+                                   asp-route-studentId="@item.StudentId"
+                                   class="btn-icon btn-icon-primary"
+                                   data-bs-toggle="tooltip" title="Bilgi Formu">
+                                    <i class="bi bi-file-earmark-person"></i>
+                                </a>
                                 <form method="post" asp-action="ToggleActive" class="d-inline">
                                     <input type="hidden" name="id" value="@item.StudentId" />
                                     @if (item.IsActive)

@@ -1,0 +1,671 @@
+@model EntityLayer.clsStudentFormInfo
+@{
+    ViewData["Title"] = "Bilgilerim";
+    string BoolRadioVal(bool? value, bool trueCase) => value.HasValue && value.Value == trueCase ? "checked" : "";
+    string Val(string? text) => text ?? string.Empty;
+    string DecimalVal(decimal? value) => value.HasValue ? value.Value.ToString("G", System.Globalization.CultureInfo.InvariantCulture) : string.Empty;
+    string IntVal(int? value) => value.HasValue ? value.Value.ToString() : string.Empty;
+    var trCulture = new System.Globalization.CultureInfo("tr-TR");
+    bool hasFile = Model.StudentFileId > 0;
+}
+
+@if (TempData["Success"] is string successMsg)
+{
+    <div class="alert alert-success d-flex align-items-center gap-2 mb-3">
+        <i class="bi bi-check-circle-fill flex-shrink-0"></i>
+        <span>@successMsg</span>
+    </div>
+}
+@if (TempData["Error"] is string errorMsg)
+{
+    <div class="alert alert-danger d-flex align-items-center gap-2 mb-3">
+        <i class="bi bi-exclamation-triangle-fill flex-shrink-0"></i>
+        <span>@errorMsg</span>
+    </div>
+}
+
+<div class="d-flex align-items-center justify-content-between mb-4 flex-wrap gap-2">
+    <div>
+        <h1 class="mb-0" style="font-size:1.35rem;font-weight:700">Bilgilerim</h1>
+        <p class="text-muted small mb-0">TF-ÖİŞL-13 Öğrenci Bilgi Formu</p>
+    </div>
+    @if (hasFile)
+    {
+        <div class="text-muted small">
+            <i class="bi bi-clock me-1"></i>
+            Son güncelleme: @Model.UpdatedAt?.ToString("dd.MM.yyyy HH:mm", trCulture)
+        </div>
+    }
+</div>
+
+<form method="post" asp-action="MyInformation" id="studentInfoForm">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="studentFileId" value="@Model.StudentFileId" />
+    <input type="hidden" name="motherParentId" value="@Model.Mother.ParentId" />
+    <input type="hidden" name="fatherParentId" value="@Model.Father.ParentId" />
+
+    @* ── Section 1: Kişisel Bilgiler ── *@
+    <div class="student-card mb-3">
+        <div class="student-card-header">
+            <span><i class="bi bi-person-vcard me-2"></i>1. Kişisel Bilgiler</span>
+        </div>
+        <div class="student-card-body">
+            <div class="row g-3 mb-3">
+                <div class="col-sm-6">
+                    <label class="form-label text-muted small">Ad Soyad</label>
+                    <div class="form-control bg-light">@Model.FullName</div>
+                </div>
+                <div class="col-sm-6">
+                    <label class="form-label text-muted small">TC Kimlik No</label>
+                    <div class="form-control bg-light">@Model.NationalId</div>
+                </div>
+            </div>
+            <div class="row g-3 mb-3">
+                <div class="col-sm-4">
+                    <label class="form-label text-muted small">Öğrenci No</label>
+                    <div class="form-control bg-light">@Model.StudentNumber</div>
+                </div>
+                <div class="col-sm-4">
+                    <label class="form-label text-muted small">Bölüm</label>
+                    <div class="form-control bg-light" style="font-size:0.85rem">@Model.DepartmentName</div>
+                </div>
+                <div class="col-sm-2">
+                    <label class="form-label text-muted small">Öğretim Türü</label>
+                    <div class="form-control bg-light" style="font-size:0.85rem">@Model.EducationType</div>
+                </div>
+                <div class="col-sm-2">
+                    <label class="form-label text-muted small">Uyruk</label>
+                    <div class="form-control bg-light" style="font-size:0.85rem">@Model.NationalityLabel</div>
+                </div>
+            </div>
+            <div class="row g-3 mb-3">
+                <div class="col-sm-4">
+                    <label class="form-label">Kan Grubu</label>
+                    <select name="bloodType" class="form-select">
+                        <option value="">--</option>
+                        @foreach (var bloodGroup in new[] { "A+","A-","B+","B-","AB+","AB-","0+","0-" })
+                        {
+                            if (Model.BloodType == bloodGroup)
+                            {
+                                <option value="@bloodGroup" selected>@bloodGroup</option>
+                            }
+                            else
+                            {
+                                <option value="@bloodGroup">@bloodGroup</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="col-sm-4">
+                    <label class="form-label">Doğum Yeri</label>
+                    <input type="text" name="birthPlace" value="@Val(Model.BirthPlace)"
+                           class="form-control" maxlength="100" />
+                </div>
+                <div class="col-sm-4">
+                    <label class="form-label">Doğum Tarihi</label>
+                    <input type="text" name="birthDate"
+                           value="@(Model.BirthDate.HasValue ? Model.BirthDate.Value.ToString("yyyy-MM-dd") : "")"
+                           class="form-control datepicker" placeholder="GG.AA.YYYY" />
+                </div>
+            </div>
+            <div class="row g-3 mb-3">
+                <div class="col-sm-6">
+                    <label class="form-label">Cep Telefonu</label>
+                    <input type="text" name="mobilePhone" value="@Val(Model.MobilePhone)"
+                           class="form-control" maxlength="20" />
+                </div>
+                <div class="col-sm-6">
+                    <label class="form-label">E-posta</label>
+                    <input type="email" name="email" value="@Val(Model.Email)"
+                           class="form-control" maxlength="150" />
+                </div>
+            </div>
+            <div class="row g-3">
+                <div class="col-sm-8">
+                    <label class="form-label">Mezun Olduğu Okul</label>
+                    <input type="text" name="previousSchool" value="@Val(Model.PreviousSchool)"
+                           class="form-control" maxlength="200" />
+                </div>
+                <div class="col-sm-4">
+                    <label class="form-label">GANO</label>
+                    <input type="number" name="gano" value="@DecimalVal(Model.Gano)"
+                           class="form-control" min="0" max="4" step="0.01" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* ── Section 2: Adres ── *@
+    <div class="student-card mb-3">
+        <div class="student-card-header">
+            <span><i class="bi bi-house me-2"></i>2. Adres Bilgileri</span>
+        </div>
+        <div class="student-card-body">
+            <div class="mb-3">
+                <label class="form-label">Kaldığı Yer</label>
+                <div class="d-flex flex-wrap gap-3">
+                    @foreach (var housingOption in new[] { "Ev", "KYK Yurdu", "Özel Yurt", "Diğer" })
+                    {
+                        string radioId = $"housing_{housingOption.Replace(" ", "_")}";
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" id="@radioId"
+                                   name="housingType" value="@housingOption"
+                                   @(Model.HousingType == housingOption ? "checked" : "")
+                                   data-toggle-target="housingDescGroup"
+                                   data-toggle-when="Diğer" />
+                            <label class="form-check-label" for="@radioId">@housingOption</label>
+                        </div>
+                    }
+                </div>
+                <div id="housingDescGroup" class="mt-2 @(Model.HousingType == "Diğer" ? "" : "d-none")">
+                    <input type="text" name="housingTypeDescription"
+                           value="@Val(Model.HousingTypeDescription)"
+                           class="form-control" maxlength="500" placeholder="Açıklama" />
+                </div>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Öğrencinin Adresi</label>
+                <textarea name="address" class="form-control" rows="2"
+                          maxlength="500">@Val(Model.Address)</textarea>
+            </div>
+            <div class="row g-3">
+                <div class="col-sm-8">
+                    <label class="form-label">Ailenin Adresi</label>
+                    <textarea name="familyAddress" class="form-control" rows="2"
+                              maxlength="500">@Val(Model.FamilyAddress)</textarea>
+                </div>
+                <div class="col-sm-4">
+                    <label class="form-label">Ailenin Telefonu</label>
+                    <input type="text" name="familyPhone" value="@Val(Model.FamilyPhone)"
+                           class="form-control" maxlength="20" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* ── Section 3: Özel Durumlar ── *@
+    <div class="student-card mb-3">
+        <div class="student-card-header">
+            <span><i class="bi bi-shield-check me-2"></i>3. Özel Durumlar</span>
+        </div>
+        <div class="student-card-body">
+            <div class="mb-3">
+                <label class="form-label">Engellilik Durumu</label>
+                <div class="d-flex gap-3 mb-2">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" id="disabilityNo"
+                               name="hasDisability" value="false"
+                               data-toggle-target="disabilityDetailsGroup"
+                               data-toggle-when="__never__"
+                               @BoolRadioVal(Model.HasDisability, false) />
+                        <label class="form-check-label" for="disabilityNo">Yok</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" id="disabilityYes"
+                               name="hasDisability" value="true"
+                               data-toggle-target="disabilityDetailsGroup"
+                               data-toggle-when="__always__"
+                               @BoolRadioVal(Model.HasDisability, true) />
+                        <label class="form-check-label" for="disabilityYes">Var</label>
+                    </div>
+                </div>
+                <div id="disabilityDetailsGroup" class="@(Model.HasDisability == true ? "" : "d-none")">
+                    <div class="row g-2">
+                        <div class="col-sm-3">
+                            <label class="form-label small">Engel Oranı (%)</label>
+                            <input type="number" name="disabilityRate" value="@IntVal(Model.DisabilityRate)"
+                                   class="form-control" min="0" max="100" />
+                        </div>
+                        <div class="col-sm-9">
+                            <label class="form-label small">Açıklama</label>
+                            <input type="text" name="disabilityDescription"
+                                   value="@Val(Model.DisabilityDescription)"
+                                   class="form-control" maxlength="500" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Kronik Hastalık</label>
+                <div class="d-flex gap-3 mb-2">
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" id="chronicNo"
+                               name="hasChronicIllness" value="false"
+                               data-toggle-target="chronicDetailsGroup"
+                               data-toggle-when="__never__"
+                               @BoolRadioVal(Model.HasChronicIllness, false) />
+                        <label class="form-check-label" for="chronicNo">Yok</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" id="chronicYes"
+                               name="hasChronicIllness" value="true"
+                               data-toggle-target="chronicDetailsGroup"
+                               data-toggle-when="__always__"
+                               @BoolRadioVal(Model.HasChronicIllness, true) />
+                        <label class="form-check-label" for="chronicYes">Var</label>
+                    </div>
+                </div>
+                <div id="chronicDetailsGroup" class="@(Model.HasChronicIllness == true ? "" : "d-none")">
+                    <input type="text" name="chronicIllnessDetails"
+                           value="@Val(Model.ChronicIllnessDetails)"
+                           class="form-control" maxlength="500" placeholder="Hastalık açıklaması" />
+                </div>
+            </div>
+
+            <div class="row g-3">
+                <div class="col-sm-6">
+                    <label class="form-label d-block">Şehit veya Gazi Çocuğu</label>
+                    <div class="d-flex gap-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" id="martyrYes"
+                                   name="isMartyrOrVeteranChild" value="true"
+                                   @BoolRadioVal(Model.IsMartyrOrVeteranChild, true) />
+                            <label class="form-check-label" for="martyrYes">Evet</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" id="martyrNo"
+                                   name="isMartyrOrVeteranChild" value="false"
+                                   @BoolRadioVal(Model.IsMartyrOrVeteranChild, false) />
+                            <label class="form-check-label" for="martyrNo">Hayır</label>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <label class="form-label d-block">Yetiştirme Yurdunda Kaldı mı</label>
+                    <div class="d-flex gap-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" id="careHomeYes"
+                                   name="stayedInCareHome" value="true"
+                                   @BoolRadioVal(Model.StayedInCareHome, true) />
+                            <label class="form-check-label" for="careHomeYes">Evet</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" id="careHomeNo"
+                                   name="stayedInCareHome" value="false"
+                                   @BoolRadioVal(Model.StayedInCareHome, false) />
+                            <label class="form-check-label" for="careHomeNo">Hayır</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* ── Sections 4 & 5: Anne / Baba ── *@
+    @foreach (var (parent, prefix, sectionNum, sectionTitle) in new[] {
+        (Model.Mother, "mother", "4", "Anne Bilgileri"),
+        (Model.Father, "father", "5", "Baba Bilgileri")
+    })
+    {
+        string icon   = sectionNum == "4" ? "bi-gender-female" : "bi-gender-male";
+        string deathId = $"{prefix}DeathYearGroup";
+        <div class="student-card mb-3">
+            <div class="student-card-header">
+                <span><i class="bi @icon me-2"></i>@sectionNum. @sectionTitle</span>
+            </div>
+            <div class="student-card-body">
+                <div class="row g-3 mb-3">
+                    <div class="col-sm-5">
+                        <label class="form-label">Adı Soyadı</label>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <input type="text" name="@(prefix)FirstName" value="@Val(parent.FirstName)"
+                                       class="form-control" maxlength="50" placeholder="Ad" />
+                            </div>
+                            <div class="col-6">
+                                <input type="text" name="@(prefix)LastName" value="@Val(parent.LastName)"
+                                       class="form-control" maxlength="50" placeholder="Soyad" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="form-label">Cep Telefonu</label>
+                        <input type="text" name="@(prefix)Phone" value="@Val(parent.Phone)"
+                               class="form-control" maxlength="20" />
+                    </div>
+                    <div class="col-sm-4">
+                        <label class="form-label">Mesleği</label>
+                        <input type="text" name="@(prefix)Occupation" value="@Val(parent.Occupation)"
+                               class="form-control" maxlength="100" />
+                    </div>
+                </div>
+                <div class="row g-3 mb-3">
+                    <div class="col-sm-3">
+                        <label class="form-label d-block">Sosyal Güvence</label>
+                        <div class="d-flex gap-3">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio"
+                                       id="@(prefix)SocialYes"
+                                       name="@(prefix)HasSocialSecurity" value="true"
+                                       @BoolRadioVal(parent.HasSocialSecurity, true) />
+                                <label class="form-check-label" for="@(prefix)SocialYes">Var</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio"
+                                       id="@(prefix)SocialNo"
+                                       name="@(prefix)HasSocialSecurity" value="false"
+                                       @BoolRadioVal(parent.HasSocialSecurity, false) />
+                                <label class="form-check-label" for="@(prefix)SocialNo">Yok</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-5">
+                        <label class="form-label">İş Yerinin Adı</label>
+                        <input type="text" name="@(prefix)Workplace" value="@Val(parent.Workplace)"
+                               class="form-control" maxlength="150" />
+                    </div>
+                    <div class="col-sm-4">
+                        <label class="form-label">Aylık Gelir (TL)</label>
+                        <input type="number" name="@(prefix)MonthlyIncome"
+                               value="@DecimalVal(parent.MonthlyIncome)"
+                               class="form-control" min="0" step="1" />
+                    </div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-sm-5">
+                        <label class="form-label">Öğrenim Durumu</label>
+                        <select name="@(prefix)EducationLevel" class="form-select">
+                            <option value="">-- Seçiniz --</option>
+                            @foreach (var level in new[] {
+                                "Okur-yazar değil","Okur-yazar","İlkokul",
+                                "Ortaokul","Lise","Önlisans","Lisans","Yüksek Lisans","Doktora"
+                            })
+                            {
+                                @if (parent.EducationLevel == level)
+                                {
+                                    <option value="@level" selected>@level</option>
+                                }
+                                else
+                                {
+                                    <option value="@level">@level</option>
+                                }
+                            }
+                        </select>
+                    </div>
+                    <div class="col-sm-7">
+                        <label class="form-label d-block">Hayatta mı</label>
+                        <div class="d-flex gap-3 align-items-center flex-wrap">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio"
+                                       id="@(prefix)AliveYes"
+                                       name="@(prefix)IsAlive" value="true"
+                                       data-toggle-target="@deathId"
+                                       data-toggle-when="__never__"
+                                       @BoolRadioVal(parent.IsAlive, true) />
+                                <label class="form-check-label" for="@(prefix)AliveYes">Sağ</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio"
+                                       id="@(prefix)AliveNo"
+                                       name="@(prefix)IsAlive" value="false"
+                                       data-toggle-target="@deathId"
+                                       data-toggle-when="__always__"
+                                       @BoolRadioVal(parent.IsAlive, false) />
+                                <label class="form-check-label" for="@(prefix)AliveNo">Vefat</label>
+                            </div>
+                            <div id="@deathId" class="@(parent.IsAlive == false ? "" : "d-none")">
+                                <input type="number" name="@(prefix)DeathYear"
+                                       value="@IntVal(parent.DeathYear)"
+                                       class="form-control form-control-sm"
+                                       style="width:100px"
+                                       min="1950" max="2100" placeholder="Yıl" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+
+    @* ── Section 6: Aile Bilgileri ── *@
+    <div class="student-card mb-3">
+        <div class="student-card-header">
+            <span><i class="bi bi-people me-2"></i>6. Aile Bilgileri</span>
+        </div>
+        <div class="student-card-body">
+            <div class="mb-3">
+                <label class="form-label">Anne-Baba Birlikte mi?</label>
+                <div class="d-flex flex-wrap gap-3">
+                    @foreach (var status in new[] { "Birlikte", "Boşanmış", "Ayrı" })
+                    {
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio"
+                                   id="parents_@status" name="parentsStatus" value="@status"
+                                   @(Model.ParentsStatus == status ? "checked" : "") />
+                            <label class="form-check-label" for="parents_@status">@status</label>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label d-block">Ailede Engelli Birey</label>
+                <div class="d-flex flex-wrap gap-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="disabledMother"
+                               name="isMotherDisabled" value="true"
+                               @(Model.IsMotherDisabled == true ? "checked" : "") />
+                        <label class="form-check-label" for="disabledMother">Anne</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="disabledFather"
+                               name="isFatherDisabled" value="true"
+                               @(Model.IsFatherDisabled == true ? "checked" : "") />
+                        <label class="form-check-label" for="disabledFather">Baba</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="disabledSibling"
+                               name="isSiblingDisabled" value="true"
+                               @(Model.IsSiblingDisabled == true ? "checked" : "") />
+                        <label class="form-check-label" for="disabledSibling">Kardeş</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-sm-6">
+                    <label class="form-label">Ortalama Aylık Aile Geliri (TL)</label>
+                    <input type="number" name="familyMonthlyIncome"
+                           value="@DecimalVal(Model.FamilyMonthlyIncome)"
+                           class="form-control" min="0" step="1" />
+                </div>
+                <div class="col-sm-6">
+                    <label class="form-label">Oturulan Ev</label>
+                    <select name="familyHomeType" class="form-select">
+                        <option value="">-- Seçiniz --</option>
+                        @foreach (var homeType in new[] {
+                            "Kendi Evi",
+                            "Lojman / Kirasız Yakın Evi",
+                            "Kredili Kendi Evi",
+                            "Kira"
+                        })
+                        {
+                            @if (Model.FamilyHomeType == homeType)
+                            {
+                                <option value="@homeType" selected>@homeType</option>
+                            }
+                            else
+                            {
+                                <option value="@homeType">@homeType</option>
+                            }
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label d-block">Sahip Olunanlar</label>
+                <div class="d-flex flex-wrap gap-3">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="ownsSummer"
+                               name="ownsSummerHouse" value="true"
+                               @(Model.OwnsSummerHouse == true ? "checked" : "") />
+                        <label class="form-check-label" for="ownsSummer">Yazlık Ev</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="ownsShop"
+                               name="ownsShop" value="true"
+                               @(Model.OwnsShop == true ? "checked" : "") />
+                        <label class="form-check-label" for="ownsShop">Dükkan</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="ownsRental"
+                               name="ownsRentalHouse" value="true"
+                               @(Model.OwnsRentalHouse == true ? "checked" : "") />
+                        <label class="form-check-label" for="ownsRental">Kira Getiren Ev</label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="ownsCar"
+                               name="ownsCar" value="true"
+                               @(Model.OwnsCar == true ? "checked" : "") />
+                        <label class="form-check-label" for="ownsCar">Araba</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-2">
+                <label class="form-label d-block">Kardeş Sayıları</label>
+                <div class="row g-2 align-items-end">
+                    <div class="col-6 col-sm-3">
+                        <label class="form-label small">Okul Öncesi–Orta</label>
+                        <input type="number" id="sibPrimary" name="siblingsPrimary"
+                               value="@IntVal(Model.SiblingsPrimary)"
+                               class="form-control sibling-input" min="0" />
+                    </div>
+                    <div class="col-6 col-sm-3">
+                        <label class="form-label small">Lise–Açık Öğretim</label>
+                        <input type="number" id="sibHighSchool" name="siblingsHighSchool"
+                               value="@IntVal(Model.SiblingsHighSchool)"
+                               class="form-control sibling-input" min="0" />
+                    </div>
+                    <div class="col-6 col-sm-3">
+                        <label class="form-label small">Üni. Kent İçi</label>
+                        <input type="number" id="sibUniIn" name="siblingsUniInCity"
+                               value="@IntVal(Model.SiblingsUniInCity)"
+                               class="form-control sibling-input" min="0" />
+                    </div>
+                    <div class="col-6 col-sm-3">
+                        <label class="form-label small">Üni. Kent Dışı</label>
+                        <input type="number" id="sibUniOut" name="siblingsUniOutCity"
+                               value="@IntVal(Model.SiblingsUniOutCity)"
+                               class="form-control sibling-input" min="0" />
+                    </div>
+                    <div class="col-12 mt-1">
+                        <span class="text-muted small">Toplam Kardeş: </span>
+                        <strong id="siblingTotal">@Model.TotalSiblings</strong>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @* ── Section 7: Maddi Destek ── *@
+    <div class="student-card mb-3">
+        <div class="student-card-header">
+            <span><i class="bi bi-cash-coin me-2"></i>7. Maddi Destek</span>
+        </div>
+        <div class="student-card-body">
+            @foreach (var (label, radioName, amountName, toggleId, flagValue, amountValue) in new[] {
+                ("Burs Alıyor mu?",          "receivesScholarship", "scholarshipAmount", "scholarshipGroup", Model.ReceivesScholarship, Model.ScholarshipAmount),
+                ("Öğrenim Kredisi Alıyor mu?","receivesLoan",        "loanAmount",        "loanGroup",        Model.ReceivesLoan,        Model.LoanAmount),
+                ("Çalışıyor mu?",            "isWorking",           "workIncome",        "workGroup",        Model.IsWorking,            Model.WorkIncome)
+            })
+            {
+                <div class="mb-3">
+                    <label class="form-label d-block">@label</label>
+                    <div class="d-flex gap-3 align-items-center flex-wrap">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio"
+                                   id="@(radioName)Yes" name="@radioName" value="true"
+                                   data-toggle-target="@toggleId" data-toggle-when="__always__"
+                                   @BoolRadioVal(flagValue, true) />
+                            <label class="form-check-label" for="@(radioName)Yes">Evet</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio"
+                                   id="@(radioName)No" name="@radioName" value="false"
+                                   data-toggle-target="@toggleId" data-toggle-when="__never__"
+                                   @BoolRadioVal(flagValue, false) />
+                            <label class="form-check-label" for="@(radioName)No">Hayır</label>
+                        </div>
+                        <div id="@toggleId" class="@(flagValue == true ? "" : "d-none")">
+                            <div class="input-group" style="width:200px">
+                                <input type="number" name="@amountName"
+                                       value="@DecimalVal(amountValue)"
+                                       class="form-control form-control-sm"
+                                       min="0" step="1" placeholder="Miktar" />
+                                <span class="input-group-text">TL</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    @* ── Declaration + Save ── *@
+    <div class="student-card mb-4">
+        <div class="student-card-body">
+            <div class="form-check mb-3">
+                <input class="form-check-input" type="checkbox"
+                       id="declarationAccepted" name="declarationAccepted"
+                       value="true" required />
+                <label class="form-check-label" for="declarationAccepted">
+                    Yukarıdaki bilgilerin doğru ve eksiksiz olduğunu beyan ederim.
+                </label>
+            </div>
+            <button type="submit" class="btn-student-primary">
+                <i class="bi bi-floppy"></i>Bilgileri Kaydet
+            </button>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+<script>
+(function () {
+    // ── Conditional field visibility ──────────────────────────────
+    document.querySelectorAll('input[data-toggle-target]').forEach(function (radio) {
+        radio.addEventListener('change', function () {
+            var targetId = radio.getAttribute('data-toggle-target');
+            var when     = radio.getAttribute('data-toggle-when');
+            var group    = document.getElementById(targetId);
+            if (!group) return;
+
+            var showWhenAlways = when === '__always__';
+            var showWhenNever  = when === '__never__';
+
+            if (showWhenAlways && radio.checked) {
+                group.classList.remove('d-none');
+            } else if (showWhenNever && radio.checked) {
+                group.classList.add('d-none');
+            } else if (!showWhenAlways && !showWhenNever) {
+                // show when this specific value is selected
+                var nameAttr = radio.getAttribute('name');
+                var selectedRadio = document.querySelector('input[name="' + nameAttr + '"]:checked');
+                if (selectedRadio && selectedRadio.value === when) {
+                    group.classList.remove('d-none');
+                } else {
+                    group.classList.add('d-none');
+                }
+            }
+        });
+    });
+
+    // ── Sibling total ─────────────────────────────────────────────
+    function updateSiblingTotal() {
+        var total = 0;
+        document.querySelectorAll('.sibling-input').forEach(function (input) {
+            var val = parseInt(input.value, 10);
+            if (!isNaN(val) && val > 0) total += val;
+        });
+        var el = document.getElementById('siblingTotal');
+        if (el) el.textContent = total;
+    }
+    document.querySelectorAll('.sibling-input').forEach(function (input) {
+        input.addEventListener('input', updateSiblingTotal);
+    });
+})();
+</script>
+}

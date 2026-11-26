@@ -12,12 +12,14 @@ namespace EntityLayer
         public string? Nationality { get; set; }
         public string? PhotoPath { get; set; }
         public string? HousingType { get; set; }
+        public string? HousingTypeDescription { get; set; }
         public string? Address { get; set; }
         public string? FamilyAddress { get; set; }
         public string? FamilyPhone { get; set; }
         public string? PreviousSchool { get; set; }
         public bool? HasDisability { get; set; }
         public int? DisabilityRate { get; set; }
+        public string? DisabilityDescription { get; set; }
         public bool? HasChronicIllness { get; set; }
         public string? ChronicIllnessDetails { get; set; }
         public bool? IsMartyrOrVeteranChild { get; set; }

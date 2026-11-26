@@ -16,8 +16,11 @@
 <body class="student-layout-body">
 @{
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
-    string NavActive(string controller) =>
-        currentController.Equals(controller, StringComparison.OrdinalIgnoreCase) ? "active" : "";
+    var currentAction     = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+    string NavActive(string controller, string action = "") =>
+        currentController.Equals(controller, StringComparison.OrdinalIgnoreCase)
+        && (action == "" || currentAction.Equals(action, StringComparison.OrdinalIgnoreCase))
+            ? "active" : "";
 
     var firstName = User.FindFirstValue(System.Security.Claims.ClaimTypes.GivenName)
                     ?? User.Identity?.Name ?? "";
@@ -35,9 +38,10 @@
 
         <!-- Middle: navigation links -->
         <div class="student-navbar-links" id="studentNavLinks">
-            <a class="student-nav-link @NavActive("Student")"
+            <a class="student-nav-link @NavActive("Student", "Index")"
                asp-controller="Student" asp-action="Index">Ana Sayfa</a>
-            <a class="student-nav-link" href="#">Bilgilerim</a>
+            <a class="student-nav-link @NavActive("Student", "MyInformation")"
+               asp-controller="Student" asp-action="MyInformation">Bilgilerim</a>
             <a class="student-nav-link" href="#">Danışmanım</a>
             <a class="student-nav-link" href="#">Taleplerim</a>
             <a class="student-nav-link @NavActive("StudentSurveys")"
