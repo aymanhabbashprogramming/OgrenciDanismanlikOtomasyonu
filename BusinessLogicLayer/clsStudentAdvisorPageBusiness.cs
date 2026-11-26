@@ -12,8 +12,11 @@ namespace BusinessLogicLayer
 
             if (pageInfo.HasCurrentAdvisor)
             {
-                pageInfo.OfficeHours =
-                    clsStudentAdvisorPageData.GetOfficeHoursByAdvisorId(pageInfo.CurrentAdvisorId!.Value);
+                int semesterId = clsSemesterBusiness.GetCurrentSemester()?.SemesterId ?? 0;
+                pageInfo.OfficeHours = semesterId > 0
+                    ? clsStudentAdvisorPageData.GetOfficeHoursByAdvisorId(
+                          pageInfo.CurrentAdvisorId!.Value, semesterId)
+                    : new List<clsOfficeHour>();
             }
 
             pageInfo.AssignmentHistory = clsStudentData.GetAdvisorHistory(studentId);

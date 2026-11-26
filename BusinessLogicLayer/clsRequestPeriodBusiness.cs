@@ -14,6 +14,9 @@ namespace BusinessLogicLayer
         public static List<clsRequestPeriodInfo> GetUpcomingPeriods(int maxCount) =>
             clsRequestPeriodData.GetUpcomingPeriods(maxCount);
 
+        public static clsRequestPeriodInfo? GetNextPeriodByRequestType(int requestTypeId) =>
+            clsRequestPeriodData.GetNextPeriodByRequestType(requestTypeId);
+
         public static bool IsRequestTypeOpen(string formCode) =>
             clsRequestPeriodData.IsRequestTypeOpen(formCode);
     }

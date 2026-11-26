@@ -1,0 +1,120 @@
+@model EntityLayer.clsRequestFormPreFillInfo
+@{
+    ViewData["Title"] = "TF-ÖİŞL-06 Üst Yarıyıldan Ders Alma";
+}
+
+<div class="student-page-heading">
+    <h1>TF-ÖİŞL-06 — Üst Yarıyıldan Ders Alma</h1>
+</div>
+
+<partial name="_RequestStudentHeader" model="Model" />
+
+<form method="post" asp-controller="StudentRequests" asp-action="Submit06">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="formCode" value="TF-ÖİŞL-06" />
+
+    <div class="student-card mb-3">
+        <div class="student-card-header">
+            <span><i class="bi bi-award me-2"></i>Genel Not Ortalaması (GANO)</span>
+        </div>
+        <div class="student-card-body">
+            <div class="col-12 col-md-4">
+                <label class="form-label">GANO <span class="text-danger">*</span></label>
+                <input type="number" name="declaredGano" class="form-control"
+                       step="0.01" min="0" max="4" required
+                       placeholder="2.75" />
+                <div class="form-text">0.00 – 4.00 arasında</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="student-card mb-3">
+        <div class="student-card-header">
+            <span><i class="bi bi-table me-2"></i>Almak İstediğiniz Dersler</span>
+            <button type="button" class="btn-student-add-row" id="addRow06">
+                <i class="bi bi-plus-lg me-1"></i>Ders Ekle
+            </button>
+        </div>
+        <div class="student-card-body p-0">
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Ders Kodu</th>
+                            <th>Ders Adı</th>
+                            <th>Yarıyılı</th>
+                            <th class="cell-actions"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="courseRows06">
+                        <tr class="course-row">
+                            <td data-label="Ders Kodu">
+                                <input type="text" name="courseCode" class="form-control form-control-sm" placeholder="BLM401" required />
+                            </td>
+                            <td data-label="Ders Adı">
+                                <input type="text" name="courseName" class="form-control form-control-sm" placeholder="Yapay Zeka" required />
+                            </td>
+                            <td data-label="Yarıyılı">
+                                <select name="courseSemester" class="form-select form-select-sm">
+                                    @for (int semester = 2; semester <= 8; semester++)
+                                    {
+                                        <option value="@semester">@semester. Yarıyıl</option>
+                                    }
+                                </select>
+                            </td>
+                            <td data-label="" class="cell-actions">
+                                <button type="button" class="btn btn-sm btn-outline-danger remove-row" title="Satırı sil">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="student-card mb-3">
+        <div class="student-card-body">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="declarationAccepted"
+                       value="true" id="declaration06" required />
+                <label class="form-check-label" for="declaration06">
+                    Alt sınıflardaki tüm derslerimden başarılı oldum. Yönetmelikteki ve Bölüm Öğretim Planındaki ilgili şartları sağladığım için yukarıdaki ders(ler)i üst yarıyıldan almak istiyorum. Gereğini saygılarımla arz ederim.
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn-student-submit">
+            <i class="bi bi-send"></i>Gönder
+        </button>
+        <a asp-controller="StudentRequests" asp-action="New"
+           class="btn-student-cancel">İptal</a>
+    </div>
+</form>
+
+@section Scripts {
+<script>
+(function () {
+    var tbody  = document.getElementById('courseRows06');
+    var addBtn = document.getElementById('addRow06');
+
+    addBtn.addEventListener('click', function () {
+        var newRow = tbody.querySelector('.course-row').cloneNode(true);
+        newRow.querySelectorAll('input').forEach(function (input) { input.value = ''; });
+        tbody.appendChild(newRow);
+        _bindRemove(newRow);
+    });
+
+    tbody.querySelectorAll('.course-row').forEach(_bindRemove);
+
+    function _bindRemove(row) {
+        row.querySelector('.remove-row')?.addEventListener('click', function () {
+            if (tbody.querySelectorAll('.course-row').length > 1) row.remove();
+        });
+    }
+})();
+</script>
+}

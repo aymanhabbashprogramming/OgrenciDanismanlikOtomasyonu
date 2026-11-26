@@ -1,0 +1,191 @@
+@model EntityLayer.clsRequestFormPreFillInfo
+@{
+    ViewData["Title"] = "TF-ÖİŞL-14 Bölüm Dışından Ders Alma";
+}
+
+<div class="student-page-heading">
+    <h1>TF-ÖİŞL-14 — Bölüm Dışından Ders Alma</h1>
+</div>
+
+<partial name="_RequestStudentHeader" model="Model" />
+
+<form method="post" asp-controller="StudentRequests" asp-action="Submit14">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="formCode" value="TF-ÖİŞL-14" />
+
+    <!-- Tablo 1: Mevcut bölüm dersleri -->
+    <div class="student-card mb-3">
+        <div class="student-card-header">
+            <span><i class="bi bi-table me-2"></i>Tablo 1 — Kayıtlı Olduğunuz Bölümün Dersleri</span>
+            <button type="button" class="btn-student-add-row" id="addRow14T1">
+                <i class="bi bi-plus-lg me-1"></i>Ders Ekle
+            </button>
+        </div>
+        <div class="student-card-body p-0">
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Ders Kodu</th>
+                            <th>Ders Adı</th>
+                            <th>T+U</th>
+                            <th>AKTS</th>
+                            <th>Devam</th>
+                            <th class="cell-actions"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="courseRows14T1">
+                        <tr class="course-row">
+                            <td data-label="Ders Kodu">
+                                <input type="text" name="table1CourseCode" class="form-control form-control-sm"
+                                       placeholder="BLM301" required />
+                            </td>
+                            <td data-label="Ders Adı">
+                                <input type="text" name="table1CourseName" class="form-control form-control-sm"
+                                       placeholder="Veri Yapıları" required />
+                            </td>
+                            <td data-label="T+U">
+                                <div class="d-flex gap-1 align-items-center">
+                                    <input type="number" name="table1TheoryHours" class="form-control form-control-sm"
+                                           style="width:52px" min="0" placeholder="3" />
+                                    <span>+</span>
+                                    <input type="number" name="table1PracticeHours" class="form-control form-control-sm"
+                                           style="width:52px" min="0" placeholder="1" />
+                                </div>
+                            </td>
+                            <td data-label="AKTS">
+                                <input type="number" name="table1Ects" class="form-control form-control-sm"
+                                       style="width:60px" min="0" placeholder="4" />
+                            </td>
+                            <td data-label="Devam">
+                                <select name="table1AttendanceStatus" class="form-select form-select-sm">
+                                    <option value="İLK">İLK</option>
+                                    <option value="DVLT">DVLT</option>
+                                    <option value="DVST">DVST</option>
+                                </select>
+                            </td>
+                            <td data-label="" class="cell-actions">
+                                <button type="button" class="btn btn-sm btn-outline-danger remove-row" title="Satırı sil">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tablo 2: Alınmak istenen bölüm dışı dersler -->
+    <div class="student-card mb-3">
+        <div class="student-card-header">
+            <span><i class="bi bi-table me-2"></i>Tablo 2 — Alınmak İstenen Bölüm Dışı Dersler</span>
+            <button type="button" class="btn-student-add-row" id="addRow14T2">
+                <i class="bi bi-plus-lg me-1"></i>Ders Ekle
+            </button>
+        </div>
+        <div class="student-card-body p-0">
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>Ders Kodu</th>
+                            <th>Ders Adı</th>
+                            <th>T+U</th>
+                            <th>AKTS</th>
+                            <th>Üniversite / Bölüm</th>
+                            <th class="cell-actions"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="courseRows14T2">
+                        <tr class="course-row">
+                            <td data-label="Ders Kodu">
+                                <input type="text" name="table2CourseCode" class="form-control form-control-sm"
+                                       placeholder="FEN201" required />
+                            </td>
+                            <td data-label="Ders Adı">
+                                <input type="text" name="table2CourseName" class="form-control form-control-sm"
+                                       placeholder="İstatistik" required />
+                            </td>
+                            <td data-label="T+U">
+                                <div class="d-flex gap-1 align-items-center">
+                                    <input type="number" name="table2TheoryHours" class="form-control form-control-sm"
+                                           style="width:52px" min="0" placeholder="3" />
+                                    <span>+</span>
+                                    <input type="number" name="table2PracticeHours" class="form-control form-control-sm"
+                                           style="width:52px" min="0" placeholder="0" />
+                                </div>
+                            </td>
+                            <td data-label="AKTS">
+                                <input type="number" name="table2Ects" class="form-control form-control-sm"
+                                       style="width:60px" min="0" placeholder="4" />
+                            </td>
+                            <td data-label="Üniversite / Bölüm">
+                                <input type="text" name="table2University" class="form-control form-control-sm mb-1"
+                                       placeholder="Selçuk Üniversitesi" />
+                                <input type="text" name="table2Department" class="form-control form-control-sm"
+                                       placeholder="Matematik Bölümü" />
+                            </td>
+                            <td data-label="" class="cell-actions">
+                                <button type="button" class="btn btn-sm btn-outline-danger remove-row" title="Satırı sil">
+                                    <i class="bi bi-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="student-card mb-3">
+        <div class="student-card-body">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="declarationAccepted"
+                       value="true" id="declaration14" required />
+                <label class="form-check-label" for="declaration14">
+                    Bölümümde açılmayan Tablo 2'deki ders(ler)i Bölüm dışından almak istiyorum. Fakültemizin Bölüm Dışından ders alma uygulama esaslarını okudum ve orada belirtilen hususları kabul ediyorum. Gereğini saygılarımla arz ederim.
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-flex gap-2">
+        <button type="submit" class="btn-student-submit">
+            <i class="bi bi-send"></i>Gönder
+        </button>
+        <a asp-controller="StudentRequests" asp-action="New"
+           class="btn-student-cancel">İptal</a>
+    </div>
+</form>
+
+@section Scripts {
+<script>
+(function () {
+    function _setupTable(tbodyId, addBtnId) {
+        var tbody  = document.getElementById(tbodyId);
+        var addBtn = document.getElementById(addBtnId);
+
+        addBtn.addEventListener('click', function () {
+            var newRow = tbody.querySelector('.course-row').cloneNode(true);
+            newRow.querySelectorAll('input').forEach(function (input) { input.value = ''; });
+            tbody.appendChild(newRow);
+            _bindRemove(newRow, tbody);
+        });
+
+        tbody.querySelectorAll('.course-row').forEach(function (row) {
+            _bindRemove(row, tbody);
+        });
+    }
+
+    function _bindRemove(row, tbody) {
+        row.querySelector('.remove-row')?.addEventListener('click', function () {
+            if (tbody.querySelectorAll('.course-row').length > 1) row.remove();
+        });
+    }
+
+    _setupTable('courseRows14T1', 'addRow14T1');
+    _setupTable('courseRows14T2', 'addRow14T2');
+})();
+</script>
+}

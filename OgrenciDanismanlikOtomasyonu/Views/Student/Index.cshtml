@@ -160,7 +160,7 @@
                         <div class="student-survey-row">
                             <div class="student-survey-title">@survey.Title</div>
                             <div class="student-survey-date">
-                                Son gün: @survey.ClosesAt.ToString("dd/MM/yyyy")
+                                Son gün: @survey.ClosesAt.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture)
                             </div>
                             <a asp-controller="StudentSurveys" asp-action="Answer"
                                asp-route-surveyId="@survey.SurveyId"

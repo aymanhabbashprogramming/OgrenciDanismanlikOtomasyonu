@@ -45,7 +45,7 @@ namespace DataAccessLayer
             return pageInfo;
         }
 
-        public static List<clsOfficeHour> GetOfficeHoursByAdvisorId(int advisorId)
+        public static List<clsOfficeHour> GetOfficeHoursByAdvisorId(int advisorId, int semesterId)
         {
             List<clsOfficeHour> officeHourList = new();
             try
@@ -55,14 +55,8 @@ namespace DataAccessLayer
                     SELECT OfficeHour.OfficeHourId, OfficeHour.AdvisorId, OfficeHour.DayOfWeek,
                            OfficeHour.StartTime, OfficeHour.EndTime, OfficeHour.Location, OfficeHour.SemesterId
                     FROM   OfficeHours AS OfficeHour
-                    INNER JOIN Semesters AS Semester ON OfficeHour.SemesterId = Semester.SemesterId
-                    WHERE  OfficeHour.AdvisorId = @AdvisorId
-                      AND  Semester.SemesterId IN (
-                               SELECT TOP 1 SemesterId FROM Semesters
-                               WHERE IsCurrent = 1
-                                  OR (CAST(GETDATE() AS DATE) BETWEEN StartDate AND EndDate)
-                               ORDER BY IsCurrent DESC, StartDate DESC
-                           )
+                    WHERE  OfficeHour.AdvisorId  = @AdvisorId
+                      AND  OfficeHour.SemesterId = @SemesterId
                     ORDER BY
                         CASE OfficeHour.DayOfWeek
                             WHEN N'Pazartesi' THEN 1
@@ -73,7 +67,8 @@ namespace DataAccessLayer
                             ELSE 6
                         END,
                         OfficeHour.StartTime", conn);
-                cmd.Parameters.AddWithValue("@AdvisorId", advisorId);
+                cmd.Parameters.AddWithValue("@AdvisorId",  advisorId);
+                cmd.Parameters.AddWithValue("@SemesterId", semesterId);
                 conn.Open();
                 using SqlDataReader reader = cmd.ExecuteReader();
                 while (reader.Read())
@@ -92,7 +87,7 @@ namespace DataAccessLayer
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[clsStudentAdvisorPageData.GetOfficeHoursByAdvisorId] {ex.Message}");
+                Debug.WriteLine($"[clsStudentAdvisorPageData.GetOfficeHoursByAdvisorId] {ex}");
             }
             return officeHourList;
         }

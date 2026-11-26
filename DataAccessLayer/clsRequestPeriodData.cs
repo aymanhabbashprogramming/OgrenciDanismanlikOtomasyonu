@@ -95,6 +95,28 @@ namespace DataAccessLayer
             return periodList;
         }
 
+        public static clsRequestPeriodInfo? GetNextPeriodByRequestType(int requestTypeId)
+        {
+            try
+            {
+                using SqlConnection conn = new(clsDataAccessSettings.ConnectionString);
+                using SqlCommand cmd = new(_infoSelect + @"
+                    WHERE RequestPeriod.RequestTypeId = @RequestTypeId
+                      AND RequestPeriod.StartDate     > CAST(GETDATE() AS DATE)
+                    ORDER BY RequestPeriod.StartDate
+                    OFFSET 0 ROWS FETCH NEXT 1 ROWS ONLY", conn);
+                cmd.Parameters.AddWithValue("@RequestTypeId", requestTypeId);
+                conn.Open();
+                using SqlDataReader reader = cmd.ExecuteReader();
+                return reader.Read() ? _MapPeriodInfo(reader) : null;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[clsRequestPeriodData.GetNextPeriodByRequestType] {ex}");
+                return null;
+            }
+        }
+
         public static bool IsRequestTypeOpen(string formCode)
         {
             try

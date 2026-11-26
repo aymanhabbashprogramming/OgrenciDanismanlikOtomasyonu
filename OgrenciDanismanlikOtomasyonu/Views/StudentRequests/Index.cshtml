@@ -1,0 +1,82 @@
+@model List<EntityLayer.clsRequestInfo>
+@{
+    ViewData["Title"] = "Taleplerim";
+}
+
+<div class="student-page-heading">
+    <h1>Taleplerim</h1>
+    <a asp-controller="StudentRequests" asp-action="New" class="btn-student-primary">
+        <i class="bi bi-plus-lg"></i>Yeni Talep
+    </a>
+</div>
+
+@if (TempData["Success"] is string successMessage)
+{
+    <div class="alert alert-success">@successMessage</div>
+}
+@if (TempData["Error"] is string errorMessage)
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+
+@if (Model is null || Model.Count == 0)
+{
+    ViewData["EmptyIcon"]       = "bi-file-earmark-text";
+    ViewData["EmptyMessage"]    = "Henüz bir talebiniz bulunmuyor.";
+    ViewData["EmptyActionText"] = "Yeni Talep Oluştur";
+    ViewData["EmptyActionLink"] = Url.Action("New", "StudentRequests")!;
+    <partial name="_EmptyState" />
+}
+else
+{
+    <div class="student-card">
+        <div class="student-card-header">
+            <span><i class="bi bi-file-earmark-text me-2"></i>Taleplerim</span>
+        </div>
+        <div class="student-card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th data-label="">Form</th>
+                            <th data-label="">Dönem</th>
+                            <th data-label="">Tarih</th>
+                            <th data-label="">Durum</th>
+                            <th data-label="" class="cell-actions"></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var request in Model)
+                        {
+                            string badgeClass = request.CurrentStage switch
+                            {
+                                EntityLayer.clsRequestStages.Completed              => "bg-success",
+                                EntityLayer.clsRequestStages.Rejected               => "bg-danger",
+                                EntityLayer.clsRequestStages.AdvisorApproved        => "bg-info",
+                                EntityLayer.clsRequestStages.DepartmentHeadApproved => "bg-info",
+                                _                                                   => "bg-secondary"
+                            };
+                            <tr>
+                                <td data-label="Form">
+                                    <span class="fw-semibold">@request.FormCode</span>
+                                    <div class="text-muted small">@request.FormName</div>
+                                </td>
+                                <td data-label="Dönem">@request.SemesterName</td>
+                                <td data-label="Tarih">@request.SubmittedAt.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture)</td>
+                                <td data-label="Durum">
+                                    <span class="badge @badgeClass">@request.CurrentStageDisplay</span>
+                                </td>
+                                <td data-label="" class="cell-actions">
+                                    <a asp-controller="StudentRequests"
+                                       asp-action="Detail"
+                                       asp-route-id="@request.RequestId"
+                                       class="btn btn-sm btn-outline-secondary">Detay</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}

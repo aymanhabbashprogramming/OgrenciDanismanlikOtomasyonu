@@ -44,7 +44,8 @@
                asp-controller="Student" asp-action="MyInformation">Bilgilerim</a>
             <a class="student-nav-link @NavActive("Student", "MyAdvisor")"
                asp-controller="Student" asp-action="MyAdvisor">Danışmanım</a>
-            <a class="student-nav-link" href="#">Taleplerim</a>
+            <a class="student-nav-link @NavActive("StudentRequests")"
+               asp-controller="StudentRequests" asp-action="Index">Taleplerim</a>
             <a class="student-nav-link @NavActive("StudentSurveys")"
                asp-controller="StudentSurveys" asp-action="Index">Anketler</a>
         </div>

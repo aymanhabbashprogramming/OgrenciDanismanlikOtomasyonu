@@ -1,0 +1,64 @@
+@model List<EntityLayer.clsRequestTypeAvailability>
+@{
+    ViewData["Title"] = "Yeni Talep";
+}
+
+<div class="student-page-heading">
+    <h1>Yeni Talep</h1>
+</div>
+
+@if (TempData["Error"] is string errorMessage)
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+
+<p class="text-muted mb-3">Başvurmak istediğiniz formu seçin. Yalnızca başvuru dönemi açık olan formlar aktiftir.</p>
+
+<div class="row g-3">
+    @foreach (var availability in Model)
+    {
+        <div class="col-12 col-md-6">
+            <div class="student-card h-100 @(availability.IsOpen ? "" : "opacity-75")">
+                <div class="student-card-header">
+                    <span>
+                        <i class="bi bi-file-earmark-text me-2"></i>@availability.FormCode
+                    </span>
+                    @if (availability.IsOpen)
+                    {
+                        <span class="badge bg-success">Açık</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">Kapalı</span>
+                    }
+                </div>
+                <div class="student-card-body">
+                    <div class="fw-semibold mb-2">@availability.FormName</div>
+                    @if (availability.IsOpen)
+                    {
+                        <a asp-controller="StudentRequests"
+                           asp-action="Submit"
+                           asp-route-formCode="@availability.FormCode"
+                           class="btn-student-primary mt-2">
+                            <i class="bi bi-send"></i>Başvur
+                        </a>
+                    }
+                    else if (availability.NextStartDate.HasValue)
+                    {
+                        <div class="text-muted small mt-2">
+                            <i class="bi bi-calendar me-1"></i>
+                            Sonraki açılış: @availability.NextStartDate.Value.ToString("dd/MM/yyyy", System.Globalization.CultureInfo.InvariantCulture)
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="text-muted small mt-2">
+                            <i class="bi bi-calendar-x me-1"></i>
+                            Yakın dönemde açılış planlanmamış.
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>

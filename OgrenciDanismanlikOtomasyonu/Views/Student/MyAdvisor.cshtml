@@ -1,6 +1,8 @@
 @model EntityLayer.clsStudentAdvisorPageInfo
+@using System.Globalization
 @{
     ViewData["Title"] = "Danışmanım";
+    var inv = CultureInfo.InvariantCulture;
 }
 
 <!-- ── Page heading ─────────────────────────────────────────── -->
@@ -49,7 +51,7 @@ else
             {
                 <div class="text-muted small mb-3">
                     <i class="bi bi-calendar-check me-1"></i>
-                    Danışmanınız: @Model.AssignmentStartDate.Value.ToString("dd/MM/yyyy")'dan beri
+                    Danışmanınız: @Model.AssignmentStartDate.Value.ToString("dd/MM/yyyy", inv)'dan beri
                 </div>
             }
 
@@ -129,10 +131,10 @@ else
                             bool isCurrent = !assignment.EndDate.HasValue;
                             <tr>
                                 <td data-label="Danışman">@assignment.AdvisorFullName</td>
-                                <td data-label="Başlangıç">@assignment.StartDate.ToString("dd/MM/yyyy")</td>
+                                <td data-label="Başlangıç">@assignment.StartDate.ToString("dd/MM/yyyy", inv)</td>
                                 <td data-label="Bitiş">
                                     @(assignment.EndDate.HasValue
-                                        ? assignment.EndDate.Value.ToString("dd/MM/yyyy")
+                                        ? assignment.EndDate.Value.ToString("dd/MM/yyyy", inv)
                                         : "—")
                                 </td>
                                 <td data-label="Durum" class="cell-actions">

@@ -1,0 +1,49 @@
+@model EntityLayer.clsRequestFormPreFillInfo
+@{
+    var inv = System.Globalization.CultureInfo.InvariantCulture;
+}
+
+<div class="student-card mb-3">
+    <div class="student-card-header">
+        <span><i class="bi bi-person me-2"></i>Öğrenci Bilgileri</span>
+        <span class="small" style="color:rgba(255,255,255,0.85)">
+            @DateTime.Today.ToString("dd/MM/yyyy", inv)
+            @if (!string.IsNullOrWhiteSpace(Model.SemesterName))
+            {
+                <span class="ms-2">· @Model.SemesterName</span>
+            }
+        </span>
+    </div>
+    <div class="student-card-body">
+        <div class="row g-3">
+            <div class="col-12 col-md-6">
+                <div class="form-label text-muted small">Ad Soyad</div>
+                <div class="fw-semibold">@Model.FullName</div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="form-label text-muted small">Öğrenci No</div>
+                <div class="fw-semibold">@Model.StudentNumber</div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="form-label text-muted small">T.C. Kimlik No</div>
+                <div class="fw-semibold">@Model.NationalId</div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="form-label text-muted small">Bölüm</div>
+                <div class="fw-semibold">@Model.DepartmentName</div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="form-label text-muted small">Cep Tel</div>
+                <div class="fw-semibold">@(Model.MobilePhone ?? "—")</div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="form-label text-muted small">Öğretim Türü</div>
+                <div class="fw-semibold">@Model.EducationType</div>
+            </div>
+            <div class="col-12 col-md-6">
+                <div class="form-label text-muted small">Danışman</div>
+                <div class="fw-semibold">@(Model.AdvisorFullName ?? "—")</div>
+            </div>
+        </div>
+    </div>
+</div>

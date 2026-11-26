@@ -1,0 +1,276 @@
+@model EntityLayer.clsRequestDetailInfo
+@using EntityLayer
+@using System.Globalization
+@{
+    var inv = CultureInfo.InvariantCulture;
+    ViewData["Title"] = "Talep Detayı";
+    bool needsDeptHead = Model.RequiresDepartmentHeadApproval;
+
+    var stageFlow = new List<string>
+    {
+        clsRequestStages.Submitted,
+        clsRequestStages.NotifiedToAdvisor,
+        clsRequestStages.AdvisorApproved
+    };
+    if (needsDeptHead) stageFlow.Add(clsRequestStages.DepartmentHeadApproved);
+    stageFlow.Add("Sonuç");
+
+    Dictionary<string, clsRequestStage> stageMap = Model.Stages
+        .GroupBy(stage => stage.Stage)
+        .ToDictionary(group => group.Key, group => group.First());
+
+    string finalStage = Model.FinalStage;
+}
+
+<div class="student-page-heading">
+    <h1>Talep Detayı</h1>
+    <a asp-controller="StudentRequests" asp-action="Index"
+       class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-left me-1"></i>Taleplerim
+    </a>
+</div>
+
+<!-- ── Request summary ───────────────────────────────────────── -->
+<div class="student-card mb-3">
+    <div class="student-card-header">
+        <span><i class="bi bi-file-earmark-text me-2"></i>@Model.FormCode — @Model.FormName</span>
+    </div>
+    <div class="student-card-body">
+        <div class="row g-3">
+            <div class="col-12 col-md-4">
+                <div class="text-muted small">Dönem</div>
+                <div class="fw-semibold">@Model.SemesterName</div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="text-muted small">Gönderilme Tarihi</div>
+                <div class="fw-semibold">@Model.SubmittedAt.ToString("dd/MM/yyyy HH:mm", inv)</div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="text-muted small">Danışman</div>
+                <div class="fw-semibold">@(Model.AdvisorFullName ?? "—")</div>
+            </div>
+            @if (!string.IsNullOrWhiteSpace(Model.Reason))
+            {
+                <div class="col-12">
+                    <div class="text-muted small">Gerekçe</div>
+                    <div>@Model.Reason</div>
+                </div>
+            }
+            @if (Model.DeclaredGano.HasValue)
+            {
+                <div class="col-12 col-md-4">
+                    <div class="text-muted small">GANO</div>
+                    <div class="fw-semibold">@Model.DeclaredGano.Value.ToString("F2")</div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- ── Course list ───────────────────────────────────────────── -->
+@if (Model.Courses.Count > 0)
+{
+    @if (Model.FormCode == "TF-ÖİŞL-14")
+    {
+        var table1Courses = Model.Courses.Where(course => course.TableGroup == "CurrentDepartment").ToList();
+        var table2Courses = Model.Courses.Where(course => course.TableGroup == "Outside").ToList();
+
+        @if (table1Courses.Count > 0)
+        {
+            <div class="student-card mb-3">
+                <div class="student-card-header">
+                    <span><i class="bi bi-table me-2"></i>Tablo 1 — Kayıtlı Olduğunuz Bölümün Dersleri</span>
+                </div>
+                <div class="student-card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Ders Kodu</th>
+                                    <th>Ders Adı</th>
+                                    <th>T+U</th>
+                                    <th>AKTS</th>
+                                    <th>Devam</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var course in table1Courses)
+                                {
+                                    <tr>
+                                        <td data-label="Ders Kodu">@course.CourseCode</td>
+                                        <td data-label="Ders Adı">@course.CourseName</td>
+                                        <td data-label="T+U">@(course.TheoryHours)+@(course.PracticeHours)</td>
+                                        <td data-label="AKTS">@(course.Ects ?? 0)</td>
+                                        <td data-label="Devam">@(course.AttendanceStatus ?? "—")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+        @if (table2Courses.Count > 0)
+        {
+            <div class="student-card mb-3">
+                <div class="student-card-header">
+                    <span><i class="bi bi-table me-2"></i>Tablo 2 — Bölüm Dışı Dersler</span>
+                </div>
+                <div class="student-card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Ders Kodu</th>
+                                    <th>Ders Adı</th>
+                                    <th>T+U</th>
+                                    <th>AKTS</th>
+                                    <th>Üniversite / Bölüm</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var course in table2Courses)
+                                {
+                                    <tr>
+                                        <td data-label="Ders Kodu">@course.CourseCode</td>
+                                        <td data-label="Ders Adı">@course.CourseName</td>
+                                        <td data-label="T+U">@(course.TheoryHours)+@(course.PracticeHours)</td>
+                                        <td data-label="AKTS">@(course.Ects ?? 0)</td>
+                                        <td data-label="Üniversite / Bölüm">
+                                            @(course.University ?? "—") / @(course.Department ?? "—")
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="student-card mb-3">
+            <div class="student-card-header">
+                <span><i class="bi bi-table me-2"></i>Dersler</span>
+            </div>
+            <div class="student-card-body p-0">
+                <div class="table-responsive">
+                    <table class="table mb-0">
+                        <thead>
+                            @if (Model.FormCode == "TF-ÖİŞL-02")
+                            {
+                                <tr>
+                                    <th>Ders Kodu</th>
+                                    <th>Ders Adı</th>
+                                    <th>Devam</th>
+                                    <th>İşlem</th>
+                                </tr>
+                            }
+                            else if (Model.FormCode == "TF-ÖİŞL-05")
+                            {
+                                <tr>
+                                    <th>Ders Kodu</th>
+                                    <th>Ders Adı</th>
+                                    <th>Önceki Not / Harf</th>
+                                </tr>
+                            }
+                            else if (Model.FormCode == "TF-ÖİŞL-06")
+                            {
+                                <tr>
+                                    <th>Ders Kodu</th>
+                                    <th>Ders Adı</th>
+                                    <th>Yarıyıl</th>
+                                </tr>
+                            }
+                        </thead>
+                        <tbody>
+                            @foreach (var course in Model.Courses)
+                            {
+                                @if (Model.FormCode == "TF-ÖİŞL-02")
+                                {
+                                    <tr>
+                                        <td data-label="Ders Kodu">@course.CourseCode</td>
+                                        <td data-label="Ders Adı">@course.CourseName</td>
+                                        <td data-label="Devam">@(course.AttendanceStatus ?? "—")</td>
+                                        <td data-label="İşlem">@(course.Operation ?? "—")</td>
+                                    </tr>
+                                }
+                                else if (Model.FormCode == "TF-ÖİŞL-05")
+                                {
+                                    <tr>
+                                        <td data-label="Ders Kodu">@course.CourseCode</td>
+                                        <td data-label="Ders Adı">@course.CourseName</td>
+                                        <td data-label="Önceki Not / Harf">@(course.PreviousGrade ?? "—")</td>
+                                    </tr>
+                                }
+                                else if (Model.FormCode == "TF-ÖİŞL-06")
+                                {
+                                    <tr>
+                                        <td data-label="Ders Kodu">@course.CourseCode</td>
+                                        <td data-label="Ders Adı">@course.CourseName</td>
+                                        <td data-label="Yarıyıl">@(course.CourseSemester.HasValue ? $"{course.CourseSemester}. Yarıyıl" : "—")</td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+}
+
+<!-- ── Stage timeline ────────────────────────────────────────── -->
+<div class="student-card mb-3">
+    <div class="student-card-header">
+        <span><i class="bi bi-clock-history me-2"></i>Durum</span>
+    </div>
+    <div class="student-card-body">
+        <ol class="request-timeline">
+            @foreach (string stepStage in stageFlow)
+            {
+                bool isResult = stepStage == "Sonuç";
+
+                if (isResult)
+                {
+                    bool hasResult = !string.IsNullOrEmpty(finalStage);
+                    string resultLabel = finalStage == clsRequestStages.Completed  ? "Tamamlandı"
+                                       : finalStage == clsRequestStages.Rejected   ? "Reddedildi"
+                                       : "Sonuç";
+                    string resultClass = finalStage == clsRequestStages.Completed  ? "timeline-step--done timeline-step--success"
+                                       : finalStage == clsRequestStages.Rejected   ? "timeline-step--done timeline-step--rejected"
+                                       : "timeline-step--pending";
+                    clsRequestStage? resultData = hasResult ? stageMap.GetValueOrDefault(finalStage) : null;
+                    <li class="timeline-step @resultClass">
+                        <span class="timeline-label">@resultLabel</span>
+                        @if (resultData is not null)
+                        {
+                            <span class="timeline-date">@resultData.StageAt.ToString("dd/MM/yyyy HH:mm", inv)</span>
+                            @if (!string.IsNullOrWhiteSpace(resultData.Note))
+                            {
+                                <span class="timeline-note">@resultData.Note</span>
+                            }
+                        }
+                    </li>
+                }
+                else
+                {
+                    bool isDone = stageMap.ContainsKey(stepStage);
+                    clsRequestStage? stageData = isDone ? stageMap[stepStage] : null;
+                    <li class="timeline-step @(isDone ? "timeline-step--done" : "timeline-step--pending")">
+                        <span class="timeline-label">@clsRequestStages.GetDisplayLabel(stepStage)</span>
+                        @if (stageData is not null)
+                        {
+                            <span class="timeline-date">@stageData.StageAt.ToString("dd/MM/yyyy HH:mm", inv)</span>
+                            @if (!string.IsNullOrWhiteSpace(stageData.Note))
+                            {
+                                <span class="timeline-note">@stageData.Note</span>
+                            }
+                        }
+                    </li>
+                }
+            }
+        </ol>
+    </div>
+</div>
